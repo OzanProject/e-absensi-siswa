@@ -3,28 +3,28 @@
 @section('title', 'Absensi QR Scan Terpusat')
 
 @section('content_header')
-{{-- HEADER: Modern Gradient Style --}}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 mb-2">
-    <div class="flex flex-col md:flex-row justify-between items-center bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+{{-- HEADER: Compact Style --}}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2 sm:mt-4 mb-2">
+    <div class="flex flex-col md:flex-row justify-between items-center bg-white rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-sm border border-gray-100">
         {{-- Title Area --}}
-        <div class="flex items-center space-x-4 mb-4 md:mb-0">
-            <div class="bg-indigo-50 p-3 rounded-xl">
-                <i class="fas fa-qrcode text-indigo-600 text-2xl"></i>
+        <div class="flex items-center space-x-3 sm:space-x-4 mb-2 sm:mb-0 w-full md:w-auto">
+            <div class="bg-indigo-50 p-1.5 sm:p-3 rounded-lg sm:rounded-xl flex-shrink-0">
+                <i class="fas fa-qrcode text-indigo-600 text-base sm:text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-2xl font-bold text-gray-800 tracking-tight">Scan Absensi Live</h1>
-                <p class="text-sm text-gray-500">Pemindaian kartu pelajar real-time</p>
+                <h1 class="text-base sm:text-2xl font-bold text-gray-800 tracking-tight">Scan Absensi</h1>
+                <p class="hidden sm:block text-sm text-gray-500">Pemindaian kartu pelajar real-time</p>
             </div>
         </div>
         
         {{-- Breadcrumb / Actions --}}
-        <nav class="flex space-x-2 text-sm font-medium">
-            <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
+        <nav class="flex space-x-2 text-[10px] sm:text-sm font-medium w-full md:w-auto justify-end items-center">
+            <a href="{{ route('admin.dashboard') }}" class="text-gray-500 hover:text-indigo-600 transition flex items-center">
                 <i class="fas fa-home mr-1"></i> Dashboard
             </a>
-            <span class="py-2 text-gray-300">/</span>
-            <span class="px-4 py-2 text-indigo-600 bg-indigo-50 rounded-lg">
-                Input Scan
+            <span class="text-gray-300">/</span>
+            <span class="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+                Scan
             </span>
         </nav>
     </div>
@@ -78,14 +78,14 @@
                 </div>
 
                 {{-- Camera Feed Wrapper --}}
-                <div class="p-0 bg-black flex justify-center items-center relative h-[500px] overflow-hidden rounded-b-3xl">
+                <div class="p-0 bg-black flex justify-center items-center relative h-[320px] sm:h-[500px] aspect-auto overflow-hidden rounded-b-3xl">
                     
                     {{-- The Scanner Element --}}
                     <div id="scanner" class="w-full h-full relative z-10"></div>
 
                     {{-- CSS Viewfinder Overlay --}}
                     <div class="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
-                        <div class="w-64 h-64 border-2 border-white/30 rounded-3xl relative">
+                        <div class="w-2/3 h-2/3 sm:w-64 sm:h-64 border-2 border-white/30 rounded-3xl relative">
                             {{-- Corners --}}
                             <div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-indigo-500 rounded-tl-xl shadow-sm"></div>
                             <div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-indigo-500 rounded-tr-xl shadow-sm"></div>
@@ -123,7 +123,7 @@
 
                 {{-- Scrollable List Area --}}
                 <div class="flex-1 relative bg-gray-50/30">
-                    <div class="custom-log-area h-[600px] overflow-y-auto px-4 py-4 space-y-3" id="attendance-log-container">
+                    <div class="custom-log-area h-[400px] sm:h-[600px] overflow-y-auto px-4 py-4 space-y-3" id="attendance-log-container">
                          <ul id="attendance-log" class="space-y-3">
                             @forelse($recentAbsences as $absence)
                                 @php
@@ -370,7 +370,7 @@
         }
 
         $(document).ready(function() {
-            const config = { fps: 15, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
+            const config = { fps: 15, qrbox: { width: 250, height: 250 } }; // Aspect Ratio removed for responsiveness
             
             html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
             .then(() => {

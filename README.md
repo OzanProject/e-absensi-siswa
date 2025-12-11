@@ -2,8 +2,6 @@
 
 **E-Absensi Siswa** adalah aplikasi berbasis web modern untuk manajemen presensi siswa sekolah yang efisien, transparan, dan real-time. Aplikasi ini memanfaatkan QR Code untuk mempercepat proses absensi, serta fitur notifikasi WhatsApp otomatis kepada orang tua, dan rekap laporan kehadiran yang komprehensif.
 
-![Landing Page Preview](public/images/preview-landing.png)
-
 ## 🚀 Fitur Unggulan
 
 -   **📱 Scan QR Code Cepat**: Absensi siswa dilakukan hanya dalam hitungan detik dengan memindai Kartu Pelajar ber-QR Code menggunakan kamera laptop/PC sekolah.
@@ -21,7 +19,7 @@
 
 Aplikasi ini dibangun menggunakan stack teknologi modern untuk performa dan kemudahan pengembangan:
 
--   **Backend**: [Laravel 10](https://laravel.com) (PHP Entity Framework)
+-   **Backend**: [Laravel 12](https://laravel.com) (PHP Entity Framework)
 -   **Frontend**:
     -   [Tailwind CSS](https://tailwindcss.com) (Styling)
     -   [Alpine.js](https://alpinejs.dev) (Interaktivitas Ringan)
@@ -38,7 +36,7 @@ Aplikasi ini dibangun menggunakan stack teknologi modern untuk performa dan kemu
 
 Pastikan server Anda memenuhi persyaratan berikut:
 
--   PHP >= 8.1
+-   PHP >= 8.3
 -   Composer
 -   MySQL / MariaDB
 -   Node.js & NPM (untuk compile asset)

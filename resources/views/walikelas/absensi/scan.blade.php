@@ -6,12 +6,12 @@
 <div class="space-y-6">
 
     {{-- PAGE HEADER --}}
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
         <div>
-            <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Scan Absensi Harian</h2>
-            <p class="text-sm text-gray-500 mt-1">Kelas: <span class="font-bold text-indigo-600">{{ $class->name ?? 'N/A' }}</span></p>
+            <h2 class="text-lg sm:text-2xl font-bold text-gray-800 tracking-tight">Scan Absensi Harian</h2>
+            <p class="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">Kelas: <span class="font-bold text-indigo-600">{{ $class->name ?? 'N/A' }}</span></p>
         </div>
-        <nav class="flex text-sm font-medium text-gray-500 space-x-2" aria-label="Breadcrumb">
+        <nav class="flex text-xs sm:text-sm font-medium text-gray-500 space-x-2" aria-label="Breadcrumb">
             <a href="{{ route('walikelas.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition">Dashboard</a>
             <span class="text-gray-400">/</span>
             <span class="text-gray-600">Scan Absensi</span>
@@ -19,20 +19,20 @@
     </div>
 
     {{-- MAIN CONTENT GRID --}}
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
         
         {{-- KOLOM KIRI: SCANNER (7/12) --}}
         <div class="lg:col-span-7 space-y-6">
             {{-- Instructions Card --}}
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-lg p-6 text-white relative overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-lg p-4 sm:p-6 text-white relative overflow-hidden">
                 <div class="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
                 <div class="flex items-start md:items-center">
-                    <div class="bg-white/20 p-3 rounded-xl mr-4 backdrop-blur-sm">
-                        <i class="fas fa-qrcode text-2xl"></i>
+                    <div class="bg-white/20 p-2 sm:p-3 rounded-xl mr-3 sm:mr-4 backdrop-blur-sm">
+                        <i class="fas fa-qrcode text-xl sm:text-2xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold">Mode Pindai Aktif</h3>
-                        <p class="text-blue-100 text-sm opacity-90">
+                        <h3 class="text-base sm:text-lg font-bold">Mode Pindai Aktif</h3>
+                        <p class="text-blue-100 text-xs sm:text-sm opacity-90">
                             Arahkan kartu pelajar siswa ke kamera. Sistem akan mencatat Masuk/Pulang secara otomatis.
                         </p>
                     </div>
@@ -41,31 +41,31 @@
 
             {{-- Scanner Card --}}
             <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden relative">
-                <div class="px-6 py-4 border-b border-gray-100 flex flex-wrap sm:flex-nowrap justify-between items-center bg-gray-50/50">
+                <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex flex-wrap sm:flex-nowrap justify-between items-center bg-gray-50/50">
                     {{-- Left: Title --}}
                     <div class="flex items-center">
-                        <h3 class="font-bold text-gray-800 flex items-center text-lg">
-                            <span class="w-1.5 h-6 bg-indigo-500 rounded-full mr-3"></span>
+                        <h3 class="font-bold text-gray-800 flex items-center text-sm sm:text-lg">
+                            <span class="w-1.5 h-5 sm:h-6 bg-indigo-500 rounded-full mr-2 sm:mr-3"></span>
                             Kamera Scanner
                         </h3>
                     </div>
 
                     {{-- Right: Status --}}
-                    <div id="camera-status-indicator" class="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 text-gray-400 rounded-lg text-xs font-bold shadow-sm transition-all duration-300">
-                         <span class="w-2 h-2 rounded-full bg-gray-300"></span>
+                    <div id="camera-status-indicator" class="flex items-center gap-2 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-white border border-gray-200 text-gray-400 rounded-lg text-[10px] sm:text-xs font-bold shadow-sm transition-all duration-300">
+                         <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gray-300"></span>
                          <span>Offline</span>
                     </div>
                 </div>
                 
-                <div class="p-6">
+                <div class="p-0 sm:p-6 bg-black sm:bg-white">
                     {{-- SCANNER CONTAINER --}}
-                    <div class="relative bg-black rounded-2xl overflow-hidden shadow-inner mx-auto max-w-[500px] aspect-square sm:aspect-[4/3]">
+                    <div class="relative bg-black rounded-none sm:rounded-2xl overflow-hidden shadow-inner mx-auto w-full h-[320px] sm:h-auto sm:max-w-[500px] sm:aspect-[4/3]">
                         <div id="scanner" class="w-full h-full object-cover"></div>
                         
                         {{-- Overlay Guide --}}
-                        <div class="absolute inset-0 border-2 border-white/30 rounded-2xl pointer-events-none"></div>
+                        <div class="absolute inset-0 border-0 sm:border-2 border-white/30 rounded-none sm:rounded-2xl pointer-events-none"></div>
                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <div class="w-64 h-64 border-2 border-dashed border-indigo-400/70 rounded-xl relative">
+                            <div class="w-2/3 h-2/3 sm:w-64 sm:h-64 border-2 border-dashed border-indigo-400/70 rounded-xl relative">
                                 <div class="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-indigo-500 -mt-1 -ml-1"></div>
                                 <div class="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-indigo-500 -mt-1 -mr-1"></div>
                                 <div class="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-indigo-500 -mb-1 -ml-1"></div>
@@ -75,7 +75,7 @@
                     </div>
 
                     {{-- Status Message --}}
-                    <div id="scan-status" class="mt-4 hidden transform transition-all duration-300 ease-in-out">
+                    <div id="scan-status" class="mt-4 px-4 pb-4 sm:px-0 sm:pb-0 hidden transform transition-all duration-300 ease-in-out">
                         {{-- Content injected by JS --}}
                     </div>
                 </div>
@@ -85,15 +85,15 @@
         {{-- KOLOM KANAN: LIVE LOG (5/12) --}}
         <div class="lg:col-span-5">
             <div class="bg-white rounded-3xl shadow-xl border border-gray-100 h-full flex flex-col">
-                <div class="p-6 border-b border-gray-100 bg-gray-50/30">
-                    <h3 class="font-bold text-gray-800 flex items-center">
+                <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 bg-gray-50/30">
+                    <h3 class="font-bold text-gray-800 flex items-center text-sm sm:text-base">
                         <i class="fas fa-history text-indigo-500 mr-2"></i> Riwayat Scan Hari Ini
                     </h3>
                 </div>
                 
                 {{-- SCROLLABLE LOG AREA --}}
-                <div class="flex-1 overflow-y-auto p-4 custom-scrollbar" style="max-height: 600px;">
-                    <ul class="space-y-3" id="attendance-log">
+                <div class="flex-1 overflow-y-auto p-3 sm:p-4 custom-scrollbar" style="max-height: 400px; sm:max-height: 600px;">
+                    <ul class="space-y-2 sm:space-y-3" id="attendance-log">
                         @forelse($recentAbsences as $absence)
                             @php
                                 $status = $absence->status;
@@ -122,12 +122,12 @@
                             
                             <li class="p-3 rounded-xl border {{ $cardColor }} hover:shadow-md transition-all duration-200">
                                 <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 rounded-full {{ $iconColor }} flex items-center justify-center flex-shrink-0">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full {{ $iconColor }} flex items-center justify-center flex-shrink-0 text-xs sm:text-base">
                                         <i class="fas {{ $icon }}"></i>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-bold text-gray-900 truncate">{{ $absence->student->name }}</p>
-                                        <div class="flex items-center text-xs space-x-2 mt-0.5">
+                                        <p class="text-xs sm:text-sm font-bold text-gray-900 truncate">{{ $absence->student->name }}</p>
+                                        <div class="flex items-center text-[10px] sm:text-xs space-x-2 mt-0.5">
                                             <span class="font-bold opacity-80">{{ $displayStatus }}</span>
                                             <span class="text-gray-400">•</span>
                                             <span class="text-gray-500 font-mono">{{ $time }}</span>
@@ -136,11 +136,11 @@
                                 </div>
                             </li>
                         @empty
-                            <li class="text-center py-10" id="empty-log-msg">
-                                <div class="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <i class="fas fa-clipboard-list text-gray-300 text-2xl"></i>
+                            <li class="text-center py-6 sm:py-10" id="empty-log-msg">
+                                <div class="bg-gray-50 w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-clipboard-list text-gray-300 text-lg sm:text-2xl"></i>
                                 </div>
-                                <p class="text-gray-400 text-sm">Belum ada aktivitas scan.</p>
+                                <p class="text-gray-400 text-xs sm:text-sm">Belum ada aktivitas scan.</p>
                             </li>
                         @endforelse
                     </ul>
@@ -180,7 +180,7 @@
         if(status === 'error') { color = 'bg-red-500'; text = 'Error'; }
         
         cameraIndicator.html(`
-            <span class="w-2 h-2 rounded-full ${color}"></span>
+            <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${color}"></span>
             <span class="${status === 'active' ? 'text-green-600' : 'text-gray-400'}">${text}</span>
         `);
     }
@@ -206,12 +206,12 @@
         const itemHtml = `
             <li class="p-3 rounded-xl border ${config.subClass} hover:shadow-md transition-all duration-500 transform translate-y-[-10px] opacity-0" id="new-log-item">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-full ${config.iconClass} flex items-center justify-center flex-shrink-0">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full ${config.iconClass} flex items-center justify-center flex-shrink-0 text-xs sm:text-base">
                         <i class="fas ${config.icon}"></i>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-bold text-gray-900 truncate">${data.student.name}</p>
-                        <div class="flex items-center text-xs space-x-2 mt-0.5">
+                        <p class="text-xs sm:text-sm font-bold text-gray-900 truncate">${data.student.name}</p>
+                        <div class="flex items-center text-[10px] sm:text-xs space-x-2 mt-0.5">
                             <span class="font-bold opacity-80">${config.status}</span>
                             <span class="text-gray-400">•</span>
                             <span class="text-gray-500 font-mono">${time}</span>
@@ -319,8 +319,7 @@
     $(document).ready(function() {
         const config = { 
             fps: 10, 
-            qrbox: { width: 250, height: 250 }, 
-            aspectRatio: 1.0 
+            qrbox: { width: 250, height: 250 } // Aspect Ratio removed
         };
 
         // Langsung start dengan konfigurasi environment (Kamera Belakang)
