@@ -18,6 +18,9 @@ use App\Http\Controllers\Admin\CentralAbsenceController;
 use App\Http\Controllers\WaliKelas\IzinProcessorController;
 use App\Http\Controllers\Admin\ParentController as AdminParentController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\SubjectController;
+use App\Http\Controllers\Admin\ScheduleController;
+use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\WaliKelas\ParentController as WaliKelasParentController;
 use App\Http\Controllers\WaliKelas\ReportController as WaliKelasReportController;
 use App\Http\Controllers\WaliKelas\StudentController as WaliKelasStudentController;
@@ -49,6 +52,9 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->group(function
     Route::resource('classes', ClassController::class)->names('classes');
     Route::resource('teachers', TeacherController::class)->names('teachers');
     Route::resource('parents', AdminParentController::class)->names('parents');
+    Route::resource('subjects', SubjectController::class)->names('admin.subjects');
+    Route::resource('schedules', ScheduleController::class)->names('admin.schedules');
+    Route::resource('announcements', AnnouncementController::class)->names('announcements');
 
     // --- RUTE SISWA (STUDENTS) ---
     Route::prefix('students')->group(function () {
@@ -196,6 +202,9 @@ Route::middleware(['auth', 'role:orang_tua'])->group(function () {
     Route::get('/orangtua/report/export/{format}', [ParentController::class, 'exportHistory'])->name('orangtua.report.export');
     // Rute Detail Absensi
     Route::get('/orangtua/absensi/{absence}', [ParentController::class, 'showAbsenceDetail'])->name('orangtua.absensi.show_detail');
+
+    // 💡 MODUL JADWAL PELAJARAN
+    Route::get('/orangtua/jadwal', [ParentController::class, 'showSchedule'])->name('orangtua.jadwal.index');
     
     // 3. MODUL IZIN/SAKIT ONLINE
     Route::prefix('orangtua/izin')->group(function () {

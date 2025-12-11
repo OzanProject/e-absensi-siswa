@@ -3,87 +3,164 @@
 @section('title', 'Absensi QR Scan Terpusat')
 
 @section('content_header')
-{{-- HEADER: Menggunakan Tailwind & Warna Indigo --}}
-<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-    
-    <h1 class="text-2xl font-bold text-gray-800 flex items-center mb-2 sm:mb-0">
-        {{-- Ikon QR Scan menggunakan Indigo untuk konsistensi branding --}}
-        <i class="fas fa-qrcode text-indigo-600 mr-2"></i> 
-        <span>Absensi QR Scan Terpusat</span>
-    </h1>
-    
-    <nav class="text-sm font-medium text-gray-500" aria-label="Breadcrumb">
-        <ol class="flex space-x-2">
-            <li><a href="{{ route('admin.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150">Dashboard</a></li>
-            <li class="text-gray-400">/</li>
-            <li class="text-gray-600 font-semibold">Scan Kelas</li>
-        </ol>
-    </nav>
+{{-- HEADER: Modern Gradient Style --}}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 mb-2">
+    <div class="flex flex-col md:flex-row justify-between items-center bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        {{-- Title Area --}}
+        <div class="flex items-center space-x-4 mb-4 md:mb-0">
+            <div class="bg-indigo-50 p-3 rounded-xl">
+                <i class="fas fa-qrcode text-indigo-600 text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800 tracking-tight">Scan Absensi Live</h1>
+                <p class="text-sm text-gray-500">Pemindaian kartu pelajar real-time</p>
+            </div>
+        </div>
+        
+        {{-- Breadcrumb / Actions --}}
+        <nav class="flex space-x-2 text-sm font-medium">
+            <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
+                <i class="fas fa-home mr-1"></i> Dashboard
+            </a>
+            <span class="py-2 text-gray-300">/</span>
+            <span class="px-4 py-2 text-indigo-600 bg-indigo-50 rounded-lg">
+                Input Scan
+            </span>
+        </nav>
+    </div>
 </div>
 @endsection
 
 @section('content')
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {{-- KOLOM KIRI: SCANNER (7/12) --}}
-        <div class="lg:col-span-7">
-            {{-- Border disesuaikan ke Indigo --}}
-            <div class="bg-white rounded-xl shadow-xl border border-indigo-500/50"> 
-                <div class="p-5 border-b border-gray-100">
-                    <h3 class="text-xl font-bold text-gray-800 flex items-center"><i class="fas fa-camera mr-2 text-indigo-500"></i> Live Scan QR/Barcode</h3>
+        {{-- LEFT COLUMN: SCANNER AREA (7/12) --}}
+        <div class="lg:col-span-7 space-y-6">
+            {{-- Camera Card --}}
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 relative">
+                {{-- Header --}}
+                <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+                    <h3 class="font-bold text-gray-700 flex items-center">
+                        <span class="w-2 h-6 bg-indigo-500 rounded-full mr-3"></span>
+                        Kamera Aktif
+                    </h3>
+                    <span class="text-xs font-semibold px-2 py-1 bg-green-100 text-green-700 rounded-md animate-pulse">
+                        ● LIVE
+                    </span>
                 </div>
-                <div class="p-6 text-center"> {{-- Padding disesuaikan --}}
-                    
-                    {{-- AREA KAMERA html5-qrcode --}}
-                    <div id="scanner" class="scanner-container">
-                        {{-- Video stream akan dimasukkan di sini --}}
-                    </div>
 
-                    {{-- Hasil Scan Status --}}
-                    <div id="scan-status" class="alert mt-3 w-full" style="display:none;"></div>
-                    <p class="text-red-600 text-sm mt-2">
-                        Pastikan QR Code kartu pelajar terlihat jelas di kamera.
+                {{-- Camera Feed Wrapper --}}
+                <div class="p-0 bg-black flex justify-center items-center relative h-[500px] overflow-hidden rounded-b-3xl">
+                    
+                    {{-- The Scanner Element --}}
+                    <div id="scanner" class="w-full h-full relative z-10"></div>
+
+                    {{-- CSS Viewfinder Overlay --}}
+                    <div class="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
+                        <div class="w-64 h-64 border-2 border-white/30 rounded-3xl relative shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]">
+                            {{-- Corners --}}
+                            <div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-indigo-500 rounded-tl-xl shadow-sm"></div>
+                            <div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-indigo-500 rounded-tr-xl shadow-sm"></div>
+                            <div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-indigo-500 rounded-bl-xl shadow-sm"></div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-indigo-500 rounded-br-xl shadow-sm"></div>
+                            
+                            {{-- Scanning Animation Line --}}
+                            <div class="absolute top-0 left-0 w-full h-0.5 bg-indigo-400 opacity-80 animate-scan shadow-[0_0_15px_rgba(99,102,241,0.8)]"></div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Status & Footer --}}
+                <div class="px-6 py-4 bg-white border-t border-gray-100 z-30 relative">
+                    <div id="scan-status" class="hidden"></div>
+                    <p class="text-center text-gray-400 text-xs">
+                        Posisikan wajah/kartu di dalam kotak area scan.
                     </p>
                 </div>
             </div>
         </div>
 
-        {{-- KOLOM KANAN: LOG ABSENSI TERBARU (5/12) --}}
-        <div class="lg:col-span-5">
-            {{-- Border disesuaikan ke Green untuk log success --}}
-            <div class="bg-white rounded-xl shadow-xl border border-green-500/50"> 
-                <div class="p-5 border-b border-gray-100">
-                    <h3 class="text-xl font-bold text-gray-800 flex items-center"><i class="fas fa-list-alt mr-2 text-indigo-500"></i> Log Kehadiran Hari Ini</h3>
+        {{-- RIGHT COLUMN: RECENT ACTIVITY LOG (5/12) --}}
+        <div class="lg:col-span-5 h-full">
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 h-full flex flex-col overflow-hidden">
+                {{-- Log Header --}}
+                <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                    <h3 class="font-bold text-gray-700 flex items-center">
+                        <i class="fas fa-history text-indigo-400 mr-2"></i> Log Aktivitas
+                    </h3>
+                    <button onclick="location.reload()" class="text-gray-400 hover:text-indigo-600 transition" title="Refresh Log">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
                 </div>
-                <div class="custom-log-area p-0" id="attendance-log-container">
-                    <ul class="divide-y divide-gray-100" id="attendance-log">
-                        @forelse($recentAbsences as $absence)
-                            <li class="p-3 text-sm hover:bg-gray-50 transition duration-150">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        @php
-                                            // Tentukan ikon dan warna berdasarkan status (Mapping Tailwind)
-                                            $status = $absence->status;
-                                            $statusMessage = $absence->checkout_time ? 'Pulang' : ($status == 'Terlambat' ? 'Terlambat' : 'Masuk');
-                                            $iconClass = $statusMessage == 'Pulang' ? 'fas fa-door-open text-indigo-600' : ($status == 'Terlambat' ? 'fas fa-exclamation-triangle text-amber-500' : 'fas fa-sign-in-alt text-green-600');
-                                            $badgeClass = $statusMessage == 'Pulang' ? 'bg-indigo-100 text-indigo-800' : ($status == 'Terlambat' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800');
-                                        @endphp
-                                        <i class="{{ $iconClass }} mr-2"></i>
-                                        <strong class="text-gray-900">{{ $absence->student->name ?? 'N/A' }}</strong> ({{ $absence->student->class->name ?? 'N/A' }})
+
+                {{-- Scrollable List Area --}}
+                <div class="flex-1 relative bg-gray-50/30">
+                    <div class="custom-log-area h-[600px] overflow-y-auto px-4 py-4 space-y-3" id="attendance-log-container">
+                         <ul id="attendance-log" class="space-y-3">
+                            @forelse($recentAbsences as $absence)
+                                @php
+                                    $status = $absence->status;
+                                    $isOut = $absence->checkout_time != null;
+                                    $isLate = $status == 'Terlambat';
+                                    
+                                    // Status Logic for UI
+                                    if($isOut) {
+                                        $borderColor = 'border-indigo-500';
+                                        $bgColor = 'bg-indigo-50';
+                                        $textColor = 'text-indigo-700';
+                                        $icon = 'fa-door-open';
+                                        $label = 'PULANG';
+                                        $time = $absence->checkout_time->format('H:i');
+                                    } elseif($isLate) {
+                                        $borderColor = 'border-amber-500';
+                                        $bgColor = 'bg-amber-50';
+                                        $textColor = 'text-amber-700';
+                                        $icon = 'fa-exclamation-triangle';
+                                        $label = 'TERLAMBAT';
+                                        $time = $absence->attendance_time->format('H:i');
+                                    } else {
+                                        $borderColor = 'border-emerald-500';
+                                        $bgColor = 'bg-emerald-50';
+                                        $textColor = 'text-emerald-700';
+                                        $icon = 'fa-check';
+                                        $label = 'MASUK';
+                                        $time = $absence->attendance_time->format('H:i');
+                                    }
+                                @endphp
+                                <li class="bg-white border text-sm rounded-xl p-3 shadow-sm hover:shadow-md transition-all duration-300 border-l-4 {{ $borderColor }} group">
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 rounded-full {{ $bgColor }} flex items-center justify-center {{ $textColor }}">
+                                                <i class="fas {{ $icon }}"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-bold text-gray-800 group-hover:text-indigo-600 transition">{{ $absence->student->name ?? 'Siswa' }}</p>
+                                                <p class="text-xs text-gray-500">{{ $absence->student->class->name ?? 'Kelas' }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="block text-xs font-bold {{ $textColor }}">{{ $label }}</span>
+                                            <span class="text-xs text-gray-400 font-mono">{{ $time }}</span>
+                                        </div>
                                     </div>
-                                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full {{ $badgeClass }}">
-                                        {{ $statusMessage }} {{ $absence->checkout_time ? $absence->checkout_time->format('H:i') : $absence->attendance_time->format('H:i') }}
-                                    </span>
-                                </div>
-                            </li>
-                        @empty
-                            <li class="p-3 text-center text-gray-500 text-sm">Belum ada aktivitas absensi hari ini.</li>
-                        @endforelse
-                    </ul>
+                                </li>
+                            @empty
+                                <li class="flex flex-col items-center justify-center h-48 text-gray-400 text-center">
+                                    <i class="fas fa-clipboard-list text-4xl mb-3 text-gray-200"></i>
+                                    <p>Belum ada data absensi masuk.</p>
+                                </li>
+                            @endforelse
+                        </ul>
+                    </div>
+                    
+                    {{-- Fade effect at bottom --}}
+                    <div class="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 @endsection
 
 @section('js')
@@ -94,21 +171,38 @@
     
     <script>
         // --- Variabel Global & Konfigurasi ---
-        // LOGIKA AMAN
         const scanUrl = '{{ route("admin.absensi.record") }}';
         const csrfToken = '{{ csrf_token() }}';
-        const scanDelay = 500; 
-        let lastScanTime = 0;
         
-        // 💡 Inisialisasi html5-qrcode
+        // 💡 KONFIGURASI PENTING
+        const RESCAN_DELAY = 2500; // Jeda waktu (ms) sebelum boleh scan kartu BERIKUTNYA
+        let isProcessing = false;  // Flag processing
+        
         const html5QrCode = new Html5Qrcode("scanner"); 
         const scanStatus = $('#scan-status');
 
-        // --- Konstanta Pesan Status Awal (Dikonversi ke Tailwind) ---
-        const READY_MESSAGE = '✅ Kamera berhasil dimuat. Siap scan.';
-        const READY_CLASS = 'alert alert-success bg-green-100 border-green-400 text-green-700';
+        // --- Konstanta UI ---
+        // Kita menggunakan konten HTML/Tailwind langsung untuk status
+        const READY_HTML = `
+            <div class="flex items-center p-4 mb-4 text-green-800 rounded-xl bg-green-50 border border-green-100 shadow-sm animate__animated animate__fadeIn">
+                <div class="flex-shrink-0 bg-green-200 p-2 rounded-full mr-3 text-green-600">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div>
+                    <span class="font-bold block">Siap Scan</span>
+                    <span class="text-xs">Arahkan kartu ke kamera.</span>
+                </div>
+            </div>`;
+            
+        const PROCESSING_HTML = `
+            <div class="flex items-center p-4 mb-4 text-indigo-800 rounded-xl bg-indigo-50 border border-indigo-100 shadow-sm animate__animated animate__fadeIn">
+                <i class="fas fa-circle-notch fa-spin text-2xl mr-3 text-indigo-500"></i>
+                <div>
+                    <span class="font-bold block">Memproses...</span>
+                    <span class="text-xs">Mohon tunggu sebentar.</span>
+                </div>
+            </div>`;
 
-        // --- FUNGSI UTILITY SWEETALERT (TOAST) - LOGIKA AMAN ---
         function showToast(type, message, title = 'Notifikasi') {
             let icon = 'info';
             if (type === 'success' || type === 'primary') icon = 'success';
@@ -123,201 +217,188 @@
                 position: 'top-end',
                 showConfirmButton: false,
                 timer: 3000,
-                timerProgressBar: true
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'colored-toast' // Optional: jika ingin custom styling lagi
+                }
             });
         }
 
-        // --- LOG LOGIC (Mapping Dikonversi ke Tailwind) ---
         function logToSidebar(message, studentName, className, type, time) {
-            // Mapping tipe ke kelas Tailwind
-            const iconMap = {
-                'primary': { icon: 'fas fa-door-open', color: 'text-indigo-600', badge: 'bg-indigo-100 text-indigo-800', badgeText: 'PULANG' },
-                'success': { icon: 'fas fa-sign-in-alt', color: 'text-green-600', badge: 'bg-green-100 text-green-800', badgeText: 'MASUK' },
-                'warning': { icon: 'fas fa-exclamation-triangle', color: 'text-amber-500', badge: 'bg-amber-100 text-amber-800', badgeText: 'TERLAMBAT' },
-                'danger': { icon: 'fas fa-times-circle', color: 'text-red-600', badge: 'bg-red-100 text-red-800', badgeText: 'GAGAL' }
-            };
-            const map = iconMap[type] || iconMap['info'];
+            // Mapping Logic (Sama seperti View PHP)
+            let borderColor, bgColor, textColor, icon, label;
             
-            const logType = (type === 'primary' ? 'PULANG' : (type === 'success' ? 'MASUK' : (type === 'warning' ? 'TERLAMBAT' : map.badgeText)));
+            if (type === 'primary' || type === 'OUT') { // Pulang
+                borderColor = 'border-indigo-500'; bgColor = 'bg-indigo-50'; textColor = 'text-indigo-700'; icon = 'fa-door-open'; label = 'PULANG';
+            } else if (type === 'warning' || type === 'Terlambat') { // Terlambat
+                borderColor = 'border-amber-500'; bgColor = 'bg-amber-50'; textColor = 'text-amber-700'; icon = 'fa-exclamation-triangle'; label = 'TERLAMBAT';
+            } else if (type === 'success' || type === 'IN') { // Hadir
+                borderColor = 'border-emerald-500'; bgColor = 'bg-emerald-50'; textColor = 'text-emerald-700'; icon = 'fa-check'; label = 'MASUK';
+            } else { // Error/Gagal
+                borderColor = 'border-red-500'; bgColor = 'bg-red-50'; textColor = 'text-red-700'; icon = 'fa-times'; label = 'GAGAL';
+            }
 
             const logEntry = `
-                <li class="p-3 text-sm hover:bg-gray-50 transition duration-150 border-b border-gray-100">
+                <li class="bg-white border text-sm rounded-xl p-3 shadow-sm hover:shadow-md transition-all duration-300 border-l-4 ${borderColor} animate__animated animate__fadeInLeft mb-3">
                     <div class="flex justify-between items-center">
-                        <div>
-                            <i class="${map.icon} ${map.color} mr-2"></i>
-                            <strong class="text-gray-900">${studentName}</strong> (${className})
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full ${bgColor} flex items-center justify-center ${textColor}">
+                                <i class="fas ${icon}"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-800">${studentName}</p>
+                                <p class="text-xs text-gray-500">${className}</p>
+                            </div>
                         </div>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-full ${map.badge}">
-                            ${logType} ${time}
-                        </span>
+                        <div class="text-right">
+                            <span class="block text-xs font-bold ${textColor}">${label}</span>
+                            <span class="text-xs text-gray-400 font-mono">${time}</span>
+                        </div>
                     </div>
                 </li>`;
             
             $('#attendance-log').prepend(logEntry);
             
-            // Hapus pesan "Belum ada aktivitas absensi hari ini." jika ada
-            $('#attendance-log').find('li').filter(function() { 
-                return $(this).text().includes('Belum ada aktivitas absensi hari ini.'); 
-            }).remove();
-
-            // Opsional: Batasi log hanya 10 item terbaru
-            while ($('#attendance-log').children().length > 10) {
-                 $('#attendance-log').find('li').last().remove();
-            }
+            // Clean empty message and trim list
+            $('#attendance-log').find('li').filter(function() { return $(this).text().includes('Belum ada data'); }).remove();
+            while ($('#attendance-log').children().length > 15) { $('#attendance-log').find('li').last().remove(); }
         }
 
-        // --- AJAX CONTROLLER - LOGIKA AMAN ---
+        function playBeep(isSuccess) {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = context.createOscillator();
+            const gain = context.createGain();
+            osc.connect(gain);
+            gain.connect(context.destination);
+            
+            if(isSuccess) {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, context.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, context.currentTime + 0.1);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, context.currentTime);
+                osc.frequency.linearRampToValueAtTime(100, context.currentTime + 0.3);
+            }
+            
+            gain.gain.setValueAtTime(0.1, context.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + (isSuccess ? 0.3 : 0.5));
+            osc.start(context.currentTime);
+            osc.stop(context.currentTime + (isSuccess ? 0.3 : 0.5));
+        }
+
         function processBarcode(code) {
-            // Mengubah styling alert Bootstrap ke Tailwind
-            scanStatus.removeClass().addClass('alert alert-info bg-blue-100 border-blue-400 text-blue-700 p-3 rounded-lg').html('<i class="fas fa-sync fa-spin mr-1"></i> Memproses: ' + code).show();
+            isProcessing = true;
+            scanStatus.removeClass('hidden').html(PROCESSING_HTML);
 
             $.ajax({
                 url: scanUrl,
                 method: 'POST',
                 data: { _token: csrfToken, barcode: code },
                 success: function(response) {
-                    let type = 'danger'; 
+                    playBeep(true);
+                    
+                    let type = 'danger'; // Default
+                    if (response.type === 'IN') type = response.status === 'Terlambat' ? 'warning' : 'success';
+                    else if (response.type === 'OUT') type = 'primary';
+                    
                     let time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+                    showToast(type, response.message);
+                    logToSidebar(response.message, response.student.name, response.student.class, type, time);
                     
-                    if (response.type === 'IN') {
-                        type = response.status === 'Terlambat' ? 'warning' : 'success';
-                    } else if (response.type === 'OUT') {
-                        type = 'primary'; 
-                    } 
-                    
-                    showToast(type, response.message, 'Scan Berhasil');
-                    
-                    logToSidebar(
-                        response.message, 
-                        response.student.name, 
-                        response.student.class, 
-                        type, 
-                        time
-                    );
-                    
-                    // KUNCI: Reset Status ke READY_MESSAGE setelah success
-                    scanStatus.removeClass().addClass(READY_CLASS).html(READY_MESSAGE);
+                    // Reset UI
+                    scanStatus.html(READY_HTML);
                 },
                 error: function(xhr) {
-                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : 'Kesalahan Server (500).';
-                    const alertType = xhr.status === 409 ? 'warning' : 'danger'; 
-                    showToast('danger', errorMsg, 'Scan Gagal');
+                    playBeep(false);
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : 'Kesalahan Server.';
+                    showToast('danger', errorMsg);
                     
-                    // Mengubah styling alert Bootstrap ke Tailwind
-                    scanStatus.removeClass().addClass(`alert bg-${alertType}-100 border-${alertType}-400 text-${alertType}-700 p-3 rounded-lg`).html('❌ ' + errorMsg);
+                    // Show error in panel momentarily
+                    const errorHtml = `
+                        <div class="flex items-center p-4 mb-4 text-red-800 rounded-xl bg-red-50 border border-red-100 shadow-sm animate__animated animate__headShake">
+                            <i class="fas fa-exclamation-circle text-2xl mr-3 text-red-500"></i>
+                            <div>
+                                <span class="font-bold block">Gagal Scan</span>
+                                <span class="text-xs">${errorMsg}</span>
+                            </div>
+                        </div>`;
+                    scanStatus.html(errorHtml);
                 },
                 complete: function() {
-                    // PENTING: Segera lanjutkan scan setelah AJAX selesai, baik sukses maupun gagal.
-                    if (html5QrCode.isScanning()) {
-                        html5QrCode.resume(); 
-                    }
+                    setTimeout(() => {
+                        isProcessing = false;
+                        // Return to Ready state unless error persists (logic simplified)
+                         scanStatus.html(READY_HTML);
+                    }, RESCAN_DELAY);
                 }
             });
         }
         
-        /**
-         * FUNGSI onScanSuccess (Handler saat QR Code terdeteksi) - LOGIKA AMAN
-         */
         function onScanSuccess(decodedText, decodedResult) {
-            let currentTime = new Date().getTime();
-            
-            // Mempertahankan jeda minimum untuk menghindari pemindaian berkali-kali
-            if(currentTime - lastScanTime > scanDelay) {
-                lastScanTime = currentTime;
-                
-                html5QrCode.pause(); 
-                
-                if(decodedText) {
-                    processBarcode(decodedText);
-                } else {
-                    if (html5QrCode.isScanning()) {
-                         html5QrCode.resume(); 
-                    }
-                    return;
-                }
-            }
+            if (isProcessing) return;
+            if (!decodedText || decodedText.length < 3) return;
+            processBarcode(decodedText);
         }
 
-        // --- INIT LISTENER BARU - LOGIKA AMAN ---
         $(document).ready(function() {
-            // Konfigurasi html5-qrcode
-            const config = {
-                fps: 10,
-                qrbox: { width: 250, height: 250 }, 
-                formats: [Html5QrcodeSupportedFormats.QR_CODE] 
-            };
+            const config = { fps: 15, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
             
-            html5QrCode.start(
-                { facingMode: "environment" }, // Prioritaskan kamera belakang
-                config,
-                onScanSuccess, 
-                (errorMessage) => {}
-            )
+            html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
             .then(() => {
-                // Tampilkan pesan READY saat scanner berhasil dimuat
-                scanStatus.addClass(READY_CLASS).html(READY_MESSAGE).show();
+                scanStatus.removeClass('hidden').html(READY_HTML);
             })
             .catch((err) => {
-                console.error("HTML5-QRCODE INIT ERROR:", err);
-                // Mengubah styling error alert Bootstrap ke Tailwind
-                scanStatus.addClass('alert bg-red-100 border-red-400 text-red-700 p-3 rounded-lg').text('❌ Gagal mengakses kamera: ' + (err.message || 'Perlu HTTPS/Izin.').replace('NotFoundError', 'Tidak ada kamera terdeteksi')).show();
+                const errHtml = `
+                    <div class="p-4 mb-4 text-red-800 rounded-xl bg-red-100 border border-red-200">
+                        <strong>Kamera Error:</strong> ${err.message || 'Tidak dapat akses kamera.'}
+                    </div>`;
+                scanStatus.removeClass('hidden').html(errHtml);
             });
         });
 
-        // 💡 Listener untuk menghentikan kamera saat user meninggalkan halaman - LOGIKA AMAN
         $(window).on('beforeunload', function(){
-            if (html5QrCode.isScanning()) {
-                html5QrCode.stop().catch(e => console.log('Kamera gagal dihentikan saat meninggalkan halaman:', e));
-            }
+            if (html5QrCode.isScanning()) html5QrCode.stop().catch(e=>{});
         });
-        
     </script>
 @endsection
 
 @section('css')
 <style>
-/* --- TAILWIND & CUSTOM LAYOUT --- */
-.text-teal-500 { color: #20c997; } 
-.text-red-600 { color: #dc3545; }
-.text-indigo-600 { color: #4f46e5; }
-.text-indigo-500 { color: #6366f1; } /* Warna icon */
-.bg-indigo-600 { background-color: #4f46e5 !important; }
-
-/* Area Kamera */
-.scanner-container {
-    width: 100%;
-    max-width: 450px; 
-    height: 350px; 
-    position: relative;
-    overflow: hidden;
-    margin: 0 auto;
-    /* Menggunakan warna Indigo untuk border kamera */
-    border: 3px solid #6366f1; 
-    border-radius: 12px; /* Dibuat lebih bulat */
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.6); 
-}
-
-/* Log Style */
-.custom-log-area {
-    max-height: 400px;
-    overflow-y: auto;
-    /* Dihilangkan padding p-0 di Blade, tapi di sini kita jaga max-height */
-}
-
-/* Overrides Alert Styling for consistency (Digunakan oleh JS) */
-.alert {
-    padding: 0.75rem 1.25rem;
-    border: 1px solid transparent;
-    margin-top: 1rem;
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-}
-/* Memastikan video mengisi penuh container */
-#scanner video {
-    width: 100% !important; 
-    height: 100% !important; 
-    object-fit: cover;
-}
+    /* Premium Scan Animation */
+    @keyframes scan {
+        0% { top: 0; opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { top: 100%; opacity: 0; }
+    }
+    .animate-scan {
+        animation: scan 2.5s infinite linear;
+    }
+    
+    /* Scrollbar Styling */
+    .custom-log-area::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-log-area::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+        border-radius: 4px;
+    }
+    .custom-log-area::-webkit-scrollbar-thumb {
+        background: #c7c7c7; 
+        border-radius: 4px;
+    }
+    .custom-log-area::-webkit-scrollbar-thumb:hover {
+        background: #a0a0a0; 
+    }
+    
+    /* Scanner Object Fit */
+    #scanner video {
+        width: 100% !important; 
+        height: 100% !important; 
+        object-fit: cover;
+        border-radius: 0.75rem; /* rounded-xl matches Tailwind */
+    }
 </style>
 @endsection

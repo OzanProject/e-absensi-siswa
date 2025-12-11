@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Parent;
 use Carbon\Carbon;
 use App\Models\Absence;
 use App\Models\ParentModel;
+use App\Models\Schedule; // Added this
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\ParentAbsenceExport;
@@ -21,7 +22,7 @@ class ParentController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $parentRecord = ParentModel::with('students.class')
+        $parentRecord = ParentModel::with('students.class.homeroomTeacher.user')
             ->where('user_id', $user->id)
             ->first();
 
@@ -40,8 +41,25 @@ class ParentController extends Controller
                            ->select('status', DB::raw('count(*) as count'))
                            ->whereIn('status', ['Alpha', 'Sakit', 'Izin', 'Terlambat', 'Hadir'])
                            ->groupBy('status')
+                           ->groupBy('status')
                            ->pluck('count', 'status')
                            ->toArray();
+
+        // 💡 FETCH PENGUMUMAN (Baru)
+        // Ambil ID kelas anak-anak
+        $classIds = $parentRecord->students->pluck('class_id')->unique();
+        
+        $announcements = \App\Models\Announcement::where('is_active', true)
+            ->where(function($query) use ($classIds) {
+                $query->where('target_type', 'all')
+                      ->orWhere(function($q) use ($classIds) {
+                          $q->where('target_type', 'class')
+                            ->whereIn('target_id', $classIds);
+                      });
+            })
+            ->latest()
+            ->take(5)
+            ->get();
 
         // Riwayat absensi tidak dimuat di sini lagi, hanya statistik
         $absences = collect(); // Kirim koleksi kosong agar view tidak error
@@ -53,6 +71,7 @@ class ParentController extends Controller
             'absences' => $absences, // Kosongkan atau pertahankan untuk kompatibilitas view
             'totalSIA' => $totalSIA, 
             'dailyStatus' => $dailyStatus,
+            'announcements' => $announcements, // Pass ke view
         ]);
     }
     
@@ -118,6 +137,38 @@ class ParentController extends Controller
 
         // Export ke Excel (XLSX)
         return Excel::download(new ParentAbsenceExport($absencesToExport), $fileName . '.xlsx');
+    }
+
+    /**
+     * Menampilkan jadwal pelajaran anak.
+     */
+    public function showSchedule()
+    {
+        $user = Auth::user();
+        $parentRecord = ParentModel::with('students.class')->where('user_id', $user->id)->first();
+
+        if (!$parentRecord) {
+            return redirect()->route('orangtua.dashboard')->with('error', 'Akun belum terhubung ke data siswa.');
+        }
+
+        // Ambil semua jadwal untuk semua anak
+        // Struktur: ['Nama Anak' => ['Senin' => [JadwalItems...], 'Selasa' => ...]]
+        $schedules = [];
+        
+        foreach ($parentRecord->students as $student) {
+            if ($student->class) {
+                $classSchedules = Schedule::with('subject')
+                    ->where('class_id', $student->class_id)
+                    ->orderByRaw("FIELD(day, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu')")
+                    ->orderBy('start_time')
+                    ->get()
+                    ->groupBy('day');
+                
+                $schedules[$student->name] = $classSchedules;
+            }
+        }
+
+        return view('orangtua.jadwal.index', compact('schedules'));
     }
 
     /**

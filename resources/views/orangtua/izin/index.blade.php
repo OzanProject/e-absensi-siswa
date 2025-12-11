@@ -3,185 +3,196 @@
 @section('title', 'Form Pengajuan Izin/Sakit')
 
 @section('content_header')
-{{-- HEADER: Menggunakan Tailwind & Warna Orange/Indigo --}}
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-    
-    <h1 class="text-2xl font-bold text-gray-800 flex items-center mb-2 sm:mb-0">
-        <i class="fas fa-file-medical-alt text-orange-500 mr-2"></i>
-        <span>Pengajuan Izin / Sakit Online</span>
-    </h1>
-    
-    <nav class="text-sm font-medium text-gray-500" aria-label="Breadcrumb">
+    <div>
+        <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center">
+            <i class="fas fa-file-signature text-purple-600 mr-3"></i>
+            Pengajuan Izin
+        </h1>
+        <p class="text-sm text-gray-500 mt-1 font-medium">Ajukan izin atau sakit untuk putra/putri Anda secara online.</p>
+    </div>
+    <nav class="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100" aria-label="Breadcrumb">
         <ol class="flex space-x-2">
-            {{-- Mengganti blue-600 ke indigo-600 --}}
-            <li><a href="{{ route('orangtua.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150">Dashboard</a></li>
-            <li class="text-gray-400">/</li>
-            <li class="text-gray-600 font-semibold">Pengajuan Izin</li>
+            <li><a href="{{ route('orangtua.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150"><i class="fas fa-home"></i></a></li>
+            <li class="text-gray-300">/</li>
+            <li class="text-gray-800 font-bold">Izin</li>
         </ol>
     </nav>
 </div>
 @stop
 
 @section('content')
-    {{-- Notifikasi Sukses/Error (Styling Tailwind) --}}
-    @if(session('success'))
-        <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg relative mb-6 alert-dismissible" role="alert">
-            <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg relative mb-6 alert-dismissible" role="alert">
-            <i class="fas fa-ban mr-2"></i> {{ session('error') }}
-        </div>
-    @endif
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {{-- KOLOM KIRI: FORM PENGAJUAN (1/3) --}}
-        <div class="lg:col-span-1">
-            {{-- Mengganti card menjadi box Tailwind --}}
-            <div class="bg-white shadow-xl rounded-xl border border-gray-100 overflow-hidden">
-                <div class="p-5 border-b border-gray-100 bg-amber-500 text-white">
-                    <h3 class="text-xl font-bold"><i class="fas fa-paper-plane mr-2"></i> Ajukan Permintaan</h3>
+        {{-- KOLOM KIRI: FORM CONFIG (5/12) --}}
+        <div class="lg:col-span-5">
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden sticky top-6">
+                <div class="p-6 border-b border-gray-100 bg-purple-50/30">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-paper-plane mr-2 text-purple-600"></i> Form Pengajuan
+                    </h3>
                 </div>
-                <div class="p-5">
-                    
-                    @php
-                        // Fokus ke Orange untuk Input
-                        $inputClass = 'w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-150';
-                        $errorInputClass = 'w-full px-3 py-2 border border-red-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500';
-                        $defaultBorder = 'border-gray-300';
-                    @endphp
-
-                    @if ($errors->any())
-                        <div class="bg-red-50 text-red-700 font-semibold px-3 py-2 rounded-lg mb-4 text-sm border border-red-200">
-                            <i class="fas fa-exclamation-triangle mr-1"></i> Harap periksa kembali input Anda.
-                        </div>
-                    @endif
-
+                
+                <div class="p-6">
                     <form action="{{ route('orangtua.izin.store') }}" method="POST" enctype="multipart/form-data" id="izinForm">
                         @csrf
                         
-                        <div class="space-y-4">
-                            
-                            {{-- Pilih Anak --}}
-                            <div class="form-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Pilih Anak <span class="text-red-600">*</span></label>
-                                <select name="student_id" class="w-full select2-form-control {{ $defaultBorder }} @error('student_id') {{ $errorInputClass }} @enderror" required>
-                                    <option value="">Pilih Anak...</option>
+                        @php
+                            $inputClass = 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition duration-200 bg-gray-50 focus:bg-white text-gray-800 shadow-sm';
+                            $inputErrorClass = 'w-full px-4 py-3 rounded-xl border border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition duration-200 bg-red-50 text-red-900';
+                            $labelClass = 'block text-sm font-bold text-gray-700 mb-2';
+                        @endphp
+        
+                        {{-- Pilih Siswa --}}
+                        <div class="mb-5">
+                            <label for="student_id" class="{{ $labelClass }}">Pilih Siswa <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <select name="student_id" id="student_id" class="w-full select2-form-control" required>
+                                    <option value="">-- Pilih Siswa --</option>
                                     @foreach($parentRecord->students as $student)
                                         <option value="{{ $student->id }}" {{ old('student_id') == $student->id ? 'selected' : '' }}>
                                             {{ $student->name }} ({{ $student->class->name ?? 'N/A' }})
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('student_id')<div class="text-sm text-red-600 mt-2"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</div>@enderror
                             </div>
+                            @error('student_id') <p class="mt-2 text-sm text-red-600 font-medium"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
+                        </div>
 
-                            {{-- Tanggal Berlaku --}}
-                            <div class="form-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Tanggal Berlaku <span class="text-red-600">*</span></label>
-                                <input type="date" name="request_date" class="{{ $inputClass }} @error('request_date') {{ $errorInputClass }} @enderror" value="{{ old('request_date', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
-                                @error('request_date')<div class="text-sm text-red-600 mt-2"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</div>@enderror
+                        {{-- Tanggal & Jenis --}}
+                        <div class="grid grid-cols-2 gap-4 mb-5">
+                            <div>
+                                <label for="request_date" class="{{ $labelClass }}">Tanggal <span class="text-red-500">*</span></label>
+                                <input type="date" name="request_date" id="request_date" 
+                                        class="{{ $errors->has('request_date') ? $inputErrorClass : $inputClass }}" 
+                                        value="{{ old('request_date', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
+                                 @error('request_date') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
                             </div>
-
-                            {{-- Jenis Permintaan --}}
-                            <div class="form-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Jenis Permintaan <span class="text-red-600">*</span></label>
-                                <select name="type" class="{{ $inputClass }} @error('type') {{ $errorInputClass }} @enderror" required>
+                            <div>
+                                <label for="type" class="{{ $labelClass }}">Jenis <span class="text-red-500">*</span></label>
+                                <select name="type" id="type" class="{{ $errors->has('type') ? $inputErrorClass : $inputClass }}" required>
                                     <option value="Sakit" {{ old('type') == 'Sakit' ? 'selected' : '' }}>Sakit</option>
                                     <option value="Izin" {{ old('type') == 'Izin' ? 'selected' : '' }}>Izin</option>
                                 </select>
-                                @error('type')<div class="text-sm text-red-600 mt-2"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</div>@enderror
+                                 @error('type') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
                             </div>
-                            
-                            {{-- Alasan / Keterangan --}}
-                            <div class="form-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Alasan / Keterangan <span class="text-danger">*</span></label>
-                                <textarea name="reason" rows="3" class="{{ $inputClass }} @error('reason') {{ $errorInputClass }} @enderror" required>{{ old('reason') }}</textarea>
-                                @error('reason')<div class="text-sm text-red-600 mt-2"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</div>@enderror
-                            </div>
-
-                            {{-- Lampiran --}}
-                            <div class="form-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Lampiran (Surat Dokter/Foto Surat Izin)</label>
-                                {{-- Styling File Input Tailwind --}}
-                                <input type="file" name="attachment" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-600 hover:file:bg-orange-100 @error('attachment') border-red-500 @enderror" accept="image/*, application/pdf">
-                                <small class="text-xs text-gray-500 mt-1 block">Max 2MB (JPG, PNG, PDF)</small>
-                                @error('attachment')<div class="text-sm text-red-600 mt-2"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</div>@enderror
-                            </div>
-
-                            {{-- Tombol Submit (Warna Orange) --}}
-                            <button type="submit" class="btn-block w-full inline-flex justify-center items-center px-4 py-2.5 text-base font-bold rounded-lg shadow-md 
-                                    text-gray-800 bg-amber-400 hover:bg-amber-500 focus:ring-4 focus:ring-offset-2 focus:ring-amber-500/50 transition duration-150 transform hover:-translate-y-0.5 mt-4" id="submitIzinBtn">
-                                <i class="fas fa-paper-plane mr-2"></i> Ajukan Izin
-                            </button>
                         </div>
+
+                        {{-- Keterangan --}}
+                        <div class="mb-5">
+                            <label for="reason" class="{{ $labelClass }}">Alasan / Keterangan <span class="text-red-500">*</span></label>
+                            <textarea name="reason" id="reason" rows="3" 
+                                      class="{{ $errors->has('reason') ? $inputErrorClass : $inputClass }}" 
+                                      placeholder="Jelaskan alasan izin secara singkat..." required>{{ old('reason') }}</textarea>
+                            @error('reason') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
+                        </div>
+
+                        {{-- Lampiran --}}
+                        <div class="mb-6">
+                            <label for="attachment" class="{{ $labelClass }}">Lampiran (Opsional)</label>
+                            <div class="flex items-center space-x-4 p-4 border rounded-xl bg-gray-50 border-gray-200">
+                                <div class="flex-shrink-0 text-gray-400">
+                                     <i class="fas fa-paperclip fa-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <input type="file" name="attachment" id="attachment" 
+                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer"
+                                        accept="image/*, application/pdf">
+                                    <p class="mt-1 text-xs text-gray-500">Max 2MB (JPG, PNG, PDF). Wajib untuk Sakit (Surat Dokter).</p>
+                                </div>
+                            </div>
+                            @error('attachment') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
+                        </div>
+
+                         {{-- Button Simpan --}}
+                        <button type="submit" 
+                                class="w-full inline-flex justify-center items-center px-6 py-4 border border-transparent text-base font-bold rounded-xl shadow-lg 
+                                       text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 
+                                       focus:ring-4 focus:ring-purple-500/50 transition duration-150 transform hover:-translate-y-0.5" 
+                                id="submitIzinBtn">
+                            <i class="fas fa-paper-plane mr-2"></i> Kirim Pengajuan
+                        </button>
+
                     </form>
                 </div>
             </div>
         </div>
 
-        {{-- KOLOM KANAN: RIWAYAT PENGAJUAN (2/3) --}}
-        <div class="lg:col-span-2">
-            <div class="bg-white shadow-xl rounded-xl border border-gray-100 overflow-hidden">
-                <div class="px-5 py-4 bg-indigo-600 text-white">
-                    <h3 class="text-xl font-bold"><i class="fas fa-history mr-2"></i> Riwayat Pengajuan Izin / Sakit</h3>
+        {{-- KOLOM KANAN: RIWAYAT (7/12) --}}
+        <div class="lg:col-span-7 mt-6 lg:mt-0">
+             <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100 bg-gray-50/50">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center"><i class="fas fa-history mr-2 text-indigo-500"></i> Riwayat Pengajuan</h3>
                 </div>
                 <div class="p-0">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase">Anak</th>
-                                    <th class="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase">Tanggal Izin</th>
-                                    <th class="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase">Jenis</th>
-                                    <th class="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase">Keterangan</th>
-                                    <th class="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase">Status</th>
-                                    <th class="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase">Lampiran</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100">
-                                @forelse($requests as $req)
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">{{ $req->student->name ?? '-' }}</td>
-                                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-700">{{ \Carbon\Carbon::parse($req->request_date)->isoFormat('D MMM Y') }}</td> 
-                                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-700">{{ $req->type }}</td>
-                                    <td class="px-3 py-3 text-sm text-gray-600">{{ \Illuminate\Support\Str::limit($req->reason, 40) }}</td>
-                                    <td class="px-3 py-3 whitespace-nowrap">
-                                        @php
-                                            $statusMap = ['Pending' => 'bg-yellow-100 text-yellow-800', 'Approved' => 'bg-green-100 text-green-800', 'Rejected' => 'bg-red-100 text-red-800'];
-                                            $statusClass = $statusMap[$req->status] ?? 'bg-gray-200 text-gray-700';
-                                        @endphp
-                                        <span class="px-3 py-1 inline-flex text-xs font-bold rounded-full {{ $statusClass }}">
-                                            {{ $req->status }}
-                                        </span>
-                                    </td>
-                                    <td class="px-3 py-3 whitespace-nowrap">
-                                        @if($req->attachment_path)
-                                            {{-- Styling Button Lampiran (Mengganti btn-outline-info) --}}
-                                            <a href="{{ asset('storage/' . $req->attachment_path) }}" target="_blank" 
-                                               class="text-indigo-600 hover:text-indigo-800 p-1.5 rounded-full bg-indigo-100 transition duration-150" title="Lihat Lampiran">
-                                                <i class="fas fa-file-alt w-4 h-4"></i>
-                                            </a>
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="6" class="text-center text-gray-500 py-6">Belum ada riwayat pengajuan izin/sakit.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    {{-- Pagination (Styling Tailwind) --}}
-                    <div class="mt-4 flex justify-end">
-                         {{ $requests->links('pagination::tailwind') }}
-                    </div>
+                    @if($requests->isEmpty())
+                        <div class="p-10 text-center text-gray-400">
+                            <i class="fas fa-inbox fa-3x mb-3 opacity-50"></i>
+                            <p>Belum ada riwayat pengajuan izin.</p>
+                        </div>
+                    @else
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-100">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Info</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Keterangan</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Lampiran</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-100">
+                                    @foreach($requests as $req)
+                                    <tr class="hover:bg-gray-50/50 transition duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-bold text-gray-800">{{ $req->student->name ?? '-' }}</div>
+                                            <div class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($req->request_date)->translatedFormat('d F Y') }}</div>
+                                            <div class="mt-1">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $req->type == 'Sakit' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800' }}">
+                                                    {{ $req->type }}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <p class="text-sm text-gray-600 line-clamp-2 w-48">{{ $req->reason }}</p>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                             @php
+                                                $statusClass = [
+                                                    'Pending' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                                                    'Approved' => 'bg-green-100 text-green-800 border-green-200',
+                                                    'Rejected' => 'bg-red-100 text-red-800 border-red-200',
+                                                ][$req->status] ?? 'bg-gray-100 text-gray-800';
+                                                
+                                                $icon = [
+                                                    'Pending' => 'fa-clock',
+                                                    'Approved' => 'fa-check-circle',
+                                                    'Rejected' => 'fa-times-circle',
+                                                ][$req->status] ?? 'fa-question';
+                                            @endphp
+                                            <span class="px-3 py-1 inline-flex items-center text-xs font-bold rounded-full border {{ $statusClass }}">
+                                                <i class="fas {{ $icon }} mr-1.5"></i> {{ $req->status }}
+                                            </span>
+                                        </td>
+                                         <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            @if($req->attachment_path)
+                                                <a href="{{ asset('storage/' . $req->attachment_path) }}" target="_blank" 
+                                                   class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition duration-150" title="Lihat Lampiran">
+                                                    <i class="fas fa-file-alt"></i>
+                                                </a>
+                                            @else
+                                                <span class="text-gray-300">-</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="p-4 border-t border-gray-100">
+                             {{ $requests->links('pagination::tailwind') }}
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -190,63 +201,47 @@
 
 @section('js')
 <script src="{{ asset('template/adminlte/plugins/select2/js/select2.full.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Pastikan JQuery tersedia di master layout
-    
     $(document).ready(function() {
-        // Initialize Select2 untuk Pilih Anak
-        $('select[name="student_id"]').select2({ 
-            theme: 'bootstrap4', 
-            placeholder: 'Pilih Anak...', 
-            allowClear: true,
-            width: '100%' 
+        // 1. Initialize Select2
+        $('.select2-form-control').select2({ theme: 'bootstrap4', placeholder: '-- Pilih Siswa --', allowClear: true });
+        
+        // CSS Style Fix for Select2
+        $('.select2-container--bootstrap4 .select2-selection--single').css('height', '50px');
+        $('.select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered').css({
+            'line-height': '48px',
+            'padding-left': '1rem' 
         });
 
-        // 🚨 FUNGSI SUBMIT LOADING STATE (LOGIKA AMAN)
+        // 2. Form Loading State
         $('#izinForm').on('submit', function() {
-            const form = this;
-            const submitBtn = $('#submitIzinBtn');
-
-            if (form.checkValidity() === false) {
-                 return;
-            }
-            
-            // Tampilkan loading state dan nonaktifkan tombol
-            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Mengirim...');
+            if (this.checkValidity() === false) return; 
+            $('#submitIzinBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Mengirim...');
         });
         
-        // Auto-dismiss alerts
-        setTimeout(function() {
-            $('.alert-dismissible').fadeOut(400, function() { $(this).remove(); });
-        }, 5000);
+        // 3. Alerts
+        @if(session('success'))
+             Swal.fire({ icon: 'success', title: 'Berhasil!', text: '{{ session('success') }}', timer: 3000, showConfirmButton: false });
+        @endif
+        @if(session('error'))
+             Swal.fire({ icon: 'error', title: 'Gagal', text: '{{ session('error') }}', timer: 3000, showConfirmButton: false });
+        @endif
     });
 </script>
-@endsection
+@stop
 
 @section('css')
 <style>
-/* --- MINIMAL CUSTOM CSS FOR TAILWIND --- */
-.text-orange-500 { color: #f97316; }
-.bg-amber-400 { background-color: #fbbf24; }
-.hover\:bg-amber-500:hover { background-color: #f59e0b; }
-
-/* Warna Custom Blocks */
-.bg-indigo-600 { background-color: #4f46e5 !important; }
-.text-indigo-600 { color: #4f46e5; }
-
-/* Select2 Fix */
+/* CSS Override untuk Select2 agar selaras dengan input Tailwind */
 .select2-container--bootstrap4 .select2-selection--single {
-    height: calc(2.25rem + 2px) !important;
+    border: 1px solid #e5e7eb !important; /* border-gray-200 */
+    border-radius: 0.75rem !important; /* rounded-xl */
+    background-color: #f9fafb !important; /* bg-gray-50 */
 }
-.select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
-    line-height: 1.5 !important;
-    padding-top: 5px !important; 
-}
-
-/* Fixes for Tailwind Input Styling */
-.form-control {
-    width: 100%;
-    /* Override Bootstrap form-control */
+.select2-container--bootstrap4 .select2-selection--single:focus {
+    border-color: #a855f7 !important; /* border-purple-500 */
+    box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1) !important;
 }
 </style>
-@endsection
+@stop

@@ -42,6 +42,9 @@
             {{-- Menggunakan Z-index yang lebih tinggi dan posisi tetap untuk tampilan modern --}}
             @include('layouts.partials.sidebar') 
 
+            {{-- Mobile Sidebar Overlay (Backdrop) --}}
+            <div id="sidebar-overlay" class="fixed inset-0 bg-gray-900/50 z-30 hidden opacity-0 transition-opacity duration-300 md:hidden backdrop-blur-sm"></div> 
+
             {{-- Main Content Area --}}
             <div class="flex flex-col flex-1">
                 
@@ -54,7 +57,7 @@
                     
                     {{-- Content Header --}}
                     {{-- Memberi batas bawah yang lebih menonjol dan padding yang konsisten --}}
-                    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+                    <header class="bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-200 sticky top-0 z-20">
                         <div class="max-w-full mx-auto py-3 px-4 sm:px-6 lg:px-8">
                             @yield('content_header') 
                         </div>
@@ -87,6 +90,33 @@
         
         {{-- SKRIP GLOBAL (Sidebar Toggle, Dropdown, Polling, dan Waktu Server) (Logika Tetap Sama) --}}
         <script>
+            // SWEETALERT GLOBAL NOTIFICATION
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: '{{ session('success') }}',
+                    timer: 3000,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: 'rounded-2xl',
+                        confirmButton: 'bg-indigo-600 rounded-xl px-4 py-2'
+                    }
+                });
+            @endif
+
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: '{{ session('error') }}',
+                    customClass: {
+                        popup: 'rounded-2xl',
+                        confirmButton: 'bg-red-600 rounded-xl px-4 py-2'
+                    }
+                });
+            @endif
+
             // Logika DOMContentLoaded untuk Toggle dan Dropdown
             document.addEventListener('DOMContentLoaded', function () {
                 const sidebar = document.getElementById('main-sidebar');
@@ -98,12 +128,37 @@
 
                 // 1. Sidebar Toggle Logic
                 if (sidebar && toggleBtn) {
-                    toggleBtn.addEventListener('click', function() {
+                    toggleBtn.addEventListener('click', function(e) {
+                        e.stopPropagation(); // Prevent immediate closing
                         sidebar.classList.toggle('-translate-x-full');
+                        
+                        // Toggle Overlay
+                        const overlay = document.getElementById('sidebar-overlay');
+                        if (overlay) {
+                            if (!sidebar.classList.contains('-translate-x-full')) {
+                                // Sidebar is OPEN
+                                overlay.classList.remove('hidden');
+                                setTimeout(() => overlay.classList.remove('opacity-0'), 10); // Fade in
+                            } else {
+                                // Sidebar is CLOSED
+                                overlay.classList.add('opacity-0');
+                                setTimeout(() => overlay.classList.add('hidden'), 300); // Wait for fade out
+                            }
+                        }
+                    });
+                }
+
+                // 2. Overlay Click Logic (Close Sidebar)
+                const overlay = document.getElementById('sidebar-overlay');
+                if (overlay) {
+                    overlay.addEventListener('click', function() {
+                        sidebar.classList.add('-translate-x-full'); // Close sidebar
+                        overlay.classList.add('opacity-0');
+                        setTimeout(() => overlay.classList.add('hidden'), 300);
                     });
                 }
                 
-                // 2 & 3. Dropdown Toggle Logic
+                // 3. Dropdown Toggle Logic
                 if (profileDropdownBtn && profileDropdownContent) {
                     profileDropdownBtn.addEventListener('click', function(e) { e.stopPropagation(); profileDropdownContent.classList.toggle('hidden'); });
                 }
@@ -111,12 +166,10 @@
                     notificationDropdownBtn.addEventListener('click', function(e) { e.stopPropagation(); notificationDropdownContent.classList.toggle('hidden'); });
                 }
                 
-                // 4. Close all dropdowns/sidebar when clicking outside
+                // 4. Close all dropdowns when clicking outside
                 document.addEventListener('click', function(e) {
-                    const isMobileView = window.innerWidth < 768;
-                    if (isMobileView && sidebar && !sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target) && !sidebar.classList.contains('-translate-x-full')) {
-                        sidebar.classList.add('-translate-x-full');
-                    }
+                    // Note: Sidebar close logic is now handled by the overlay for mobile
+                    
                     if (profileDropdownContent && !profileDropdownBtn.contains(e.target) && !profileDropdownContent.contains(e.target)) {
                         profileDropdownContent.classList.add('hidden');
                     }
@@ -125,8 +178,10 @@
                     }
                 });
 
-                // 5. Polling Notifikasi (Menggunakan JQuery) - **Telah diperbarui untuk tampilan item notifikasi yang lebih baik**
+                // 5. Polling Notifikasi (Menggunakan JQuery)
                 function fetchNotifications() {
+                    if (typeof $ === 'undefined') return; // Guard clause if jQuery not loaded
+                    
                     const csrfToken = $('meta[name="csrf-token"]').attr('content');
                     $.ajax({
                         url: '{{ route("notifications.latest") }}',
@@ -143,7 +198,6 @@
                                 badge.show();
                                 let html = '';
                                 response.notifications.forEach(function(notif) {
-                                    // ✨ Perubahan pada kelas Tailwind untuk tampilan item notifikasi yang lebih halus:
                                     html += `<a href="${notif.url || '{{ route("report.index") }}'}" class="flex items-center px-4 py-3 text-sm text-gray-700 transition duration-150 ease-in-out border-b border-gray-100 hover:bg-indigo-50/50">
                                                 <i class="${notif.icon || 'fas fa-bell'} text-indigo-500 mr-3 w-5 text-center"></i> 
                                                 <div class="flex-1 overflow-hidden">
@@ -160,7 +214,10 @@
                         }
                     });
                 }
-                if (typeof $ !== 'undefined') { fetchNotifications(); setInterval(fetchNotifications, 10000); }
+
+                // Jalankan polling
+                fetchNotifications(); 
+                setInterval(fetchNotifications, 10000); 
             });
             
             // SKRIP KHUSUS WAKTU SERVER (Logika Tetap Sama)

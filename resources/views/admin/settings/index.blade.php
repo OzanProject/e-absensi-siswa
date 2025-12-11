@@ -3,190 +3,232 @@
 @section('title', 'Pengaturan Umum Sistem')
 
 @section('content_header')
-{{-- HEADER: Menggunakan Tailwind & Warna Indigo --}}
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-    
-    <h1 class="text-2xl font-bold text-gray-800 flex items-center mb-2 sm:mb-0">
-        {{-- Ikon Cogs diubah ke warna Indigo --}}
-        <i class="fas fa-cogs text-indigo-600 mr-2"></i> 
-        <span>Pengaturan Umum Sistem</span>
-    </h1>
-    
-    <nav class="text-sm font-medium text-gray-500" aria-label="Breadcrumb">
+    <div>
+        <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center">
+            <i class="fas fa-cogs text-purple-600 mr-3"></i>
+            Pengaturan Sistem
+        </h1>
+        <p class="text-sm text-gray-500 mt-1 font-medium">Konfigurasi data sekolah dan parameter operasional sistem.</p>
+    </div>
+    <nav class="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100" aria-label="Breadcrumb">
         <ol class="flex space-x-2">
-            {{-- Mengganti blue-600 ke indigo-600 --}}
-            <li><a href="{{ route('admin.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150">Home</a></li>
-            <li class="text-gray-400">/</li>
-            <li class="text-gray-600 font-semibold">Pengaturan</li>
+            <li><a href="{{ route('admin.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150"><i class="fas fa-home"></i></a></li>
+            <li class="text-gray-300">/</li>
+            <li class="text-gray-800 font-bold">Pengaturan</li>
         </ol>
     </nav>
 </div>
 @stop
 
 @section('content')
-    <div class="bg-white rounded-xl shadow-lg border border-gray-100">
-        <div class="p-5 border-b border-gray-100">
-            <h3 class="text-xl font-bold text-gray-800 flex items-center"><i class="fas fa-tools mr-2 text-indigo-500"></i> Konfigurasi Sistem E-Absensi</h3>
-        </div>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <div class="p-6"> {{-- Padding disesuaikan --}}
-            
-            {{-- Notifikasi Error Umum (Styling Tailwind) --}}
-            @if($errors->any())
-                <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg relative mb-6">
-                    <i class="fas fa-exclamation-triangle mr-2"></i> Harap periksa kembali input Anda. Ditemukan kesalahan.
+        {{-- KOLOM KIRI: FORM CONFIG (8/12) --}}
+        <div class="lg:col-span-8">
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100 bg-purple-50/30">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-sliders-h mr-2 text-purple-600"></i> Form Konfigurasi
+                    </h3>
                 </div>
-            @endif
-            
-            {{-- Notifikasi Sukses/Gagal dari session (Styling Tailwind) --}}
-            @if(session('success')) 
-                <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg relative mb-6">
-                    <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-                </div>
-            @endif
-            @if(session('error')) 
-                <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg relative mb-6">
-                    <i class="fas fa-ban mr-2"></i> {{ session('error') }}
-                </div>
-            @endif
-
-            {{-- FORM (Logika PHP/Blade & Input Values AMAN) --}}
-            <form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data" id="settingsForm">
-                @csrf
-                @method('PUT')
                 
-                @php
-                    // Helper Class untuk Input Styling (Fokus Indigo)
-                    // Mengganti fokus blue-500 ke indigo-500
-                    $inputClass = 'w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150';
-                    $errorBorder = 'border-red-500';
-                    $defaultBorder = 'border-gray-300';
-                @endphp
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8"> {{-- Gap disesuaikan --}}
-                    
-                    {{-- KOLOM KIRI: INFO SEKOLAH & ABSENSI (1/2) --}}
-                    <div>
-                        {{-- Judul: Mengganti blue-600 ke indigo-600 --}}
-                        <h5 class="text-xl font-bold text-gray-800 flex items-center mb-4 border-b border-gray-100 pb-2"><i class="fas fa-school mr-2 text-indigo-500"></i> Informasi Sekolah</h5>
+                <div class="p-8">
+                    <form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data" id="settingsForm">
+                        @csrf
+                        @method('PUT')
                         
-                        <div class="space-y-6">
+                        @php
+                            $inputClass = 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition duration-200 bg-gray-50 focus:bg-white text-gray-800 shadow-sm';
+                            $inputErrorClass = 'w-full px-4 py-3 rounded-xl border border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition duration-200 bg-red-50 text-red-900';
+                            $labelClass = 'block text-sm font-bold text-gray-700 mb-2';
+                        @endphp
+        
+                        {{-- BAGIAN 1: IDENTITAS SEKOLAH --}}
+                        <div class="mb-8">
+                            <h5 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-dashed border-gray-200 flex items-center">
+                                <span class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-sm">
+                                    <i class="fas fa-school"></i>
+                                </span>
+                                Identitas Sekolah
+                            </h5>
                             
-                            {{-- Nama Sekolah --}}
-                            <div>
-                                <label for="school_name" class="block text-sm font-semibold text-gray-700 mb-1">{{ $keys['school_name'] ?? 'Nama Sekolah' }} <span class="text-red-600">*</span></label>
-                                <input type="text" name="school_name" id="school_name" 
-                                        class="{{ $inputClass }} @error('school_name') {{ $errorBorder }} @else {{ $defaultBorder }} @enderror" 
-                                        value="{{ old('school_name', $settings['school_name'] ?? '') }}" required>
-                                @error('school_name') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                            </div>
-                            
-                            {{-- INPUT LOGO UPLOAD (Logika PHP AMAN) --}}
-                            <div>
-                                <label for="school_logo_file" class="block text-sm font-semibold text-gray-700 mb-1">Upload Logo Sekolah</label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {{-- Nama Sekolah --}}
+                                <div class="md:col-span-2">
+                                    <label for="school_name" class="{{ $labelClass }}">{{ $keys['school_name'] ?? 'Nama Sekolah' }} <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-university text-gray-400"></i>
+                                        </div>
+                                        <input type="text" name="school_name" id="school_name" 
+                                                class="pl-10 {{ $errors->has('school_name') ? $inputErrorClass : $inputClass }}" 
+                                                value="{{ old('school_name', $settings['school_name'] ?? '') }}" 
+                                                placeholder="Contoh: SMP Negeri 1 Jakarta"
+                                                required>
+                                    </div>
+                                    @error('school_name') <p class="mt-2 text-sm text-red-600 font-medium"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
+                                </div>
                                 
-                                {{-- Tampilkan Logo Saat Ini --}}
-                                @php
-                                    $currentLogoPath = $settings['school_logo'] ?? '';
-                                    $logoExists = !empty($currentLogoPath) && \Illuminate\Support\Facades\Storage::disk('public')->exists($currentLogoPath);
-                                    $logoPath = $logoExists
-                                                    ? asset('storage/' . $currentLogoPath)
-                                                    : asset('images/default_logo.png'); // Asumsi path default
-                                @endphp
-                                <div class="mb-3 text-center border-2 border-gray-200 p-3 rounded-xl bg-gray-50/50">
-                                    <img src="{{ $logoPath }}" alt="Logo Sekolah Saat Ini" id="logo-preview" 
-                                            style="max-height: 100px; max-width: 100%; object-fit: contain;" class="mx-auto">
+                                {{-- Logo Sekolah --}}
+                                <div class="md:col-span-2">
+                                    <label for="school_logo_file" class="{{ $labelClass }}">Upload Logo Sekolah</label>
+                                    <div class="flex items-center space-x-4 p-4 border rounded-xl bg-gray-50 border-gray-200 @error('school_logo_file') border-red-300 bg-red-50 @enderror">
+                                        <div class="flex-shrink-0 w-16 h-16 bg-white rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden">
+                                             @php
+                                                $currentLogoPath = $settings['school_logo'] ?? '';
+                                                $logoExists = !empty($currentLogoPath) && \Illuminate\Support\Facades\Storage::disk('public')->exists($currentLogoPath);
+                                                $logoPath = $logoExists ? asset('storage/' . $currentLogoPath) : asset('images/default_logo.png'); 
+                                            @endphp
+                                            <img src="{{ $logoPath }}" alt="Preview" id="logo-preview" class="w-full h-full object-contain">
+                                        </div>
+                                        <div class="flex-1">
+                                            <input type="file" name="school_logo_file" id="school_logo_file" 
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer"
+                                                accept="image/png, image/jpeg, image/jpg">
+                                            <p class="mt-1 text-xs text-gray-500">Format: JPG/PNG, Maksimal 2MB.</p>
+                                        </div>
+                                    </div>
+                                    @error('school_logo_file') <p class="mt-2 text-sm text-red-600 font-medium"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- BAGIAN 2: PARAMETER WAKTU --}}
+                        <div class="mb-8">
+                            <h5 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-dashed border-gray-200 flex items-center">
+                                <span class="bg-amber-100 text-amber-600 w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-sm">
+                                    <i class="fas fa-clock"></i>
+                                </span>
+                                Parameter Waktu Absensi
+                            </h5>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {{-- Jam Masuk --}}
+                                <div>
+                                    <label for="attendance_start_time" class="{{ $labelClass }}">Jam Masuk <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-hourglass-start text-gray-400"></i>
+                                        </div>
+                                        @php $startTime = substr(old('attendance_start_time', $settings['attendance_start_time'] ?? '07:00'), 0, 5); @endphp
+                                        <input type="time" name="attendance_start_time" id="attendance_start_time" 
+                                                class="pl-10 {{ $errors->has('attendance_start_time') ? $inputErrorClass : $inputClass }}" 
+                                                value="{{ $startTime }}" required>
+                                    </div>
+                                    @error('attendance_start_time') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
                                 </div>
 
-                                {{-- File Input (Styling Tailwind File Input) --}}
-                                {{-- Mengganti blue-50/blue-700 ke indigo-50/indigo-700 --}}
-                                <input type="file" name="school_logo_file" id="school_logo_file" 
-                                        class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 @error('school_logo_file') border-red-500 @enderror" 
-                                        accept="image/png, image/jpeg, image/jpg">
-                                <small class="mt-1 text-xs text-gray-500 block">Max 2MB (JPG, PNG). Kosongkan jika tidak ingin diubah.</small>
-                                @error('school_logo_file') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                            </div>
-                            
-                            {{-- Judul Pengaturan Absensi --}}
-                            <h5 class="text-xl font-bold text-gray-800 flex items-center pt-4 mb-4 border-b border-gray-100 pb-2"><i class="fas fa-clock mr-2 text-indigo-500"></i> Pengaturan Absensi</h5>
+                                {{-- Jam Pulang --}}
+                                <div>
+                                    <label for="attendance_end_time" class="{{ $labelClass }}">Jam Pulang <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-hourglass-end text-gray-400"></i>
+                                        </div>
+                                        @php $endTime = substr(old('attendance_end_time', $settings['attendance_end_time'] ?? '15:00'), 0, 5); @endphp
+                                        <input type="time" name="attendance_end_time" id="attendance_end_time" 
+                                                class="pl-10 {{ $errors->has('attendance_end_time') ? $inputErrorClass : $inputClass }}" 
+                                                value="{{ $endTime }}" required>
+                                    </div>
+                                    @error('attendance_end_time') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
 
-                            {{-- Jam Mulai Absensi (IN) --}}
-                            <div>
-                                <label for="attendance_start_time" class="block text-sm font-semibold text-gray-700 mb-1">{{ $keys['attendance_start_time'] ?? 'Jam Mulai Absensi' }} <span class="text-red-600">*</span></label>
-                                @php
-                                    $startTime = old('attendance_start_time', $settings['attendance_start_time'] ?? '07:00');
-                                    $timeValue = substr($startTime, 0, 5); // Ambil HH:MM
-                                @endphp
-                                <input type="time" name="attendance_start_time" id="attendance_start_time" 
-                                        class="{{ $inputClass }} @error('attendance_start_time') {{ $errorBorder }} @else {{ $defaultBorder }} @enderror" 
-                                        value="{{ $timeValue }}" required>
-                                <small class="mt-1 text-xs text-gray-500 block">Waktu mulai absensi masuk (HH:MM).</small>
-                                @error('attendance_start_time') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                            </div>
-                            
-                            {{-- Jam Mulai Pulang (OUT) --}}
-                            <div>
-                                <label for="attendance_end_time" class="block text-sm font-semibold text-gray-700 mb-1">{{ $keys['attendance_end_time'] ?? 'Jam Mulai Pulang' }} <span class="text-red-600">*</span></label>
-                                @php
-                                    $endTime = old('attendance_end_time', $settings['attendance_end_time'] ?? '15:00');
-                                    $endTimeValue = substr($endTime, 0, 5); // Ambil HH:MM
-                                @endphp
-                                <input type="time" name="attendance_end_time" id="attendance_end_time" 
-                                        class="{{ $inputClass }} @error('attendance_end_time') {{ $errorBorder }} @else {{ $defaultBorder }} @enderror" 
-                                        value="{{ $endTimeValue }}" required>
-                                <small class="mt-1 text-xs text-gray-500 block">Siswa **hanya** dapat absen pulang setelah waktu ini (HH:MM).</small>
-                                @error('attendance_end_time') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                            </div>
-
-                            {{-- Toleransi Keterlambatan --}}
-                            <div>
-                                <label for="late_tolerance_minutes" class="block text-sm font-semibold text-gray-700 mb-1">{{ $keys['late_tolerance_minutes'] ?? 'Toleransi Keterlambatan' }} (Menit) <span class="text-red-600">*</span></label>
-                                <input type="number" name="late_tolerance_minutes" id="late_tolerance_minutes" 
-                                        class="{{ $inputClass }} @error('late_tolerance_minutes') {{ $errorBorder }} @else {{ $defaultBorder }} @enderror" 
-                                        value="{{ old('late_tolerance_minutes', $settings['late_tolerance_minutes'] ?? 10) }}" required min="0">
-                                <small class="mt-1 text-xs text-gray-500 block">Siswa dianggap terlambat jika absen melebihi jam mulai + toleransi.</small>
-                                @error('late_tolerance_minutes') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
+                                {{-- Toleransi --}}
+                                <div>
+                                    <label for="late_tolerance_minutes" class="{{ $labelClass }}">Toleransi (Menit) <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-stopwatch text-gray-400"></i>
+                                        </div>
+                                        <input type="number" name="late_tolerance_minutes" id="late_tolerance_minutes" 
+                                                class="pl-10 {{ $errors->has('late_tolerance_minutes') ? $inputErrorClass : $inputClass }}" 
+                                                value="{{ old('late_tolerance_minutes', $settings['late_tolerance_minutes'] ?? 10) }}" min="0" required>
+                                    </div>
+                                    @error('late_tolerance_minutes') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {{-- KOLOM KANAN: PENGATURAN WHATSAPP (1/2) --}}
-                    <div>
-                        {{-- Judul: Mengganti blue-600 ke indigo-600 --}}
-                        <h5 class="text-xl font-bold text-gray-800 flex items-center mb-4 border-b border-gray-100 pb-2"><i class="fab fa-whatsapp mr-2 text-indigo-500"></i> Pengaturan Notifikasi WhatsApp</h5>
+                        {{-- BAGIAN 3: WHATSAPP --}}
+                        <div class="mb-6">
+                            <h5 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-dashed border-gray-200 flex items-center">
+                                <span class="bg-green-100 text-green-600 w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-sm">
+                                    <i class="fab fa-whatsapp"></i>
+                                </span>
+                                Integrasi WhatsApp (Opsional)
+                            </h5>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="wa_api_endpoint" class="{{ $labelClass }}">Endpoint API</label>
+                                    <input type="url" name="wa_api_endpoint" id="wa_api_endpoint" 
+                                            class="{{ $errors->has('wa_api_endpoint') ? $inputErrorClass : $inputClass }}" 
+                                            value="{{ old('wa_api_endpoint', $settings['wa_api_endpoint'] ?? '') }}"
+                                            placeholder="https://api.whatsapp-service.com/send">
+                                    @error('wa_api_endpoint') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label for="wa_api_key" class="{{ $labelClass }}">API Key / Token</label>
+                                    <input type="text" name="wa_api_key" id="wa_api_key" 
+                                            class="{{ $errors->has('wa_api_key') ? $inputErrorClass : $inputClass }}" 
+                                            value="{{ old('wa_api_key', $settings['wa_api_key'] ?? '') }}"
+                                            placeholder="Masukkan token rahasia...">
+                                    @error('wa_api_key') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
+                            </div>
+                        </div>
                         
-                        <div class="space-y-6">
-                            
-                            {{-- Endpoint API WhatsApp --}}
-                            <div>
-                                <label for="wa_api_endpoint" class="block text-sm font-semibold text-gray-700 mb-1">{{ $keys['wa_api_endpoint'] ?? 'Endpoint API WhatsApp' }}</label>
-                                <input type="url" name="wa_api_endpoint" id="wa_api_endpoint" 
-                                        class="{{ $inputClass }} @error('wa_api_endpoint') {{ $errorBorder }} @else {{ $defaultBorder }} @enderror" 
-                                        value="{{ old('wa_api_endpoint', $settings['wa_api_endpoint'] ?? '') }}">
-                                <small class="mt-1 text-xs text-gray-500 block">URL layanan API WhatsApp Anda (cth: https://api.service.com/send).</small>
-                                @error('wa_api_endpoint') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                            </div>
-
-                            {{-- Kunci API WhatsApp --}}
-                            <div>
-                                <label for="wa_api_key" class="block text-sm font-semibold text-gray-700 mb-1">{{ $keys['wa_api_key'] ?? 'Kunci API WhatsApp' }}</label>
-                                <input type="text" name="wa_api_key" id="wa_api_key" 
-                                        class="{{ $inputClass }} @error('wa_api_key') {{ $errorBorder }} @else {{ $defaultBorder }} @enderror" 
-                                        value="{{ old('wa_api_key', $settings['wa_api_key'] ?? '') }}">
-                                @error('wa_api_key') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                            </div>
-                            
-                            {{-- Button Simpan --}}
-                            <div class="pt-6 border-t border-gray-100 mt-6">
-                                <button type="submit" class="w-full inline-flex justify-center items-center px-6 py-2.5 border border-transparent text-base font-bold rounded-lg shadow-md
-                                         text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-offset-2 focus:ring-green-500/50 transition duration-150 transform hover:-translate-y-0.5" id="submitSettingsBtn">
-                                    <i class="fas fa-save mr-2"></i> Simpan Pengaturan
-                                </button>
-                            </div>
+                        {{-- TOMBOL SIMPAN --}}
+                        <div class="pt-6 border-t border-gray-100 flex justify-end">
+                             <button type="submit" 
+                                    class="inline-flex items-center px-8 py-4 border border-transparent text-base font-bold rounded-xl shadow-lg 
+                                           text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 
+                                           focus:ring-4 focus:ring-purple-500/50 transition duration-150 transform hover:-translate-y-0.5" 
+                                    id="submitSettingsBtn">
+                                <i class="fas fa-save mr-2"></i> Simpan Perubahan
+                            </button>
                         </div>
-                    </div>
+                        
+                    </form>
                 </div>
-            </form>
+            </div>
+        </div>
+
+        {{-- KOLOM KANAN: PREVIEW & INFO (4/12) --}}
+        <div class="lg:col-span-4 mt-6 lg:mt-0">
+             
+            {{-- QUICK PREVIEW --}}
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden mb-6">
+                <div class="p-6 border-b border-gray-100 bg-gray-50/50">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center"><i class="fas fa-eye mr-2 text-indigo-500"></i> Preview Kop Laporan</h3>
+                </div>
+                <div class="p-6 text-center">
+                     <div class="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+                        <img src="{{ $logoPath }}" class="h-16 w-auto mx-auto mb-2" id="preview-kop-logo">
+                        <h4 class="font-bold text-gray-800 text-lg" id="preview-kop-name">{{ $settings['school_name'] ?? 'Nama Sekolah' }}</h4>
+                        <p class="text-xs text-gray-400 mt-2">Tampilan ini akan muncul pada dokumen PDF.</p>
+                     </div>
+                </div>
+            </div>
+
+            {{-- INFO PANEL --}}
+            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl shadow-xl border border-gray-100 overflow-hidden text-white">
+                <div class="p-6">
+                     <h3 class="text-lg font-bold flex items-center mb-4"><i class="fas fa-info-circle mr-2"></i> Petunjuk Sistem</h3>
+                     <div class="space-y-4 text-indigo-100 text-sm">
+                        <p class="bg-white/10 p-3 rounded-xl border border-white/10">
+                            <strong>Jam Masuk & Pulang</strong><br>
+                            Sistem akan otomatis menghitung keterlambatan berdasarkan jam masuk. Tombol absen pulang hanya aktif setelah jam pulang.
+                        </p>
+                         <p class="bg-white/10 p-3 rounded-xl border border-white/10">
+                            <strong>WhatsApp Gateway</strong><br>
+                            Jika diaktifkan, notifikasi kehadiran akan dikirim otomatis ke nomor orang tua siswa. Pastikan endpoint valid.
+                        </p>
+                     </div>
+                </div>
+            </div>
+
         </div>
     </div>
 @stop
@@ -194,11 +236,11 @@
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    
     $(document).ready(function() {
-        // 1. Preview Logo Saat Upload (Vanilla JS) - LOGIKA AMAN
+        // 1. Live Preview Logo
         const logoInput = document.getElementById('school_logo_file');
         const logoPreview = document.getElementById('logo-preview');
+        const kopLogo = document.getElementById('preview-kop-logo');
         
         if (logoInput) {
             logoInput.addEventListener('change', function(event) {
@@ -207,48 +249,57 @@
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         logoPreview.src = e.target.result;
+                        kopLogo.src = e.target.result;
                     };
                     reader.readAsDataURL(file);
                 }
             });
         }
-
-        // 2. Form submission loading state - LOGIKA AMAN
-        $('#settingsForm').on('submit', function() {
-            const submitBtn = $('#submitSettingsBtn');
-            // Cek validitas form HTML5
-            if (this.checkValidity() === false) {
-                 return;
-            }
-            // Tampilkan loading state
-            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
+        
+        // 2. Live Preview School Name
+        $('#school_name').on('input', function() {
+           $('#preview-kop-name').text($(this).val()); 
         });
 
-        // 3. Auto-show session success/error messages using SweetAlert2 Toast
-        // LOGIKA AMAN
+        // 3. Form Submission
+        $('#settingsForm').on('submit', function() {
+            if (this.checkValidity() === false) return; 
+            
+            const submitBtn = $('#submitSettingsBtn');
+            submitBtn.prop('disabled', true)
+                     .html('<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...');
+        });
+        
+        // 4. Alerts
         @if(session('success'))
-            Swal.fire({ icon: 'success', title: 'Berhasil!', text: '{{ session('success') }}', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+             Swal.fire({ 
+                 icon: 'success', 
+                 title: 'Disimpan!', 
+                 text: '{{ session('success') }}', 
+                 timer: 3000,
+                 showConfirmButton: false
+             });
         @endif
+        
         @if(session('error'))
-            Swal.fire({ icon: 'error', title: 'Gagal!', text: '{{ session('error') }}', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+             Swal.fire({ 
+                 icon: 'error', 
+                 title: 'Gagal', 
+                 text: '{{ session('error') }}', 
+                 timer: 3000,
+                 showConfirmButton: false
+             });
+        @endif
+        
+        @if($errors->any())
+             Swal.fire({ 
+                 icon: 'warning', 
+                 title: 'Periksa Input', 
+                 text: 'Terdapat kesalahan pada data yang Anda masukkan.', 
+                 timer: 3000,
+                 showConfirmButton: false
+             });
         @endif
     });
 </script>
-@stop
-
-@section('css')
-<style>
-/* CSS KUSTOM MINIMAL UNTUK KOMPATIBILITAS */
-.text-indigo-600 { color: #4f46e5; }
-.bg-indigo-50 { background-color: #eef2ff; }
-.text-indigo-700 { color: #4338ca; }
-.text-teal-500 { color: #20c997; } 
-.bg-teal-600 { background-color: #0d9488 !important; }
-.hover\:bg-teal-700:hover { background-color: #0f766e !important; }
-
-/* FIXES */
-.text-red-600 { color: #dc3545; }
-.bg-green-600 { background-color: #10b981 !important; }
-.hover\:bg-green-700:hover { background-color: #059669 !important; }
-</style>
 @stop

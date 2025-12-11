@@ -24,215 +24,249 @@
 @stop
 
 @section('content')
-<div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-    
-    {{-- CARD HEADER: Judul & Search --}}
-    <div class="p-5 border-b border-gray-100 flex flex-col lg:flex-row justify-between items-start lg:items-center">
-        <h3 class="text-xl font-bold text-gray-800 flex items-center mb-3 lg:mb-0">
-            <i class="fas fa-list mr-2 text-indigo-500"></i> Daftar Seluruh Siswa
-            <span class="ml-3 text-sm font-bold bg-indigo-600 text-white px-3 py-1 rounded-full shadow-md">{{ $students->total() }}</span>
-        </h3>
-
-        {{-- 💡 Search & Filter Form --}}
-        <form action="{{ route('students.index') }}" method="GET" class="w-full lg:w-auto mt-3 lg:mt-0">
-            <div class="flex items-center space-x-2">
-                
-                {{-- Dropdown Filter Kelas --}}
-                <select name="class_id" onchange="this.form.submit()"
-                         class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm appearance-none cursor-pointer transition duration-150">
-                    <option value="">Semua Kelas</option>
-                    @foreach($classes as $class)
-                        <option value="{{ $class->id }}" 
-                                {{ request('class_id') == $class->id ? 'selected' : '' }}>
-                            {{ $class->name }}
-                        </option>
-                    @endforeach
-                </select>
-
-                {{-- Input Pencarian --}}
-                <input type="text" name="search" 
-                        class="px-3 py-2 border border-gray-300 rounded-l-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm w-full lg:w-48 transition duration-150" 
-                        placeholder="Cari Nama/NISN..." value="{{ request('search') }}">
-                
-                {{-- Tombol Search --}}
-                <button class="bg-indigo-600 text-white p-2.5 rounded-r-lg hover:bg-indigo-700 transition duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-        </form>
+<div class="space-y-6">
+    {{-- PAGE HEADER WITH ACTIONS --}}
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Manajemen Siswa</h2>
+            <p class="text-sm text-gray-500">Kelola data siswa, cetak kartu, import, dan export.</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            {{-- Cetak Semua (Restored) --}}
+            <a href="{{ route('students.barcode.bulk') }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-indigo-50 border border-indigo-200 rounded-xl text-sm font-bold text-indigo-700 hover:bg-indigo-100 shadow-sm transition">
+                <i class="fas fa-print mr-2"></i> Cetak Semua Kartu
+            </a>
+             {{-- Import --}}
+             <a href="{{ route('students.importForm') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">
+                <i class="fas fa-file-import mr-2 text-indigo-500"></i> Import
+            </a>
+            {{-- Export --}}
+            <a href="{{ route('students.export') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">
+                <i class="fas fa-file-excel mr-2 text-green-600"></i> Export
+            </a>
+            {{-- Tambah Siswa --}}
+            <a href="{{ route('students.create') }}" 
+               class="inline-flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold text-white 
+                      bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 
+                      shadow-lg shadow-indigo-200 transition-all duration-200 transform hover:-translate-y-0.5">
+                <i class="fas fa-plus mr-2"></i> Tambah Siswa
+            </a>
+        </div>
     </div>
 
-    <div class="p-5">
+    {{-- MAIN CONTENT CARD --}}
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden relative">
+        
+        {{-- TOOLBAR / FILTER --}}
+        <div class="p-5 border-b border-gray-100 bg-gray-50/30">
+            <div class="flex flex-col lg:flex-row justify-between items-center gap-4">
+                {{-- Left: Filter Info --}}
+                <div class="text-sm text-gray-600 font-medium">
+                    Total: <span class="text-indigo-600 font-bold text-lg">{{ $students->total() }}</span> Siswa
+                </div>
 
-        {{-- Notifikasi (Alert Tailwind) --}}
-        @if(session('error'))
-            <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg relative mb-4" role="alert">
-                <i class="fas fa-ban mr-2"></i> {{ session('error') }}
+                {{-- Right: Search & Filter Form --}}
+                <form action="{{ route('students.index') }}" method="GET" class="w-full lg:w-auto flex flex-col sm:flex-row gap-3">
+                    {{-- Dropdown Filter Kelas --}}
+                    <div class="relative">
+                        <select name="class_id" onchange="this.form.submit()"
+                                class="appearance-none pl-4 pr-10 py-2.5 rounded-xl border-gray-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 w-full sm:w-48 bg-white shadow-sm transition">
+                            <option value="">Semua Kelas</option>
+                            @foreach($classes as $class)
+                                <option value="{{ $class->id }}" {{ request('class_id') == $class->id ? 'selected' : '' }}>
+                                    {{ $class->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+
+                    {{-- Search Input --}}
+                    <div class="relative w-full sm:w-64">
+                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" name="search" 
+                               class="pl-10 pr-4 py-2.5 rounded-xl border-gray-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 w-full shadow-sm transition" 
+                               placeholder="Cari Nama, NIS, atau NISN..." value="{{ request('search') }}">
+                    </div>
+                </form>
+            </div>
+
+            {{-- BULK ACTIONS BAR (Hidden by default, shown via JS) --}}
+            <div id="bulk-actions" class="hidden mt-4 pt-4 border-t border-gray-200 flex items-center justify-between animate-fade-in-down bg-red-50 p-3 rounded-xl border border-red-100">
+                <span class="text-sm font-semibold text-red-700">
+                    <i class="fas fa-check-square mr-2"></i> <span id="selected-count">0</span> Siswa Dipilih
+                </span>
+                <div class="flex space-x-2">
+                    <button type="button" onclick="confirmBulkDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 transition shadow-sm flex items-center">
+                        <i class="fas fa-trash-alt mr-2"></i> Hapus Siswa Terpilih
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {{-- SUCCESS/ERROR ALERTS --}}
+        @if (session('success') || session('error'))
+            <div class="px-6 pt-4">
+                @if (session('success'))
+                    <div class="bg-emerald-50 border border-emerald-100 text-emerald-700 px-4 py-3 rounded-xl flex items-center shadow-sm" role="alert">
+                        <i class="fas fa-check-circle mr-3 text-emerald-500 text-lg"></i>
+                        <span class="font-medium text-sm">{{ session('success') }}</span>
+                         <button type="button" class="ml-auto text-emerald-400 hover:text-emerald-600" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                @endif
+                @if (session('error'))
+                    <div class="bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl flex items-center shadow-sm" role="alert">
+                        <i class="fas fa-exclamation-circle mr-3 text-red-500 text-lg"></i>
+                        <span class="font-medium text-sm">{{ session('error') }}</span>
+                         <button type="button" class="ml-auto text-red-400 hover:text-red-600" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                @endif
             </div>
         @endif
 
-        {{-- Tombol Aksi --}}
-        <div class="flex flex-wrap justify-between items-center mb-6 space-y-3 sm:space-y-0">
-            <div class="flex flex-wrap gap-2">
-                {{-- Tambah Siswa --}}
-                <a href="{{ route('students.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-bold rounded-lg shadow-md text-white bg-indigo-600 hover:bg-indigo-700 transition duration-150 transform hover:-translate-y-0.5">
-                    <i class="fas fa-plus mr-1"></i> Tambah Siswa
-                </a>
-                {{-- Import --}}
-                <a href="{{ route('students.importForm') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-100 transition duration-150">
-                    <i class="fas fa-file-import mr-1"></i> Import
-                </a>
-                {{-- Export --}}
-                <a href="{{ route('students.export') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-bold rounded-lg shadow-md text-white bg-green-600 hover:bg-green-700 transition duration-150">
-                    <i class="fas fa-file-excel mr-1"></i> Export
-                </a>
-                {{-- Cetak Semua (Bulk) --}}
-                <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-bold rounded-lg shadow-md text-gray-800 bg-amber-400 hover:bg-amber-500 transition duration-150" onclick="confirmPrintBulk()">
-                    <i class="fas fa-print mr-1"></i> Cetak Semua
-                </button>
-            </div>
-            {{-- Hapus Massal --}}
-            <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-bold rounded-lg shadow-md text-white bg-red-600 hover:bg-red-700 transition duration-150" onclick="confirmBulkDelete()">
-                <i class="fas fa-trash-alt mr-1"></i> Hapus Massal
-            </button>
-        </div>
-
-        {{-- Tabel Data --}}
-        <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
-            
-            {{-- Form Hapus Massal (Disembunyikan, LOGIKA TIDAK BERUBAH) --}}
+        {{-- TABLE --}}
+        <div class="overflow-x-auto w-full">
             <form id="bulk-delete-form" action="{{ route('students.bulkDelete') }}" method="POST" class="hidden"> 
-                @csrf
-                @method('DELETE')
+                @csrf @method('DELETE') 
             </form>
 
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-indigo-600 text-white">
-                    <tr>
-                        <th class="px-3 py-3 text-center text-xs font-bold uppercase tracking-wider w-8">
-                            <input type="checkbox" id="check-all" class="rounded text-indigo-300 bg-indigo-700 border-indigo-700 focus:ring-indigo-300 focus:ring-offset-0">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50/50 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500 font-semibold">
+                        <th class="px-6 py-4 text-center w-12">
+                            <input type="checkbox" id="check-all" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
                         </th>
-                        <th class="px-3 py-3 text-center text-xs font-bold uppercase tracking-wider w-12">No</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">NISN / NIS</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Nama & Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Kelas</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Jenis Kelamin</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-center text-xs font-bold uppercase tracking-wider w-40">Aksi</th>
+                        <th class="px-6 py-4 w-16 text-center">No</th>
+                        <th class="px-6 py-4">Siswa</th> {{-- Combined Photo, Name, Email --}}
+                        <th class="px-6 py-4">Identitas (NIS/N)</th>
+                        <th class="px-6 py-4">Kelas</th>
+                        <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4 text-center w-36">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-100">
+                <tbody class="divide-y divide-gray-100">
                     @forelse($students as $student)
-                    <tr class="hover:bg-indigo-50/20 transition duration-150">
-                        <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                            {{-- Checkbox bulk --}}
-                            <input type="checkbox" name="selected_students[]" value="{{ $student->id }}" class="bulk-checkbox rounded text-indigo-500 focus:ring-indigo-500">
-                        </td>
-                        <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-700 text-center">{{ $loop->iteration + ($students->perPage() * ($students->currentPage() - 1)) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <strong class="text-gray-900 font-semibold">{{ $student->nisn }}</strong><br>
-                            <small class="text-gray-500 text-xs">NIS: {{ $student->nis ?? '-' }}</small>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <strong class="text-gray-900 font-semibold">{{ $student->name }}</strong><br>
-                            @if($student->email)
-                                <small class="text-gray-500 text-xs"><i class="far fa-envelope mr-1"></i> {{ $student->email }}</small>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @if($student->class)
-                                {{-- Badge Kelas --}}
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-cyan-100 text-cyan-800 shadow-sm">
-                                    {{ $student->class->name }}
-                                </span>
-                            @else
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-gray-200 text-gray-700">
-                                    Tidak Ada
-                                </span>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @php
-                                $isMale = $student->gender == 'Laki-laki';
-                                $genderColor = $isMale ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800';
-                            @endphp
-                            {{-- Badge Gender --}}
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $genderColor }}">
-                                <i class="fas fa-{{ $isMale ? 'male' : 'female' }} mr-1"></i> {{ $student->gender }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @php
-                                $statusColor = $student->status == 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-                            @endphp
-                            {{-- Badge Status --}}
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusColor }}">
-                                {{ $student->status == 'active' ? 'Aktif' : 'Non-Aktif' }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                            <div class="inline-flex space-x-2">
-                                
-                                {{-- 🆕 TOMBOL CETAK BARCODE SATUAN --}}
-                                {{-- Memanggil route students.barcode.single ke controller generateBarcode --}}
-                                <a href="{{ route('students.barcode', $student->id) }}" target="_blank" 
-                                    class="text-indigo-700 hover:text-indigo-900 p-2 rounded-full bg-indigo-100 hover:bg-indigo-200 transition duration-150 shadow-sm" 
-                                    title="Cetak Barcode Siswa"
-                                    onclick="window.open(this.href, 'CetakBarcode', 'width=800,height=600'); return false;">
-                                    <i class="fas fa-print w-4 h-4"></i>
-                                </a>
-
-                                {{-- Tombol Edit --}}
-                                <a href="{{ route('students.edit', $student->id) }}" class="text-amber-700 hover:text-amber-900 p-2 rounded-full bg-amber-100 hover:bg-amber-200 transition duration-150 shadow-sm" title="Edit Siswa"><i class="fas fa-edit w-4 h-4"></i></a>
-                                
-                                {{-- Tombol Hapus --}}
-                                <button type="button" class="text-red-700 hover:text-red-900 p-2 rounded-full bg-red-100 hover:bg-red-200 transition duration-150 shadow-sm" title="Hapus Siswa" onclick="confirmDelete({{ $student->id }}, '{{ $student->name }}')"><i class="fas fa-trash w-4 h-4"></i></button>
-
-                                @if ($student->status == 'active')
-                                    {{-- Non-aktifkan --}}
-                                    <button type="button" class="text-gray-700 hover:text-gray-900 p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition duration-150 shadow-sm" title="Nonaktifkan Siswa" onclick="confirmStatusChange({{ $student->id }}, 'deactivate', '{{ $student->name }}')"><i class="fas fa-user-slash w-4 h-4"></i></button>
+                        <tr class="group hover:bg-indigo-50/30 transition duration-200">
+                            {{-- Checkbox --}}
+                            <td class="px-6 py-4 text-center">
+                                <input type="checkbox" name="selected_students[]" value="{{ $student->id }}" class="bulk-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                            </td>
+                            {{-- No --}}
+                            <td class="px-6 py-4 text-center text-sm text-gray-400 font-medium">
+                                {{ $loop->iteration + (($students->currentPage() - 1) * $students->perPage()) }}
+                            </td>
+                            {{-- Siswa (Photo + Name) --}}
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="h-10 w-10 flex-shrink-0">
+                                        {{-- Avatar Check --}}
+                                        @if($student->photo && $student->photo != 'default_avatar.png')
+                                            <img class="h-10 w-10 rounded-full object-cover border border-gray-200 shadow-sm" src="{{ asset('storage/' . $student->photo) }}" alt="">
+                                        @else
+                                            <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold border border-indigo-100">
+                                                {{ substr($student->name, 0, 1) }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition">{{ $student->name }}</div>
+                                        <div class="text-xs text-gray-500">{{ $student->email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            {{-- Identitas --}}
+                            <td class="px-6 py-4">
+                                <span class="block text-sm font-medium text-gray-800">{{ $student->nisn }}</span>
+                                <span class="block text-xs text-gray-500 tracking-wide font-mono mt-0.5">{{ $student->nis ?? '-' }}</span>
+                            </td>
+                            {{-- Kelas --}}
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                        {{ $student->class ? $student->class->name : 'Tanpa Kelas' }}
+                                    </span>
+                                </div>
+                            </td>
+                            {{-- Status --}}
+                            <td class="px-6 py-4">
+                                @if($student->status == 'active')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span> Aktif
+                                    </span>
                                 @else
-                                    {{-- Aktifkan --}}
-                                    <button type="button" class="text-green-700 hover:text-green-900 p-2 rounded-full bg-green-100 hover:bg-green-200 transition duration-150 shadow-sm" title="Aktifkan Siswa" onclick="confirmStatusChange({{ $student->id }}, 'activate', '{{ $student->name }}')"><i class="fas fa-user-check w-4 h-4"></i></button>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <span class="w-1.5 h-1.5 bg-red-500 rounded-full mr-1.5"></span> Non-Aktif
+                                    </span>
                                 @endif
-                            </div>
-
-                            {{-- Form Hapus Satuan (Logika TIDAK BERUBAH) --}}
-                            <form id="delete-form-{{ $student->id }}" action="{{ route('students.destroy', $student->id) }}" method="POST" class="hidden">
-                                @csrf @method('DELETE')
-                            </form>
-                            {{-- Form Status (Logika TIDAK BERUBAH) --}}
-                            <form id="status-form-{{ $student->id }}-activate" action="{{ route('students.activate', $student->id) }}" method="POST" class="hidden"> @csrf @method('PUT') </form>
-                            <form id="status-form-{{ $student->id }}-deactivate" action="{{ route('students.deactivate', $student->id) }}" method="POST" class="hidden"> @csrf @method('PUT') </form>
-                        </td>
-                    </tr>
+                            </td>
+                            {{-- Aksi --}}
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex justify-center space-x-1 opacity-80 group-hover:opacity-100 transition">
+                                    {{-- Print --}}
+                                    <a href="{{ route('students.barcode', $student->id) }}" target="_blank" 
+                                       onclick="window.open(this.href, 'CetakBarcode', 'width=600,height=800'); return false;"
+                                       class="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-indigo-600 transition" title="Cetak Barcode">
+                                        <i class="fas fa-print"></i>
+                                    </a>
+                                    {{-- Edit --}}
+                                    <a href="{{ route('students.edit', $student->id) }}" 
+                                       class="p-1.5 rounded-lg text-gray-500 hover:bg-amber-50 hover:text-amber-600 transition" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {{-- Delete --}}
+                                    <button type="button" class="p-1.5 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 transition" 
+                                            onclick="confirmDelete({{ $student->id }}, '{{ $student->name }}')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                                <form id="delete-form-{{ $student->id }}" action="{{ route('students.destroy', $student->id) }}" method="POST" class="hidden">
+                                    @csrf @method('DELETE')
+                                </form>
+                            </td>
+                        </tr>
                     @empty
-                    <tr>
-                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
-                            <i class="fas fa-user-slash fa-3x mb-3 block text-gray-300"></i>
-                            Belum ada data siswa.
-                            <br>
-                            <a href="{{ route('students.create') }}" class="inline-flex items-center px-4 py-2 mt-3 border border-transparent text-sm font-bold rounded-lg shadow-md text-white bg-indigo-600 hover:bg-indigo-700 transition duration-150 transform hover:-translate-y-0.5">
-                                <i class="fas fa-plus mr-1"></i> Tambah Siswa
-                            </a>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td colspan="7">
+                                <div class="flex flex-col items-center justify-center py-16 text-center">
+                                    <div class="bg-gray-50 rounded-full h-24 w-24 flex items-center justify-center mb-4">
+                                        <i class="fas fa-user-graduate text-gray-300 text-4xl"></i>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-gray-800 mb-1">Tidak ada Data Siswa</h3>
+                                    <p class="text-gray-500 text-sm mb-6 max-w-sm">Coba sesuaikan filter pencarian atau tambahkan siswa baru.</p>
+                                    <a href="{{ route('students.create') }}" class="px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
+                                        <i class="fas fa-plus mr-2"></i> Tambah Siswa Baru
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
-
-        {{-- Pagination --}}
-        <div class="flex flex-col sm:flex-row justify-between items-center mt-6">
-            <small class="text-sm text-gray-600 mb-2 sm:mb-0">
-                Menampilkan **{{ $students->firstItem() ?? 0 }} - {{ $students->lastItem() ?? 0 }}** dari **{{ $students->total() }}** siswa
-            </small>
-            <div class="mt-2 sm:mt-0">
-                {{ $students->appends(['search' => request('search'), 'class_id' => request('class_id')])->links() }} 
+        {{-- PAGINATION --}}
+        @if($students->hasPages())
+            <div class="bg-gray-50/50 border-t border-gray-100 px-6 py-4">
+                {{ $students->appends(['search' => request('search'), 'class_id' => request('class_id')])->links('pagination::tailwind') }}
             </div>
-        </div>
+        @endif
     </div>
+
+    {{-- Hidden Flash Messages for JS --}}
+    @if(session('success'))
+        <div id="flash-success" data-message="{{ session('success') }}" class="hidden"></div>
+    @endif
+    @if(session('error'))
+        <div id="flash-error" data-message="{{ session('error') }}" class="hidden"></div>
+    @endif
 </div>
 @stop
 
@@ -240,7 +274,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
 
 <script>
-// --- LOGIKA JAVASCRIPT UTAMA (Fungsionalitas TIDAK BERUBAH) ---
+// --- LOGIKA JAVASCRIPT UTAMA ---
 
 // Ganti warna SweetAlert ke palet Tailwind
 const SWAL_COLOR = {
@@ -251,6 +285,7 @@ const SWAL_COLOR = {
     warning: '#f59e0b', // amber-500
 };
 
+// Fungsi-fungsi Global (harus di luar document.ready agar bisa dipanggil via onclick)
 function confirmDelete(id, name) {
     Swal.fire({
         title: 'Hapus Siswa?',
@@ -269,6 +304,7 @@ function confirmDelete(id, name) {
                 form.submit(); 
             } else {
                 console.error("Form delete tidak ditemukan:", `#delete-form-${id}`); 
+                Swal.fire('Error', 'Form hapus tidak ditemukan.', 'error');
             }
         }
     });
@@ -344,43 +380,58 @@ function confirmPrintBulk() {
     }).then((r) => { if (r.isConfirmed) window.open('{{ route("students.barcode.bulk") }}', '_blank'); });
 }
 
-$('#check-all').on('click', function() {
-    $('input.bulk-checkbox').prop('checked', $(this).prop('checked'));
-});
-
+// Event Listeners saat DOM Ready
 $(document).ready(function() {
-    // 1. TUTUP MODAL LOADING
-    @if(session('close_loading'))
-        Swal.close(); 
-    @endif
-    
-    // 2. TAMPILKAN SWEETALERT UNTUK NOTIFIKASI SESI
-    @if(session('success')) 
-        Swal.fire({ 
-            icon: 'success', 
-            title: 'Berhasil!', 
-            text: '{{ session('success') }}', 
-            toast: true, 
-            position: 'top-end', 
-            showConfirmButton: false, 
-            timer: 5000 
-        });
-    @endif
+    // Toggle Check All
+    $('#check-all').on('click', function() {
+        $('input.bulk-checkbox').prop('checked', $(this).prop('checked')).trigger('change');
+    });
 
-    @if(session('error')) 
-        Swal.fire({ 
-            icon: 'error', 
-            title: 'Gagal!', 
-            text: '{{ session('error') }}', 
-            toast: true, 
-            position: 'top-end', 
-            showConfirmButton: false, 
-            timer: 5000 
-        });
-    @endif
-    
-    // Auto-hide alerts (untuk alert HTML biasa jika ada)
+    // Listener untuk checkbox individual & Check All
+    $(document).on('change', 'input.bulk-checkbox, #check-all', function() {
+        const selectedCount = $('input.bulk-checkbox:checked').length;
+        $('#selected-count').text(selectedCount);
+
+        if (selectedCount > 0) {
+            $('#bulk-actions').removeClass('hidden').addClass('flex');
+        } else {
+            $('#bulk-actions').addClass('hidden').removeClass('flex');
+        }
+    });
+
+    // Auto-hide alerts HTML biasa
     setTimeout(() => $('.alert-dismissible').slideUp(300, function() { $(this).remove(); }), 5000); 
 });
+
+// 💡 DIRECT INJECTION UNTUK MEMASTIKAN ALERT SWEETALERT MUNCUL
+@if(session('success'))
+    document.addEventListener("DOMContentLoaded", function() {
+        setTimeout(function() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: {!! json_encode(session('success')) !!},
+                confirmButtonText: 'Oke',
+                confirmButtonColor: SWAL_COLOR.confirm,
+                timer: 5000,
+                timerProgressBar: true
+            });
+        }, 500); // Delay kecil untuk memastikan SWAL siap
+    });
+@endif
+
+@if(session('error'))
+    document.addEventListener("DOMContentLoaded", function() {
+        setTimeout(function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: {!! json_encode(session('error')) !!},
+                confirmButtonText: 'Tutup',
+                confirmButtonColor: SWAL_COLOR.danger
+            });
+        }, 500);
+    });
+@endif
 </script>
 @stop

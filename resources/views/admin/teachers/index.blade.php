@@ -7,14 +7,13 @@
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
     <div class="mb-2 sm:mb-0">
         <h1 class="text-2xl font-bold text-gray-800 flex items-center">
-            {{-- Menggunakan warna Purple-600 --}}
             <i class="fas fa-chalkboard-teacher text-purple-600 mr-2"></i> 
             <span>Manajemen Data Wali Kelas</span>
         </h1>
+        <small class="text-sm text-gray-500 block mt-1">Kelola akun wali kelas dan penugasan kelas.</small>
     </div>
     <nav class="text-sm font-medium text-gray-500" aria-label="Breadcrumb">
         <ol class="flex space-x-2">
-            {{-- Mengganti blue-600 ke indigo-600 --}}
             <li><a href="{{ route('admin.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150">Home</a></li>
             <li class="text-gray-400">/</li>
             <li class="text-gray-600 font-semibold">Wali Kelas</li>
@@ -24,92 +23,107 @@
 @stop
 
 @section('content')
-<div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden"> 
+<div class="space-y-6">
     
-    {{-- CARD HEADER --}}
-    <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-        <h3 class="text-xl font-bold text-gray-800 flex items-center mb-3 sm:mb-0">
-            <i class="fas fa-list mr-2 text-indigo-500"></i> Daftar Akun Wali Kelas
-            {{-- Menggunakan warna Purple-600 --}}
-            <span class="ml-3 text-sm font-bold bg-purple-600 text-white px-3 py-1 rounded-full shadow-md">{{ $teachers->count() }}</span>
-        </h3>
-        <div class="flex-shrink-0">
-            {{-- Tombol Tambah Wali Kelas (Mengganti blue-600 ke purple-600) --}}
+    {{-- PAGE HEADER WITH ACTIONS --}}
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Daftar Wali Kelas</h2>
+            <p class="text-sm text-gray-500">Total <span class="font-bold text-purple-600">{{ count($teachers) }}</span> Wali Kelas terdaftar.</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            {{-- Tambah Wali Kelas --}}
             <a href="{{ route('teachers.create') }}" 
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-bold rounded-lg shadow-md
-                        text-white bg-purple-600 hover:bg-purple-700 transition duration-150 transform hover:-translate-y-0.5">
-                <i class="fas fa-plus mr-1"></i> Tambah Wali Kelas
+               class="inline-flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold text-white 
+                      bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 
+                      shadow-lg shadow-purple-200 transition-all duration-200 transform hover:-translate-y-0.5">
+                <i class="fas fa-plus mr-2"></i> Tambah Wali Kelas
             </a>
         </div>
     </div>
-    
-    <div class="p-5">
+
+    {{-- MAIN CONTENT CARD --}}
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden relative">
         
-        {{-- TABEL DATA --}}
-        <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-800 text-white"> {{-- Tetap Dark/Gray untuk Thead --}}
-                    <tr>
-                        <th class="px-3 py-3 text-left text-xs font-bold uppercase tracking-wider w-12">#</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Nama Guru</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Email (Login)</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Kelas Diampu</th>
-                        <th class="px-6 py-3 text-center text-xs font-bold uppercase tracking-wider w-40">Aksi</th>
+        {{-- TABLE --}}
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50/50 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500 font-semibold">
+                        <th class="px-6 py-4 w-16 text-center">No</th>
+                        <th class="px-6 py-4">Wali Kelas</th>
+                        <th class="px-6 py-4">Email (Login)</th>
+                        <th class="px-6 py-4">Kelas Diampu</th>
+                        <th class="px-6 py-4 text-center w-36">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-100">
+                <tbody class="divide-y divide-gray-100">
                     @forelse($teachers as $teacher)
-                    <tr class="hover:bg-purple-50/20 transition duration-150"> {{-- Hover effect Purple --}}
-                        <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-700">{{ $loop->iteration }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                            <div><strong>{{ $teacher->name }}</strong></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $teacher->email }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @if($teacher->homeroomTeacher && $teacher->homeroomTeacher->class)
-                                {{-- Badge Kelas Diampu (Menggunakan Purple) --}}
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-purple-100 text-purple-800 shadow-sm">
-                                    {{ $teacher->homeroomTeacher->class->name }} 
-                                    (@if(isset($teacher->homeroomTeacher->class->grade)) Tingkat {{ $teacher->homeroomTeacher->class->grade }} @endif)
-                                </span>
-                            @else
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-gray-200 text-gray-700">
-                                    Belum Diampu
-                                </span>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                            {{-- Mengganti btn-group btn-group-sm ke inline-flex space-x-2 --}}
-                            <div class="inline-flex space-x-2"> 
-                                {{-- Tombol Edit (Warning -> Amber, rounded-full) --}}
-                                <a href="{{ route('teachers.edit', $teacher->id) }}" class="text-amber-700 hover:text-amber-900 p-2 rounded-full bg-amber-100 hover:bg-amber-200 transition duration-150 shadow-sm" title="Edit Data">
-                                    <i class="fas fa-edit w-4 h-4"></i>
-                                </a>
-                                {{-- Tombol Hapus (Danger -> Red, rounded-full) --}}
-                                <button type="button" 
-                                        class="text-red-700 hover:text-red-900 p-2 rounded-full bg-red-100 hover:bg-red-200 transition duration-150 shadow-sm" 
-                                        title="Hapus Akun"
-                                        onclick="confirmDelete({{ $teacher->id }}, '{{ $teacher->name }}')">
-                                    <i class="fas fa-trash w-4 h-4"></i>
-                                </button>
-                            </div>
-                            
-                            {{-- Form Hapus Tersembunyi (LOGIKA TIDAK BERUBAH) --}}
-                            <form id="delete-form-{{ $teacher->id }}" 
-                                    action="{{ route('teachers.destroy', $teacher->id) }}" 
-                                    method="POST" class="hidden">
-                                @csrf
-                                @method('DELETE')
-                            </form>
-                        </td>
-                    </tr>
+                        <tr class="group hover:bg-purple-50/30 transition duration-200">
+                            {{-- No --}}
+                            <td class="px-6 py-4 text-center text-sm text-gray-400 font-medium">
+                                {{ $loop->iteration }}
+                            </td>
+                            {{-- Nama --}}
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold border border-purple-100 mr-3">
+                                        {{ substr($teacher->name, 0, 1) }}
+                                    </div>
+                                    <span class="text-sm font-bold text-gray-900 group-hover:text-purple-700 transition">{{ $teacher->name }}</span>
+                                </div>
+                            </td>
+                            {{-- Email --}}
+                            <td class="px-6 py-4 text-sm text-gray-600">
+                                {{ $teacher->email }}
+                            </td>
+                            {{-- Kelas --}}
+                            <td class="px-6 py-4">
+                                @if($teacher->homeroomTeacher && $teacher->homeroomTeacher->class)
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm">
+                                        {{ $teacher->homeroomTeacher->class->name }} 
+                                        @if(isset($teacher->homeroomTeacher->class->grade)) <span class="ml-1 opacity-70">(Kelas {{ $teacher->homeroomTeacher->class->grade }})</span> @endif
+                                    </span>
+                                @else
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-gray-100 text-gray-500 border border-gray-200">
+                                        Belum Diampu
+                                    </span>
+                                @endif
+                            </td>
+                            {{-- Aksi --}}
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex justify-center space-x-1 opacity-80 group-hover:opacity-100 transition">
+                                    {{-- Edit --}}
+                                    <a href="{{ route('teachers.edit', $teacher->id) }}" 
+                                       class="p-2 rounded-lg text-gray-500 hover:bg-amber-50 hover:text-amber-600 transition" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {{-- Delete --}}
+                                    <button type="button" class="p-2 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 transition" 
+                                            onclick="confirmDelete({{ $teacher->id }}, '{{ $teacher->name }}')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                                <form id="delete-form-{{ $teacher->id }}" action="{{ route('teachers.destroy', $teacher->id) }}" method="POST" class="hidden">
+                                    @csrf @method('DELETE')
+                                </form>
+                            </td>
+                        </tr>
                     @empty
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
-                            <i class="fas fa-user-slash fa-3x mb-3 block text-gray-300"></i>
-                            Belum ada data Wali Kelas yang terdaftar.
-                        </td>
-                    </tr>
+                        <tr>
+                            <td colspan="5">
+                                <div class="flex flex-col items-center justify-center py-12 text-center">
+                                    <div class="bg-gray-50 rounded-full h-20 w-20 flex items-center justify-center mb-4">
+                                        <i class="fas fa-chalkboard-teacher text-gray-300 text-3xl"></i>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-gray-800 mb-1">Belum ada Wali Kelas</h3>
+                                    <p class="text-gray-500 text-sm mb-4">Silakan tambahkan data wali kelas baru.</p>
+                                    <a href="{{ route('teachers.create') }}" class="px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-semibold hover:bg-purple-700 transition">
+                                        <i class="fas fa-plus mr-1"></i> Tambah Data
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
@@ -118,59 +132,70 @@
 </div>
 @stop
 
-{{-- HAPUS @section('css') yang lama --}}
-
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // --- FUNGSI HAPUS TUNGGAL DENGAN SWEETALERT (LOGIKA TIDAK BERUBAH) ---
-    function confirmDelete(id, teacherName) {
-        Swal.fire({
-            title: 'Hapus Akun Wali Kelas?',
-            text: `Yakin ingin menghapus akun "${teacherName}"? Tindakan ini akan menghapus penugasan kelas secara otomatis.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc2626', // Red-600
-            cancelButtonColor: '#4f46e5', // Indigo-600 (Ganti dari abu-abu ke Indigo agar konsisten dengan branding batal)
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const form = $(`#delete-form-${id}`);
-                
-                if (form.length) {
-                    // Logika submit yang aman
-                    form.removeClass('hidden').submit(); 
-                }
-            }
-        });
-    }
+// --- LOGIKA JAVASCRIPT UTAMA ---
 
-    $(document).ready(function() {
-        // --- Tampilkan notifikasi SweetAlert Toast untuk pesan sesi (LOGIKA TIDAK BERUBAH) ---
-        @if(session('success'))
-             Swal.fire({ 
-                 icon: 'success', 
-                 title: 'Berhasil!', 
-                 text: '{{ session('success') }}', 
-                 toast: true, 
-                 position: 'top-end', 
-                 showConfirmButton: false, 
-                 timer: 3000 
-             });
-        @endif
-        @if(session('error'))
-             Swal.fire({ 
-                 icon: 'error', 
-                 title: 'Gagal!', 
-                 text: '{{ session('error') }}', 
-                 toast: true, 
-                 position: 'top-end', 
-                 showConfirmButton: false, 
-                 timer: 3000 
-             });
-        @endif
+const SWAL_COLOR = {
+    danger: '#dc2626', // red-600
+    confirm: '#7c3aed', // purple-600 (Custom for Teachers)
+    cancel: '#6b7280', // gray-500
+};
+
+// Fungsi Hapus Global
+function confirmDelete(id, name) {
+    Swal.fire({
+        title: 'Hapus Wali Kelas?',
+        text: `Yakin ingin menghapus akun "${name}"? Penugasan kelas akan otomatis terhapus.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: SWAL_COLOR.danger,
+        cancelButtonColor: SWAL_COLOR.cancel,
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal',
+        reverseButtons: true, 
+    }).then((r) => { 
+        if (r.isConfirmed) {
+            const form = document.getElementById(`delete-form-${id}`);
+            if (form) {
+                form.submit(); 
+            } else {
+                Swal.fire('Error', 'Form hapus tidak ditemukan.', 'error');
+            }
+        }
     });
+}
+
+// 💡 DIRECT INJECTION UNTUK MEMASTIKAN ALERT MUNCUL
+@if(session('success'))
+    document.addEventListener("DOMContentLoaded", function() {
+        setTimeout(function() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: {!! json_encode(session('success')) !!},
+                confirmButtonText: 'Oke',
+                confirmButtonColor: SWAL_COLOR.confirm,
+                timer: 4000,
+                timerProgressBar: true
+            });
+        }, 500); 
+    });
+@endif
+
+@if(session('error'))
+    document.addEventListener("DOMContentLoaded", function() {
+        setTimeout(function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: {!! json_encode(session('error')) !!},
+                confirmButtonText: 'Tutup',
+                confirmButtonColor: SWAL_COLOR.danger
+            });
+        }, 500);
+    });
+@endif
 </script>
 @stop

@@ -1,119 +1,131 @@
 @extends('layouts.adminlte')
 
-@section('title', 'Riwayat Absensi Anak')
+@section('title', 'Riwayat Absensi Lengkap')
 
 @section('content_header')
-{{-- HEADER: Menggunakan Flexbox Tailwind --}}
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-    <h1 class="text-2xl font-bold text-gray-800 flex items-center mb-2 sm:mb-0">
-        <i class="fas fa-list-alt text-blue-600 mr-2"></i>
-        <span>Riwayat Absensi Anak (30 Hari Terakhir)</span>
-    </h1>
-    <nav class="text-sm font-medium text-gray-500" aria-label="Breadcrumb">
+    <div>
+        <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center">
+            <i class="fas fa-file-alt text-purple-600 mr-3"></i>
+            Riwayat Absensi
+        </h1>
+        <p class="text-sm text-gray-500 mt-1 font-medium">Laporan kehadiran putra/putri Anda dalam 30 hari terakhir.</p>
+    </div>
+    <nav class="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100" aria-label="Breadcrumb">
         <ol class="flex space-x-2">
-            <li><a href="{{ route('orangtua.dashboard') }}" class="text-blue-600 hover:text-blue-800">Dashboard</a></li>
-            <li class="text-gray-400">/</li>
-            <li class="text-gray-600">Riwayat Absensi</li>
+            <li><a href="{{ route('orangtua.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150"><i class="fas fa-home"></i></a></li>
+            <li class="text-gray-300">/</li>
+            <li class="text-gray-800 font-bold">Laporan</li>
         </ol>
     </nav>
 </div>
 @stop
 
 @section('content')
-    <div class="card shadow-lg border-0 glassmorphism-card">
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
         
-        {{-- CARD HEADER DENGAN TOMBOL EXPORT --}}
-        <div class="card-header bg-white border-0 p-4">
-            <div class="flex justify-between items-center flex-wrap">
-                
-                {{-- Kiri: Judul dan Keterangan --}}
-                <div class="mb-2 sm:mb-0">
-                    <h3 class="card-title custom-card-title mb-1"><i class="fas fa-table mr-1"></i> Data Kehadiran 30 Hari</h3>
-                    <p class="small text-muted">Riwayat absensi semua anak yang terhubung dengan akun Anda.</p>
-                </div>
-                
-                {{-- Kanan: Tombol Export (Dibuat lebih robust) --}}
-                <div class="btn-group flex flex-wrap gap-2 sm:gap-1 flex-shrink-0">
-                    <a href="{{ route('orangtua.report.export', ['format' => 'excel']) }}" 
-                       class="btn btn-success btn-sm text-white shadow-sm">
-                        <i class="fas fa-file-excel mr-1"></i> Export Excel
-                    </a>
-                    <a href="{{ route('orangtua.report.export', ['format' => 'pdf']) }}" 
-                       class="btn btn-danger btn-sm text-white shadow-sm">
-                        <i class="fas fa-file-pdf mr-1"></i> Export PDF
-                    </a>
-                </div>
-                
+        {{-- CARD HEADER --}}
+        <div class="p-6 border-b border-gray-100 bg-purple-50/30 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div>
+                 <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-history mr-2 text-purple-600"></i> Data Kehadiran
+                </h3>
+                <p class="text-sm text-gray-500 mt-1">
+                    Berikut adalah data kehadiran yang tercatat. Untuk melihat detail log (foto scan/lokasi), klik tombol mata.
+                </p>
+            </div>
+            
+            {{-- Tombol Export --}}
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('orangtua.report.export', ['format' => 'excel']) }}" 
+                   class="inline-flex items-center px-4 py-2 text-sm font-bold rounded-xl shadow-sm text-white bg-green-500 hover:bg-green-600 transition duration-150 transform hover:-translate-y-0.5">
+                    <i class="fas fa-file-excel mr-2"></i> Export Excel
+                </a>
+                <a href="{{ route('orangtua.report.export', ['format' => 'pdf']) }}" 
+                   class="inline-flex items-center px-4 py-2 text-sm font-bold rounded-xl shadow-sm text-white bg-red-500 hover:bg-red-600 transition duration-150 transform hover:-translate-y-0.5">
+                    <i class="fas fa-file-pdf mr-2"></i> Export PDF
+                </a>
             </div>
         </div>
         
-        <div class="card-body p-0">
-            
-            @if($parentRecord->students->isEmpty())
-                <div class="alert alert-warning m-4">
-                    <i class="fas fa-exclamation-triangle mr-2"></i> Akun Anda terhubung, tetapi belum ada siswa yang terdaftar.
+        <div class="p-0">
+            @if($absences->isEmpty())
+                <div class="p-12 text-center text-gray-400">
+                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                        <i class="fas fa-calendar-times fa-2x text-gray-400"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">Belum Ada Data</h3>
+                    <p class="mt-1">Tidak ada riwayat absensi dalam 30 hari terakhir.</p>
                 </div>
             @else
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-800 text-white">
+                    <table class="min-w-full divide-y divide-gray-100">
+                        <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Anak</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Kelas</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Tanggal</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Masuk</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Pulang</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider">Aksi</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Siswa</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Masuk</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Pulang</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Detail</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse($absences as $absence)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $absence->student->name ?? 'N/A' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $absence->student->class?->name ?? 'N/A' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $absence->attendance_time->format('d/m/Y') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $absence->attendance_time->format('H:i') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $absence->checkout_time?->format('H:i') ?? '-' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            @foreach($absences as $absence)
+                            <tr class="hover:bg-gray-50/50 transition duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-bold text-gray-800">{{ $absence->student->name ?? 'N/A' }}</div>
+                                    <div class="text-xs text-gray-500">{{ $absence->student->class?->name ?? 'N/A' }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
+                                    {{ $absence->attendance_time->translatedFormat('d F Y') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                    <span class="font-mono bg-gray-100 px-2 py-1 rounded">{{ $absence->attendance_time->format('H:i') }}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                    @if($absence->checkout_time)
+                                        <span class="font-mono bg-gray-100 px-2 py-1 rounded">{{ $absence->checkout_time->format('H:i') }}</span>
+                                    @else
+                                        <span class="text-gray-300">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
                                     @php
-                                        // Logika badge status
-                                        $statusText = $absence->status;
-                                        $badgeClass = [
-                                            'Hadir' => 'bg-green-100 text-green-800', 
-                                            'Terlambat' => 'bg-amber-100 text-amber-800', 
-                                            'Izin' => 'bg-blue-100 text-blue-800',
-                                            'Sakit' => 'bg-cyan-100 text-cyan-800', 
-                                            'Alpha' => 'bg-red-100 text-red-800'
-                                        ][$statusText] ?? 'bg-gray-100 text-gray-600';
+                                        $statusStyles = [
+                                            'Hadir' => 'bg-green-100 text-green-700',
+                                            'Terlambat' => 'bg-amber-100 text-amber-700',
+                                            'Absen' => 'bg-red-100 text-red-700',
+                                            'Izin' => 'bg-blue-100 text-blue-700',
+                                            'Sakit' => 'bg-purple-100 text-purple-700',
+                                            'Alpha' => 'bg-red-100 text-red-700',
+                                        ];
+                                        $style = $statusStyles[$absence->status] ?? 'bg-gray-100 text-gray-600';
                                         
-                                        if ($absence->checkout_time) {
-                                            $badgeClass = 'bg-indigo-100 text-indigo-800'; 
-                                            $statusText .= ' / Pulang';
+                                        if($absence->checkout_time) {
+                                            $style = 'bg-teal-100 text-teal-700';
                                         }
                                     @endphp
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $badgeClass }}">{{ $statusText }}</span>
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full {{ $style }}">
+                                        {{ $absence->status }}{{ $absence->checkout_time ? ' (Selesai)' : '' }}
+                                    </span>
                                 </td>
-                                {{-- LINK KE DETAIL ABSENSI --}}
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
-                                    <a href="{{ route('orangtua.absensi.show_detail', $absence->id) }}" class="text-blue-600 hover:text-blue-800" title="Lihat Detail & Log Koreksi">
-                                        <i class="fas fa-eye"></i>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <a href="{{ route('orangtua.absensi.show_detail', $absence->id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition duration-150" title="Lihat Detail">
+                                        <i class="fas fa-chevron-right"></i>
                                     </a>
                                 </td>
                             </tr>
-                            @empty
-                            <tr>
-                                <td colspan="7" class="px-6 py-10 text-center text-muted">Belum ada riwayat absensi tercatat dalam 30 hari terakhir.</td>
-                            </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
+                
+                {{-- Pagination --}}
+                <div class="p-4 border-t border-gray-100">
+                     {{ $absences->links('pagination::tailwind') }}
+                </div>
             @endif
-        </div>
-        
-        <div class="card-footer clearfix">
-            {{ $absences->links('pagination::bootstrap-4') }} 
         </div>
     </div>
 @stop
@@ -125,47 +137,4 @@
          $('.alert').fadeOut(400);
     }, 5000);
 </script>
-@endsection
-
-@push('css')
-<style>
-/* --- CUSTOM CSS TAILWIND MAPPING --- */
-.text-blue-600 { color: #2563eb; }
-.bg-blue-100 { background-color: #dbeafe; }
-.text-blue-800 { color: #1e40af; }
-.bg-indigo-100 { background-color: #e0e7ff; }
-.text-indigo-800 { color: #3730a3; }
-.bg-gray-800 { background-color: #1f2937 !important; }
-
-/* Warna Badge Khusus */
-.bg-green-100 { background-color: #d1fae5; }
-.text-green-800 { color: #065f46; }
-.bg-amber-100 { background-color: #fef3c7; }
-.text-amber-800 { color: #b45309; }
-.bg-cyan-100 { background-color: #cffafe; }
-.text-cyan-800 { color: #0e7490; }
-.bg-red-100 { background-color: #fee2e2; }
-.text-red-800 { color: #991b1b; }
-
-/* Glassmorphism Card Style (dari dashboard) */
-.glassmorphism-card {
-    background: rgba(255, 255, 255, 0.9) !important;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    border-radius: 1rem !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,.08);
-}
-.custom-card-title { font-size: 1.25rem; font-weight: 600; }
-
-/* Tombol Export */
-.btn-success { background-color: #198754 !important; border-color: #198754; color: #fff !important; }
-.btn-danger { background-color: #dc3545 !important; border-color: #dc3545; color: #fff !important; }
-
-/* Perbaikan AdminLTE */
-.btn-sm { padding: 0.25rem 0.5rem; font-size: 0.875rem; }
-
-/* FIXES */
-.btn-group { display: inline-flex; } /* Memastikan btn-group tetap flex */
-
-</style>
-@endpush
+@stop

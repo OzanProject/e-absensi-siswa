@@ -56,7 +56,12 @@ class UserController extends Controller
             $users = $query->orderBy('is_approved', 'desc')->orderBy('created_at', 'desc')->paginate(15);
         }
             
-        return view('admin.users.index', compact('users', 'roles', 'tab', 'search'));
+            
+        // Hitung statistik untuk summary card
+        $totalUsersCount = User::where('role', '!=', 'super_admin')->count();
+        $pendingUsersCount = User::where('role', '!=', 'super_admin')->where('is_approved', 0)->count();
+
+        return view('admin.users.index', compact('users', 'roles', 'tab', 'search', 'totalUsersCount', 'pendingUsersCount'));
     }
     
     public function create()

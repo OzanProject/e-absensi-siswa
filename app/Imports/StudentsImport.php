@@ -5,18 +5,17 @@ namespace App\Imports;
 use App\Models\Student;
 use App\Models\ClassModel;
 use Illuminate\Validation\Rule;
-use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\ToCollection; // 💡 GANTI ToModel -> ToCollection
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
-use Maatwebsite\Excel\Concerns\WithUpserts; // 💡 TAMBAHAN KUNCI: Untuk Update/Insert
+// use Maatwebsite\Excel\Concerns\WithUpserts; // DIHAPUS: Kita handle manual agar Barcode aman
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Shared\Date; 
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
-class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithBatchInserts, WithChunkReading, SkipsEmptyRows, WithUpserts
+class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, WithChunkReading, SkipsEmptyRows
 {
     private $classIds;
     private $rows = 0;
@@ -28,14 +27,6 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
     }
 
     /**
-     * Mengembalikan kunci unik untuk Upsert (memastikan NISN di-update, bukan di-insert baru).
-     */
-    public function uniqueBy()
-    {
-        return 'nisn';
-    }
-
-    /**
      * Mengembalikan jumlah baris yang berhasil diolah.
      */
     public function getRowCount(): int
@@ -44,49 +35,73 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
     }
 
     /**
-     * @param array $row
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * Proses Collection dari Excel (Chunked).
+     * @param Collection $rows
      */
-    public function model(array $row)
+    public function collection(Collection $rows)
     {
-        // 1. Ambil dan Trim data wajib
-        $nisn = trim($row['nisn']);
-        $className = trim($row['nama_kelas']);
-
-        // 2. Cek Kelas (Kritis)
-        if (!isset($this->classIds[$className])) {
-            // Karena validasi sudah menangkap, kita return null
-            return null; 
-        }
-
-        $class_id = $this->classIds[$className];
+        // 1. Ambil daftar NISN dari chunk ini untuk query efisien
+        $nisns = $rows->pluck('nisn')->filter()->map(function($item) {
+            return trim($item);
+        })->toArray();
         
-        // 3. Konversi Tanggal Lahir
-        $birthDate = null;
-        if (isset($row['birth_date']) && is_numeric($row['birth_date'])) {
-            $birthDate = Date::excelToDateTimeObject($row['birth_date']); 
-        }
+        // 2. Load Existing Students (Keyed by NISN)
+        $existingStudents = Student::whereIn('nisn', $nisns)->get()->keyBy('nisn');
 
-        // 4. Buat Model Siswa baru (atau update jika NISN sudah ada)
-        $this->rows++;
-        return new Student([
-            // Kunci untuk Upsert (Harus ada di fillable)
-            'nisn'          => $nisn,
-            'barcode_data'  => Str::uuid()->toString(), // Generate baru hanya jika insert baru
-            
-            // Data yang akan di-insert/update
-            'nis'           => trim($row['nis'] ?? null),
-            'name'          => trim($row['nama_siswa']),
-            'email'         => trim($row['email'] ?? null),
-            'gender'        => trim($row['jenis_kelamin']),
-            'class_id'      => $class_id,
-            'phone_number'  => trim($row['nomor_telepon'] ?? null),
-            'address'       => trim($row['alamat'] ?? null),
-            'birth_place'   => trim($row['tempat_lahir'] ?? null),
-            'birth_date'    => $birthDate,
-            'status'        => 'active',
-            'photo'         => 'default_avatar.png',
-        ]);
+        $newStudents = [];
+
+        foreach ($rows as $row) {
+            $nisn = trim($row['nisn']);
+            $className = trim($row['nama_kelas']);
+
+            // Validasi Kelas (double check, meski sudah ada di rules)
+            if (!isset($this->classIds[$className])) {
+                continue; 
+            }
+            $class_id = $this->classIds[$className];
+
+            // Konversi Tanggal Lahir
+            $birthDate = null;
+            if (isset($row['birth_date']) && is_numeric($row['birth_date'])) {
+                $birthDate = Date::excelToDateTimeObject($row['birth_date']); 
+            }
+
+            // Helper untuk membersihkan data kosong menjadi NULL agar tidak error Unique SQL
+            $cleanInput = function($value) {
+                $val = trim($value ?? '');
+                return $val === '' ? null : $val;
+            };
+
+            // Data yang akan disimpan
+            $dataToUpdate = [
+                'nis'           => $cleanInput($row['nis'] ?? null),
+                'name'          => trim($row['nama_siswa']), // Nama wajib, tidak boleh null
+                'email'         => $cleanInput($row['email'] ?? null), // PENTING: Email kosong harus NULL, bukan string kosong
+                'gender'        => trim($row['jenis_kelamin']),
+                'class_id'      => $class_id,
+                'phone_number'  => $cleanInput($row['nomor_telepon'] ?? null),
+                'address'       => $cleanInput($row['alamat'] ?? null),
+                'birth_place'   => $cleanInput($row['tempat_lahir'] ?? null),
+                'birth_date'    => $birthDate,
+                'status'        => 'active', // Default active saat import
+            ];
+
+            if ($existingStudents->has($nisn)) {
+                // UPDATE: Jangan sentuh barcode_data atau photo (biarkan photo lama)
+                $student = $existingStudents[$nisn];
+                $student->update($dataToUpdate);
+            } else {
+                // INSERT: Tambahkan barcode_data baru dan default photo
+                $dataToUpdate['nisn'] = $nisn;
+                $dataToUpdate['barcode_data'] = Str::uuid()->toString();
+                $dataToUpdate['photo'] = 'default_avatar.png';
+                
+                // Masukkan ke array batch insert (atau create langsung)
+                // Kita create langsung agar UUID & Events jalan normal
+                Student::create($dataToUpdate);
+            }
+            $this->rows++;
+        }
     }
 
     /**
@@ -96,18 +111,17 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
     {
         $classNamesArray = $this->classIds->keys()->toArray();
 
-        // 💡 PERBAIKAN: Hapus rule 'unique' pada NISN/Email karena sudah ditangani oleh Upsert, 
-        // tetapi tetap perlu 'required' dan 'numeric'.
         return [
             'nisn'          => 'required|numeric', 
-            'nis'           => 'nullable|string|max:20', // Mengubah ke string untuk menangani 0 di depan
+            // 'nis' dan 'nomor_telepon' dihapus dari validasi strict agar tidak error jika Excel mengirim angka (karena rule 'max' pada angka mengecek VALUE bukan LENGTH)
+            // 'nis'           => 'nullable|string|max:20', 
+            // 'nomor_telepon' => 'nullable|string|max:20', 
             'nama_siswa'    => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'email'         => 'nullable|email', 
-            'nomor_telepon' => 'nullable|string|max:20', // Dibiarkan string untuk penanganan format
             'alamat'        => 'nullable|string|max:500', 
             'tempat_lahir'  => 'nullable|string|max:100', 
-            'birth_date'    => 'nullable|numeric', // Tanggal Excel harus berupa angka
+            'birth_date'    => 'nullable|numeric', 
             'nama_kelas' => [
                  'required', 
                  Rule::in($classNamesArray), 
@@ -116,11 +130,6 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
     }
     
     // --- PENGATURAN PERFORMA ---
-    
-    public function batchSize(): int
-    {
-        return 500; 
-    }
 
     public function chunkSize(): int
     {

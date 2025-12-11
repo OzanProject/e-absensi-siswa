@@ -3,136 +3,168 @@
 @section('title', 'Manajemen Data Orang Tua')
 
 @section('content_header')
-{{-- HEADER: Menggunakan Tailwind & Warna Orange/Indigo --}}
+{{-- HEADER: Premium UI dengan Gradient Text --}}
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-    
-    <div class="mb-2 sm:mb-0">
-        <h1 class="text-2xl font-bold text-gray-800 flex items-center">
-            <i class="fas fa-hands-helping text-orange-500 mr-2"></i>
-            <span>Manajemen Data Orang Tua</span>
+    <div class="mb-3 sm:mb-0">
+        <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center">
+            <i class="fas fa-users-cog text-purple-600 mr-3"></i>
+            Manajemen Orang Tua
         </h1>
+        <p class="text-sm text-gray-500 mt-1 font-medium">Kelola data akun orang tua dan relasi dengan siswa.</p>
     </div>
     
-    <nav class="text-sm font-medium text-gray-500" aria-label="Breadcrumb">
+    <nav class="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100" aria-label="Breadcrumb">
         <ol class="flex space-x-2">
-            {{-- Mengganti blue-600 ke indigo-600 --}}
-            <li><a href="{{ route('admin.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150">Home</a></li>
-            <li class="text-gray-400">/</li>
-            <li class="text-gray-600 font-semibold">Orang Tua</li>
+            <li><a href="{{ route('admin.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150"><i class="fas fa-home"></i></a></li>
+            <li class="text-gray-300">/</li>
+            <li class="text-gray-800 font-bold">Data Orang Tua</li>
         </ol>
     </nav>
 </div>
 @stop
 
 @section('content')
-<div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+<div class="container-fluid px-0">
     
-    {{-- CARD HEADER: Judul, Count & Search --}}
-    <div class="p-5 border-b border-gray-100 flex flex-col lg:flex-row justify-between items-start lg:items-center">
-        <h3 class="text-xl font-bold text-gray-800 mb-3 lg:mb-0 flex items-center">
-            <i class="fas fa-users mr-2 text-indigo-500"></i> Daftar Akun Orang Tua
-            {{-- Badge Count (Warna Orange) --}}
-            <span class="ml-3 text-sm font-bold bg-orange-500 text-white px-3 py-1 rounded-full shadow-md">{{ $parents->total() }}</span>
-        </h3>
-        
-        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 items-center w-full sm:w-auto">
-            
-            {{-- FORM PENCARIAN (Dikonversi ke Tailwind) --}}
-            <form action="{{ route('parents.index') }}" method="GET" class="flex w-full sm:w-64">
-                <input type="text" name="search" 
-                        class="px-3 py-2 border border-gray-300 rounded-l-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm w-full transition duration-150" 
-                        placeholder="Cari Nama/HP/Anak..." value="{{ request('search') }}">
-                {{-- Tombol Search (Warna Indigo) --}}
-                <button type="submit" class="bg-indigo-600 text-white p-2.5 rounded-r-lg hover:bg-indigo-700 transition duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
-                    <i class="fas fa-search"></i>
-                </button>
-            </form>
-            
-            {{-- Tombol Tambah (Warna Orange) --}}
-            <a href="{{ route('parents.create') }}" class="inline-flex justify-center items-center px-4 py-2 text-sm font-bold rounded-lg shadow-md
-                    text-white bg-orange-500 hover:bg-orange-600 transition duration-150 w-full sm:w-auto transform hover:-translate-y-0.5">
-                <i class="fas fa-plus mr-1"></i> Tambah Orang Tua
-            </a>
+    {{-- STATS SUMMARY (Opsional, menambah kesan premium) --}}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
+             <div class="relative z-10">
+                 <h4 class="text-3xl font-bold">{{ $parents->total() }}</h4>
+                 <p class="text-purple-100 text-sm font-medium">Total Akun Orang Tua</p>
+             </div>
+             <i class="fas fa-users absolute right-0 bottom-0 opacity-20 text-6xl transform translate-x-2 translate-y-2"></i>
+        </div>
+        <div class="bg-white rounded-2xl p-5 shadow-lg border border-purple-100 flex items-center space-x-4">
+             <div class="bg-green-100 p-3 rounded-xl text-green-600">
+                 <i class="fas fa-user-check text-xl"></i>
+             </div>
+             <div>
+                 <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Status Aktif</p>
+                 <h4 class="text-xl font-bold text-gray-800">100%</h4>
+             </div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 shadow-lg border border-purple-100 flex items-center space-x-4">
+             <div class="bg-blue-100 p-3 rounded-xl text-blue-600">
+                 <i class="fas fa-child text-xl"></i>
+             </div>
+             <div>
+                 <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Relasi Siswa</p>
+                 <h4 class="text-xl font-bold text-gray-800">Terpantau</h4>
+             </div>
         </div>
     </div>
-    
-    <div class="p-5">
-        
-        {{-- Notifikasi Sukses/Error (Styling Tailwind) --}}
-        @if(session('success'))
-            <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg relative mb-4" role="alert">
-                <i class="icon fas fa-check-circle mr-2"></i> {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg relative mb-4" role="alert">
-                <i class="icon fas fa-ban mr-2"></i> {{ session('error') }}
-            </div>
-        @endif
 
-        <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+    {{-- CARD UTAMA --}}
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+    
+        {{-- TOOLBAR --}}
+        <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50/50">
+            
+            {{-- SEARCH --}}
+            <form action="{{ route('parents.index') }}" method="GET" class="relative w-full md:w-96 group">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400 group-focus-within:text-purple-500 transition-colors"></i>
+                </div>
+                <input type="text" name="search" 
+                       class="block w-full pl-10 pr-4 py-3 border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition duration-150 ease-in-out sm:text-sm shadow-sm" 
+                       placeholder="Cari Nama, HP, atau Nama Anak..." value="{{ request('search') }}">
+            </form>
+
+            {{-- ACTIONS --}}
+            <div class="flex items-center space-x-3 w-full md:w-auto">
+                <a href="{{ route('parents.create') }}" 
+                   class="flex-1 md:flex-none inline-flex justify-center items-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-md transform hover:-translate-y-0.5 transition-all duration-200">
+                    <i class="fas fa-plus mr-2"></i> Tambah Orang Tua
+                </a>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-800 text-white">
+                <thead class="bg-gray-50/80">
                     <tr>
-                        <th class="px-3 py-3 text-left text-xs font-bold uppercase tracking-wider w-12">#</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Nama Orang Tua (Status)</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider w-1/4">Kontak & Login</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Anak Diampu</th>
-                        <th class="px-6 py-3 text-center text-xs font-bold uppercase tracking-wider w-24">Aksi</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            Orang Tua
+                        </th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            Kontak & Login
+                        </th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            Siswa (Anak)
+                        </th>
+                        <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider w-32">
+                            Aksi
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-100">
                     @forelse($parents as $parent)
-                    <tr class="hover:bg-orange-50/20 transition duration-150"> {{-- Hover effect Orange --}}
-                        {{-- Penomoran Paginasi --}}
-                        <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-700">
-                            {{ $loop->iteration + (($parents->currentPage() - 1) * $parents->perPage()) }}
-                        </td>
+                    <tr class="hover:bg-purple-50/30 transition-colors duration-150 group">
                         
+                        {{-- Nama & Status --}}
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-semibold text-gray-900"><strong>{{ $parent->name }}</strong></div>
-                            {{-- Badge Status Hubungan (Warna Amber) --}}
-                            <span class="px-2 py-0.5 inline-flex text-xs leading-5 font-bold rounded-full bg-amber-100 text-amber-800 shadow-sm mt-0.5">
-                                {{ $parent->relation_status ?? 'Wali' }}
-                            </span>
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-lg shadow-inner">
+                                        {{ substr($parent->name, 0, 1) }}
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-bold text-gray-900 group-hover:text-purple-700 transition-colors">{{ $parent->name }}</div>
+                                    <div class="text-xs text-gray-500">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                            {{ $parent->relation_status ?? 'Wali' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{-- Kontak & Login (Ikon Diberi Warna Indigo/Green) --}}
-                            <small class="block text-xs font-medium"><i class="fas fa-envelope mr-1 text-indigo-600"></i> {{ $parent->user->email ?? 'N/A' }}</small>
-                            <small class="block text-xs mt-0.5 font-medium"><i class="fas fa-phone mr-1 text-green-600"></i> {{ $parent->phone_number ?? '-' }}</small>
+
+                        {{-- Kontak --}}
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 flex items-center mb-1">
+                                <i class="fas fa-envelope w-4 text-gray-400 mr-2"></i> {{ $parent->user->email ?? '-' }}
+                            </div>
+                            <div class="text-sm text-gray-500 flex items-center">
+                                <i class="fas fa-phone w-4 text-green-500 mr-2"></i> {{ $parent->phone_number ?? '-' }}
+                            </div>
                         </td>
+
+                        {{-- Siswa Diampu --}}
                         <td class="px-6 py-4">
-                            @forelse($parent->students as $student)
-                                {{-- Badge Anak Diampu (Warna Cyan) --}}
-                                <span class="px-2 py-0.5 inline-block text-xs leading-5 font-bold rounded-full bg-cyan-100 text-cyan-800 mb-1 shadow-sm">
-                                    {{ $student->name }} ({{ $student->class->name ?? 'N/A' }})
-                                </span>
-                            @empty
-                                <span class="px-2 py-0.5 inline-flex text-xs leading-5 font-bold rounded-full bg-gray-200 text-gray-700">
-                                    Tidak Ada Anak Ditautkan
-                                </span>
-                            @endforelse
+                            <div class="flex flex-wrap gap-2">
+                                @forelse($parent->students as $student)
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                        {{ $student->name }}
+                                        <span class="ml-1 text-blue-400 text-[10px]">({{ $student->class->name ?? '?' }})</span>
+                                    </span>
+                                @empty
+                                    <span class="text-xs text-gray-400 italic">Belum ada siswa ditautkan</span>
+                                @endforelse
+                            </div>
                         </td>
+
+                        {{-- Aksi --}}
                         <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                            {{-- Tombol Aksi (Dikonversi ke Tailwind Rounded-Full) --}}
-                            <div class="inline-flex space-x-2">
-                                {{-- Edit (Warning -> Amber) --}}
-                                <a href="{{ route('parents.edit', $parent->id) }}" class="text-amber-700 hover:text-amber-900 p-2 rounded-full bg-amber-100 hover:bg-amber-200 transition duration-150 shadow-sm" title="Edit Data">
-                                    <i class="fas fa-edit w-4 h-4"></i>
+                            <div class="flex justify-center space-x-2">
+                                {{-- Edit --}}
+                                <a href="{{ route('parents.edit', $parent->id) }}" 
+                                   class="text-amber-500 hover:text-white hover:bg-amber-500 p-2 rounded-lg transition-all duration-200 border border-amber-200 hover:border-amber-500 group-hover:shadow-sm" 
+                                   title="Edit Data">
+                                    <i class="fas fa-edit"></i>
                                 </a>
-                                {{-- Hapus (Danger -> Red) --}}
+                                {{-- Delete --}}
                                 <button type="button" 
-                                        class="text-red-700 hover:text-red-900 p-2 rounded-full bg-red-100 hover:bg-red-200 transition duration-150 shadow-sm" 
-                                        title="Hapus Akun"
-                                        onclick="confirmDelete({{ $parent->id }}, '{{ $parent->name }}')">
-                                    <i class="fas fa-trash w-4 h-4"></i>
+                                        onclick="confirmDelete({{ $parent->id }}, '{{ $parent->name }}')"
+                                        class="text-red-500 hover:text-white hover:bg-red-500 p-2 rounded-lg transition-all duration-200 border border-red-200 hover:border-red-500 group-hover:shadow-sm"
+                                        title="Hapus Akun">
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
-                            
-                            {{-- Form Hapus Tersembunyi (LOGIKA TIDAK BERUBAH) --}}
-                            <form id="delete-form-{{ $parent->id }}" 
-                                    action="{{ route('parents.destroy', $parent->id) }}" 
-                                    method="POST" class="hidden">
+
+                            {{-- Form Hapus --}}
+                            <form id="delete-form-{{ $parent->id }}" action="{{ route('parents.destroy', $parent->id) }}" method="POST" class="hidden">
                                 @csrf
                                 @method('DELETE')
                             </form>
@@ -140,96 +172,101 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
-                            <i class="fas fa-user-slash fa-3x mb-3 block text-gray-300"></i>
-                            Belum ada data Orang Tua yang terdaftar.
+                        <td colspan="4" class="px-6 py-16 text-center">
+                            <div class="flex flex-col items-center justify-center">
+                                <div class="bg-gray-50 rounded-full p-6 mb-4">
+                                    <i class="fas fa-user-friends text-gray-300 text-5xl"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900">Belum Ada Data Orang Tua</h3>
+                                <p class="text-gray-500 mt-1 mb-4 max-w-sm">Data orang tua yang Anda tambahkan akan muncul di sini.</p>
+                                <a href="{{ route('parents.create') }}" class="text-purple-600 font-bold hover:underline">
+                                    <i class="fas fa-plus mr-1"></i> Tambah Baru Sekarang
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        
-        {{-- PAGINASI --}}
-        <div class="flex justify-between items-center mt-6">
-            <small class="text-sm text-gray-600">
-                Menampilkan 
-                <strong class="font-bold">{{ $parents->firstItem() ?? 0 }}</strong> 
-                sampai 
-                <strong class="font-bold">{{ $parents->lastItem() ?? 0 }}</strong> 
-                dari 
-                <strong class="font-bold">{{ $parents->total() }}</strong> 
-                Orang Tua
-            </small>
-            {{-- Menggunakan view Tailwind untuk pagination --}}
-            <div class="mt-2 sm:mt-0">
-                {{ $parents->appends(['search' => request('search')])->links() }}
-            </div>
+
+        {{-- PAGINATION --}}
+        @if($parents->hasPages())
+        <div class="bg-gray-50 px-6 py-4 border-t border-gray-100">
+            {{ $parents->appends(['search' => request('search')])->links() }}
         </div>
+        @endif
+        
     </div>
 </div>
 @stop
 
-{{-- HAPUS @section('css') yang lama --}}
-
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // --- FUNGSI HAPUS TUNGGAL DENGAN SWEETALERT (LOGIKA TIDAK BERUBAH) ---
-    function confirmDelete(id, parentName) {
+    // Konstanta Warna SweetAlert (Sesuaikan dengan Tema)
+    const SWAL_COLOR = {
+        confirm: '#6366f1', // Indigo 500
+        cancel: '#9ca3af',  // Gray 400
+        danger: '#ef4444'   // Red 500
+    };
+
+    // Fungsi Hapus Global
+    function confirmDelete(id, name) {
         Swal.fire({
             title: 'Hapus Akun Orang Tua?',
-            text: `Yakin ingin menghapus akun "${parentName}"? Ini akan memutuskan tautan ke semua anak siswa.`,
+            text: `Yakin ingin menghapus data "${name}"? Akses login dan relasi siswa akan dihapus permanen.`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#dc2626', // red-600
-            cancelButtonColor: '#4f46e5', // indigo-600 (Ganti dari abu-abu ke Indigo)
-            confirmButtonText: 'Ya, Hapus!',
+            confirmButtonColor: SWAL_COLOR.danger,
+            cancelButtonColor: SWAL_COLOR.cancel,
+            confirmButtonText: 'Ya, Hapus',
             cancelButtonText: 'Batal',
-            reverseButtons: true
+            reverseButtons: true,
+            focusCancel: true
         }).then((result) => {
             if (result.isConfirmed) {
                 const form = document.getElementById(`delete-form-${id}`);
-                
-                if (form) {
-                    // Pastikan class d-none/hidden dihapus sebelum submit
-                    form.classList.remove('d-none'); 
-                    form.classList.remove('hidden'); 
-                    form.submit();
-                }
+                if (form) form.submit();
             }
         });
     }
 
-    $(document).ready(function() {
-        // Tampilkan notifikasi SweetAlert Toast untuk pesan sesi (LOGIKA TIDAK BERUBAH)
-        @if(session('success'))
-             Swal.fire({ 
-                 icon: 'success', 
-                 title: 'Berhasil!', 
-                 text: '{{ session('success') }}', 
-                 toast: true, 
-                 position: 'top-end', 
-                 showConfirmButton: false, 
-                 timer: 3000 
-             });
-        @endif
-        @if(session('error'))
-             Swal.fire({ 
-                 icon: 'error', 
-                 title: 'Gagal!', 
-                 text: '{{ session('error') }}', 
-                 toast: true, 
-                 position: 'top-end', 
-                 showConfirmButton: false, 
-                 timer: 3000 
-             });
-        @endif
-        
-        // Auto-hide alerts (Menggunakan jQuery untuk alerts HTML biasa)
-        setTimeout(function() {
-            $('.alert').fadeOut(400, function() { $(this).remove(); });
-        }, 5000);
-    });
+    // DIRECT SCRIPT INJECTION UNTUK ALERT SESSION
+    @if(session('success'))
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: "{!! session('success') !!}",
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true,
+                    background: '#fff',
+                    iconColor: '#10b981'
+                });
+            }, 300); // Delay sedikit agar render stabil
+        });
+    @endif
+
+    @if(session('error'))
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: "{!! session('error') !!}",
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 5000,
+                    timerProgressBar: true
+                });
+            }, 300);
+        });
+    @endif
 </script>
 @stop

@@ -2,279 +2,200 @@
 
 @section('title', 'Tambah Siswa Baru')
 
-@section('content_header')
-{{-- CUSTOM HEADER (Menggunakan Indigo) --}}
-<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-    
-    <h1 class="text-2xl font-bold text-gray-800 flex items-center mb-2 sm:mb-0">
-        {{-- Mengganti green-600 ke indigo-600 untuk konsistensi branding --}}
-        <i class="fas fa-user-plus text-indigo-600 mr-2"></i>
-        <span>Tambah Siswa Baru</span>
-    </h1>
-    
-    <nav class="text-sm font-medium text-gray-500" aria-label="Breadcrumb">
-        <ol class="flex space-x-2">
-            {{-- Mengganti blue-600 ke indigo-600 --}}
-            <li><a href="{{ route('admin.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150">Home</a></li>
-            <li class="text-gray-400">/</li>
-            <li><a href="{{ route('students.index') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150">Data Siswa</a></li>
-            <li class="text-gray-400">/</li>
-            <li class="text-gray-600 font-semibold">Tambah Siswa</li>
-        </ol>
-    </nav>
-</div>
-@stop
-
 @section('content')
+<div class="space-y-6">
+    
+    {{-- PAGE HEADER --}}
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Tambah Siswa Baru</h2>
+            <nav class="flex text-sm font-medium text-gray-500 space-x-2 mt-1" aria-label="Breadcrumb">
+                <a href="{{ route('admin.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition">Home</a>
+                <span class="text-gray-400">/</span>
+                <a href="{{ route('students.index') }}" class="text-indigo-600 hover:text-indigo-800 transition">Siswa</a>
+                <span class="text-gray-400">/</span>
+                <span class="text-gray-600">Tambah</span>
+            </nav>
+        </div>
+        <a href="{{ route('students.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 hover:text-indigo-600 shadow-sm transition transform hover:-translate-y-0.5">
+            <i class="fas fa-arrow-left mr-2"></i> Kembali
+        </a>
+    </div>
+
     <form action="{{ route('students.store') }}" method="POST" id="studentForm" enctype="multipart/form-data">
         @csrf
         
-        {{-- Mengganti row dan col-md-X dengan Grid Tailwind (8/12 dan 4/12) --}}
-        <div class="grid grid-cols-1 lg:grid-cols-3 lg:gap-6"> 
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"> 
             
             {{-- KOLOM KIRI: DATA UTAMA & FORM (2/3 Kolom) --}}
             <div class="lg:col-span-2">
-                <div class="bg-white rounded-xl shadow-lg border border-gray-100"> 
-                    <div class="p-5 border-b border-gray-100">
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center">
-                            <i class="fas fa-info-circle mr-2 text-indigo-500"></i> Data Utama Siswa
+                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden"> 
+                    <div class="p-6 border-b border-gray-100 bg-gray-50/30">
+                        <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 mr-3">
+                                <i class="fas fa-user-plus text-sm"></i>
+                            </span>
+                            Data Utama Siswa
                         </h3>
                     </div>
                     
-                    <div class="p-6 space-y-6"> {{-- Padding dan spacing lebih besar --}}
-                        
-                        {{-- 💡 Helper untuk menentukan class border error/default --}}
+                    <div class="p-6 md:p-8 space-y-6">
                         @php
-                            // Base class: Styling umum (padding, shadow, rounded)
-                            $baseInputClass = 'w-full px-3 py-2 rounded-lg shadow-sm focus:outline-none transition duration-150';
-                            
-                            // Kelas Normal (Border + Focus Indigo)
-                            $normalClass = 'border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500';
-                            
-                            // Kelas Error (Border + Focus Red)
-                            $errorClass = 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500';
+                            $baseInputClass = 'w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition duration-200 ease-in-out bg-gray-50/50 focus:bg-white';
+                            $errorClass = 'border-red-500 focus:ring-red-200 focus:border-red-500';
                         @endphp
                         
-                        {{-- NISN & NIS (Grid 2 Kolom) --}}
+                        {{-- NISN & NIS --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="nisn" class="block text-sm font-semibold text-gray-700 mb-1">NISN <span class="text-red-600">*</span></label>
-                                @php $nisnStatusClass = $errors->has('nisn') ? $errorClass : $normalClass; @endphp
+                                <label for="nisn" class="block text-sm font-bold text-gray-700 mb-2">NISN <span class="text-red-500">*</span></label>
                                 <input type="text" name="nisn" id="nisn" 
-                                        class="{{ $baseInputClass }} border {{ $nisnStatusClass }}" 
-                                        value="{{ old('nisn') }}" 
-                                        placeholder="Masukkan NISN" 
-                                        required
-                                        maxlength="20">
-                                @error('nisn')
-                                    <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p>
-                                @enderror
-                                <small class="mt-1 text-xs text-gray-500">Nomor Induk Siswa Nasional</small>
+                                        class="{{ $baseInputClass }} @error('nisn') {{ $errorClass }} @enderror" 
+                                        value="{{ old('nisn') }}" placeholder="Contoh: 0054321001" required maxlength="20">
+                                @error('nisn') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             </div>
-                            
                             <div>
-                                <label for="nis" class="block text-sm font-semibold text-gray-700 mb-1">NIS (Opsional)</label>
-                                @php $nisStatusClass = $errors->has('nis') ? $errorClass : $normalClass; @endphp
+                                <label for="nis" class="block text-sm font-bold text-gray-700 mb-2">NIS (Opsional)</label>
                                 <input type="text" name="nis" id="nis" 
-                                        class="{{ $baseInputClass }} border {{ $nisStatusClass }}" 
-                                        value="{{ old('nis') }}"
-                                        placeholder="Masukkan NIS"
-                                        maxlength="15">
-                                @error('nis')
-                                    <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p>
-                                @enderror
-                                <small class="mt-1 text-xs text-gray-500">Nomor Induk Sekolah</small>
+                                        class="{{ $baseInputClass }} @error('nis') {{ $errorClass }} @enderror" 
+                                        value="{{ old('nis') }}" placeholder="Contoh: 21221001" maxlength="15">
+                                @error('nis') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             </div>
                         </div>
 
                         {{-- Nama Lengkap & Email --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Nama Lengkap Siswa <span class="text-red-600">*</span></label>
-                                @php $nameStatusClass = $errors->has('name') ? $errorClass : $normalClass; @endphp
+                                <label for="name" class="block text-sm font-bold text-gray-700 mb-2">Nama Lengkap <span class="text-red-500">*</span></label>
                                 <input type="text" name="name" id="name" 
-                                        class="{{ $baseInputClass }} border {{ $nameStatusClass }}" 
-                                        value="{{ old('name') }}" 
-                                        placeholder="Masukkan nama lengkap siswa"
-                                        required
-                                        maxlength="100">
-                                @error('name')
-                                    <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p>
-                                @enderror
+                                        class="{{ $baseInputClass }} @error('name') {{ $errorClass }} @enderror" 
+                                        value="{{ old('name') }}" placeholder="Nama Lengkap Siswa" required maxlength="100">
+                                @error('name') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             </div>
                             <div>
-                                <label for="email" class="block text-sm font-semibold text-gray-700 mb-1">Email (Opsional)</label>
-                                @php $emailStatusClass = $errors->has('email') ? $errorClass : $normalClass; @endphp
+                                <label for="email" class="block text-sm font-bold text-gray-700 mb-2">Email (Opsional)</label>
                                 <input type="email" name="email" id="email" 
-                                        class="{{ $baseInputClass }} border {{ $emailStatusClass }}" 
-                                        value="{{ old('email') }}"
-                                        placeholder="Masukkan alamat email siswa"
-                                        maxlength="255">
-                                @error('email')
-                                    <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p>
-                                @enderror
+                                        class="{{ $baseInputClass }} @error('email') {{ $errorClass }} @enderror" 
+                                        value="{{ old('email') }}" placeholder="email@sekolah.sch.id" maxlength="255">
+                                @error('email') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             </div>
                         </div>
 
                         {{-- Kelas & Jenis Kelamin --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="class_id" class="block text-sm font-semibold text-gray-700 mb-1">Kelas <span class="text-red-600">*</span></label>
-                                @php $classStatusClass = $errors->has('class_id') ? $errorClass : $normalClass; @endphp
-                                <select name="class_id" id="class_id" 
-                                        class="w-full select2-form-control border {{ $classStatusClass }}" 
-                                        required>
+                                <label for="class_id" class="block text-sm font-bold text-gray-700 mb-2">Kelas <span class="text-red-500">*</span></label>
+                                <select name="class_id" id="class_id" class="w-full" required>
                                     <option value="">-- Pilih Kelas --</option>
                                     @foreach($classes as $class)
                                         <option value="{{ $class->id }}" {{ old('class_id') == $class->id ? 'selected' : '' }}>
-                                            {{ $class->name }} 
-                                            @if(isset($class->grade))
-                                                - Tingkat {{ $class->grade }}
-                                            @endif
+                                            {{ $class->name }} {{ isset($class->grade) ? '- Tingkat '.$class->grade : '' }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('class_id')
-                                    <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p>
-                                @enderror
+                                @error('class_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             </div>
 
                             <div>
-                                <label for="gender" class="block text-sm font-semibold text-gray-700 mb-1">Jenis Kelamin <span class="text-red-600">*</span></label>
-                                @php $genderStatusClass = $errors->has('gender') ? $errorClass : $normalClass; @endphp
-                                <select name="gender" id="gender" 
-                                        class="{{ $baseInputClass }} border {{ $genderStatusClass }}" 
-                                        required>
-                                    <option value="">-- Pilih Jenis Kelamin --</option>
+                                <label for="gender" class="block text-sm font-bold text-gray-700 mb-2">Jenis Kelamin <span class="text-red-500">*</span></label>
+                                <select name="gender" id="gender" class="{{ $baseInputClass }} @error('gender') {{ $errorClass }} @enderror" required>
+                                    <option value="">-- Pilih --</option>
                                     <option value="Laki-laki" {{ old('gender') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
                                     <option value="Perempuan" {{ old('gender') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
                                 </select>
-                                @error('gender')
-                                    <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p>
-                                @enderror
+                                @error('gender') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             </div>
                         </div>
 
-                        {{-- Tanggal Lahir & Tempat Lahir --}}
+                        {{-- Tanggal & Tempat Lahir --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="birth_place" class="block text-sm font-semibold text-gray-700 mb-1">Tempat Lahir (Opsional)</label>
-                                @php $placeStatusClass = $errors->has('birth_place') ? $errorClass : $normalClass; @endphp
+                                <label for="birth_place" class="block text-sm font-bold text-gray-700 mb-2">Tempat Lahir</label>
                                 <input type="text" name="birth_place" id="birth_place" 
-                                        class="{{ $baseInputClass }} border {{ $placeStatusClass }}" 
-                                        value="{{ old('birth_place') }}" maxlength="100"
-                                        placeholder="Masukkan tempat lahir">
-                                @error('birth_place')
-                                    <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p>
-                                @enderror
+                                        class="{{ $baseInputClass }} @error('birth_place') {{ $errorClass }} @enderror" 
+                                        value="{{ old('birth_place') }}" maxlength="100">
                             </div>
                             <div>
-                                <label for="birth_date" class="block text-sm font-semibold text-gray-700 mb-1">Tanggal Lahir (Opsional)</label>
-                                @php $dateStatusClass = $errors->has('birth_date') ? $errorClass : $normalClass; @endphp
+                                <label for="birth_date" class="block text-sm font-bold text-gray-700 mb-2">Tanggal Lahir</label>
                                 <input type="date" name="birth_date" id="birth_date" 
-                                        class="{{ $baseInputClass }} border {{ $dateStatusClass }}" 
+                                        class="{{ $baseInputClass }} @error('birth_date') {{ $errorClass }} @enderror" 
                                         value="{{ old('birth_date') }}">
-                                @error('birth_date')
-                                    <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p>
-                                @enderror
                             </div>
                         </div>
 
-                        {{-- Nomor HP (Dikonversi ke Tailwind Group) --}}
+                        {{-- Nomor HP --}}
                         <div>
-                            <label for="phone_number" class="block text-sm font-semibold text-gray-700 mb-1">Nomor Telepon/HP (Opsional)</label>
-                            <div class="flex rounded-lg shadow-sm">
-                                {{-- Prefix Icon --}}
-                                <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 text-gray-500 sm:text-sm bg-gray-50 border-gray-300">
-                                    <i class="fas fa-phone"></i>
-                                </span>
-                                {{-- Input --}}
-                                @php $phoneStatusClass = $errors->has('phone_number') ? $errorClass : $normalClass; @endphp
-                                <input type="tel" name="phone_number" id="phone_number" 
-                                        class="flex-1 block w-full rounded-none rounded-r-lg px-3 py-2 border border-gray-300 
-                                                text-sm {{ $phoneStatusClass }}" 
-                                        value="{{ old('phone_number') }}"
-                                        placeholder="Contoh: 081234567890"
-                                        maxlength="15">
-                            </div>
-                            @error('phone_number')
-                                <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p>
-                            @enderror
-                            <small class="mt-1 text-xs text-gray-500">Nomor telepon siswa atau orang tua</small>
+                            <label for="phone_number" class="block text-sm font-bold text-gray-700 mb-2">No. HP / WhatsApp (Opsional)</label>
+                            <input type="tel" name="phone_number" id="phone_number" 
+                                    class="{{ $baseInputClass }} @error('phone_number') {{ $errorClass }} @enderror" 
+                                    value="{{ old('phone_number') }}" placeholder="08xxxxxxxxxx" maxlength="15">
                         </div>
-                        
-                        {{-- Tombol Submit (Grid 2 Kolom) --}}
-                        <div class="pt-4 border-t border-gray-100">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <a href="{{ route('students.index') }}" 
-                                   class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-base font-medium rounded-lg shadow-sm
-                                          text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 transform hover:scale-[1.02]">
-                                    <i class="fas fa-arrow-left mr-2"></i> Kembali
-                                </a>
-                                <button type="submit" 
-                                        class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-base font-bold rounded-lg shadow-md 
-                                               text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-green-500/50 transition duration-150 transform hover:-translate-y-0.5">
-                                    <i class="fas fa-save mr-2"></i> Simpan Data Siswa
-                                </button>
-                            </div>
+
+                        {{-- Action Buttons --}}
+                        <div class="pt-6 border-t border-gray-100 flex items-center justify-end space-x-3">
+                             <a href="{{ route('students.index') }}" class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition">
+                                Batal
+                            </a>
+                            <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-lg shadow-indigo-200 hover:shadow-indigo-300 hover:scale-[1.02] transition transform">
+                                <i class="fas fa-save mr-2"></i> Simpan Siswa
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
             
-            {{-- KOLOM KANAN: FOTO DAN INFO TAMBAHAN (1/3 Kolom) --}}
-            <div class="lg:col-span-1 mt-6 lg:mt-0 space-y-6">
+            {{-- KOLOM KANAN: FOTO & INFO --}}
+            <div class="lg:col-span-1 space-y-6">
                 
-                {{-- Card Foto --}}
-                <div class="bg-white rounded-xl shadow-lg border border-gray-100">
-                    <div class="p-5 border-b border-gray-100">
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center"><i class="fas fa-camera mr-2 text-indigo-500"></i> Foto Siswa</h3>
+                {{-- Foto Card --}}
+                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                    <div class="p-5 border-b border-gray-100 bg-gray-50/30">
+                        <h3 class="text-base font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-camera text-indigo-500 mr-2"></i> Foto Profil
+                        </h3>
                     </div>
-                    <div class="p-5 text-center">
-                        {{-- Preview Foto --}}
-                        <div class="mb-4 flex justify-center">
-                            {{-- Border foto diubah ke Indigo --}}
-                            <img id="photo-preview" 
-                                    src="{{ asset('images/default_avatar.png') }}" 
-                                    alt="Foto Siswa Preview"
-                                    class="w-36 h-36 rounded-full border-4 border-indigo-500 object-cover shadow-xl">
+                    <div class="p-6 text-center">
+                        <div class="relative w-40 h-40 mx-auto mb-6 group">
+                            <img id="photo-preview" src="{{ asset('images/default_avatar.png') }}" alt="Preview" 
+                                 class="w-full h-full rounded-full object-cover border-4 border-white shadow-xl group-hover:scale-105 transition duration-300">
+                             <div class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">Ganti Foto</span>
+                             </div>
+                             <input type="file" name="photo" id="photo" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*">
                         </div>
-
-                        {{-- Input File Foto (Dikonversi ke Tailwind) --}}
-                        <div class="mb-4">
-                            <label for="photo" class="block text-sm font-semibold text-gray-700 mb-1">Upload Foto Siswa (Opsional)</label>
-                            <input type="file" 
-                                    name="photo" 
-                                    id="photo" 
-                                    {{-- Mengganti styling file input ke Indigo --}}
-                                    class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 @error('photo') border-red-500 @enderror"
-                                    accept="image/*">
-                            @error('photo')
-                                <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p>
-                            @enderror
-                            <small class="mt-1 text-xs text-gray-500 block">Max 1MB. Format: JPG/PNG. Rasio: 1:1.</small>
-                        </div>
+                        <p class="text-xs text-gray-500 mb-2">Klik foto untuk mengupload.</p>
+                        <p class="text-xs text-indigo-500 font-medium bg-indigo-50 py-1 px-2 rounded-lg inline-block">Max 2MB (JPG/PNG)</p>
+                        @error('photo') <p class="mt-2 text-sm text-red-600 font-bold">{{ $message }}</p> @enderror
                     </div>
                 </div>
                 
-                {{-- Card Informasi --}}
-                <div class="bg-white rounded-xl shadow-lg border border-gray-100">
-                    <div class="p-5 border-b border-gray-100">
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center"><i class="fas fa-lightbulb mr-2 text-indigo-500"></i> Informasi</h3>
-                    </div>
-                    <div class="p-5">
-                        <p class="text-sm font-bold text-gray-700 mb-2"><strong>Field bertanda (<span class="text-red-600">*</span>) wajib diisi</strong></p>
-                        <hr class="mb-4 mt-2 border-gray-200">
-                        <h6 class="text-base font-bold text-gray-800 mb-2">Tips:</h6>
-                        <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
-                            <li>Data barcode **digenerate otomatis oleh sistem** saat penyimpanan.</li>
-                            <li>Pastikan **NISN unik** dan valid.</li>
+                {{-- Info Card --}}
+                <div class="bg-indigo-900 rounded-3xl shadow-xl border border-indigo-800 overflow-hidden text-white relative">
+                    <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+                    <div class="p-6 relative z-10">
+                        <h4 class="text-lg font-bold mb-3 flex items-center">
+                            <i class="fas fa-lightbulb text-yellow-400 mr-2"></i> Tips
+                        </h4>
+                        <ul class="space-y-3 text-indigo-100 text-sm">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mt-1 mr-2 text-indigo-400"></i>
+                                <span>NISN wajib unik. Pastikan data dari Dapodik.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mt-1 mr-2 text-indigo-400"></i>
+                                <span>Data Barcode akan digenerate otomatis.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mt-1 mr-2 text-indigo-400"></i>
+                                <span>Gunakan foto formal (seragam) untuk kartu pelajar.</span>
+                            </li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
     </form>
+</div>
 @stop
 
 @section('js')

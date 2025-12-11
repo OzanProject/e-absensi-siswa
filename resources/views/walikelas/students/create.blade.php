@@ -2,199 +2,217 @@
 
 @section('title', 'Tambah Siswa Baru')
 
-@section('content_header')
-{{-- HEADER: Menggunakan Tailwind & Warna Green/Indigo --}}
-<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-    <h1 class="text-2xl font-bold text-gray-800 flex items-center mb-2 sm:mb-0">
-        <i class="fas fa-user-plus text-green-600 mr-2"></i>
-        <span>Tambah Siswa Kelas {{ $class->name ?? 'Anda' }}</span>
-    </h1>
-    <nav class="text-sm font-medium text-gray-500" aria-label="Breadcrumb">
-        <ol class="flex space-x-2">
-            {{-- Mengganti blue-600 ke indigo-600 --}}
-            <li><a href="{{ route('walikelas.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150">Dashboard</a></li>
-            <li class="text-gray-400">/</li>
-            {{-- Mengganti blue-600 ke indigo-600 --}}
-            <li><a href="{{ route('walikelas.students.index') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150">Data Siswa</a></li>
-            <li class="text-gray-400">/</li>
-            <li class="text-gray-600 font-semibold">Tambah Baru</li>
-        </ol>
-    </nav>
-</div>
-@stop
-
 @section('content')
-<div class="bg-white rounded-xl shadow-lg border border-gray-100">
-    <div class="p-5 border-b border-gray-100">
-        <h3 class="text-xl font-bold text-gray-800 flex items-center">
-            <i class="fas fa-file-alt mr-2 text-indigo-500"></i> Form Data Siswa
-        </h3>
+<div class="space-y-6">
+    
+    {{-- PAGE HEADER --}}
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Tambah Siswa Baru</h2>
+            <nav class="flex text-sm font-medium text-gray-500 space-x-2 mt-1" aria-label="Breadcrumb">
+                <a href="{{ route('walikelas.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition">Dashboard</a>
+                <span class="text-gray-400">/</span>
+                <a href="{{ route('walikelas.students.index') }}" class="text-indigo-600 hover:text-indigo-800 transition">Data Siswa</a>
+                <span class="text-gray-400">/</span>
+                <span class="text-gray-600">Tambah</span>
+            </nav>
+        </div>
+        <a href="{{ route('walikelas.students.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 hover:text-indigo-600 shadow-sm transition transform hover:-translate-y-0.5">
+            <i class="fas fa-arrow-left mr-2"></i> Kembali
+        </a>
     </div>
 
-    <div class="p-6"> {{-- Padding disesuaikan --}}
+    <form action="{{ route('walikelas.students.store') }}" method="POST" id="studentForm" enctype="multipart/form-data">
+        @csrf
         
-        {{-- Notifikasi Error Umum (Styling Tailwind) --}}
-        @if ($errors->any())
-            <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg relative mb-6">
-                <i class="fas fa-exclamation-triangle mr-2"></i> Harap periksa kembali input Anda.
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"> 
+            
+            {{-- KOLOM KIRI: DATA UTAMA & FORM (2/3 Kolom) --}}
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden"> 
+                    <div class="p-6 border-b border-gray-100 bg-gray-50/30">
+                        <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 mr-3">
+                                <i class="fas fa-user-plus text-sm"></i>
+                            </span>
+                            Data Utama Siswa
+                        </h3>
+                    </div>
+                    
+                    <div class="p-6 md:p-8 space-y-6">
+                        @php
+                            $baseInputClass = 'w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition duration-200 ease-in-out bg-gray-50/50 focus:bg-white';
+                            $errorClass = 'border-red-500 focus:ring-red-200 focus:border-red-500';
+                        @endphp
+                        
+                        {{-- NISN & NIS --}}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="nisn" class="block text-sm font-bold text-gray-700 mb-2">NISN <span class="text-red-500">*</span></label>
+                                <input type="text" name="nisn" id="nisn" 
+                                        class="{{ $baseInputClass }} @error('nisn') {{ $errorClass }} @enderror" 
+                                        value="{{ old('nisn') }}" placeholder="Contoh: 0054321001" required maxlength="20">
+                                @error('nisn') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label for="nis" class="block text-sm font-bold text-gray-700 mb-2">NIS (Opsional)</label>
+                                <input type="text" name="nis" id="nis" 
+                                        class="{{ $baseInputClass }} @error('nis') {{ $errorClass }} @enderror" 
+                                        value="{{ old('nis') }}" placeholder="Contoh: 21221001" maxlength="15">
+                                @error('nis') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+
+                        {{-- Nama Lengkap & Email --}}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="name" class="block text-sm font-bold text-gray-700 mb-2">Nama Lengkap <span class="text-red-500">*</span></label>
+                                <input type="text" name="name" id="name" 
+                                        class="{{ $baseInputClass }} @error('name') {{ $errorClass }} @enderror" 
+                                        value="{{ old('name') }}" placeholder="Nama Lengkap Siswa" required maxlength="100">
+                                @error('name') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-bold text-gray-700 mb-2">Email (Opsional)</label>
+                                <input type="email" name="email" id="email" 
+                                        class="{{ $baseInputClass }} @error('email') {{ $errorClass }} @enderror" 
+                                        value="{{ old('email') }}" placeholder="email@sekolah.sch.id" maxlength="255">
+                                @error('email') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+
+                        {{-- Jenis Kelamin (Tanpa Kelas) --}}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                             <div>
+                                <label for="gender" class="block text-sm font-bold text-gray-700 mb-2">Jenis Kelamin <span class="text-red-500">*</span></label>
+                                <select name="gender" id="gender" class="{{ $baseInputClass }} @error('gender') {{ $errorClass }} @enderror" required>
+                                    <option value="">-- Pilih --</option>
+                                    <option value="Laki-laki" {{ old('gender') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                                    <option value="Perempuan" {{ old('gender') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                                </select>
+                                @error('gender') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                             <div>
+                                <label for="phone_number" class="block text-sm font-bold text-gray-700 mb-2">No. HP / WhatsApp (Opsional)</label>
+                                <input type="tel" name="phone_number" id="phone_number" 
+                                        class="{{ $baseInputClass }} @error('phone_number') {{ $errorClass }} @enderror" 
+                                        value="{{ old('phone_number') }}" placeholder="08xxxxxxxxxx" maxlength="15">
+                            </div>
+                        </div>
+
+                        {{-- Tanggal & Tempat Lahir --}}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="birth_place" class="block text-sm font-bold text-gray-700 mb-2">Tempat Lahir</label>
+                                <input type="text" name="birth_place" id="birth_place" 
+                                        class="{{ $baseInputClass }} @error('birth_place') {{ $errorClass }} @enderror" 
+                                        value="{{ old('birth_place') }}" maxlength="100">
+                            </div>
+                            <div>
+                                <label for="birth_date" class="block text-sm font-bold text-gray-700 mb-2">Tanggal Lahir</label>
+                                <input type="date" name="birth_date" id="birth_date" 
+                                        class="{{ $baseInputClass }} @error('birth_date') {{ $errorClass }} @enderror" 
+                                        value="{{ old('birth_date') }}">
+                            </div>
+                        </div>
+
+                        {{-- Action Buttons --}}
+                        <div class="pt-6 border-t border-gray-100 flex items-center justify-end space-x-3">
+                             <a href="{{ route('walikelas.students.index') }}" class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition">
+                                Batal
+                            </a>
+                            <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-lg shadow-indigo-200 hover:shadow-indigo-300 hover:scale-[1.02] transition transform">
+                                <i class="fas fa-save mr-2"></i> Simpan Siswa
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        @endif
-
-        {{-- Form di-submit ke route walikelas.students.store --}}
-        <form action="{{ route('walikelas.students.store') }}" method="POST" enctype="multipart/form-data" id="studentForm" class="space-y-6">
-            @csrf
             
-            @php
-                // Fokus ke Green untuk Input
-                $inputClass = 'w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150';
-                $errorBorder = 'border-red-500';
-            @endphp
-            
-            {{-- Hidden Input: Class ID (Logika AMAN) --}}
-            <input type="hidden" name="class_id" value="{{ $class->id }}">
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {{-- KOLOM KANAN: FOTO & INFO --}}
+            <div class="lg:col-span-1 space-y-6">
                 
-                {{-- Kolom 1: Foto Siswa (1/3) --}}
-                <div class="md:col-span-1 pr-0 md:pr-6 md:border-r border-gray-200">
-                    <h4 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-100 pb-2">Foto Siswa</h4>
-                    
-                    <div class="mb-6 text-center">
-                        <img id="photo-preview" src="{{ asset('images/default_avatar.png') }}" 
-                             alt="Preview Foto" class="w-36 h-36 rounded-full mx-auto object-cover shadow-lg border-4 border-gray-200">
+                {{-- Foto Card --}}
+                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                    <div class="p-5 border-b border-gray-100 bg-gray-50/30">
+                        <h3 class="text-base font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-camera text-indigo-500 mr-2"></i> Foto Profil
+                        </h3>
                     </div>
-                    
-                    <label for="photo" class="block text-sm font-semibold text-gray-700 mb-1">Upload Foto</label>
-                    <input type="file" name="photo" id="photo" accept="image/png, image/jpeg, image/jpg"
-                            {{-- Styling File Input: Mengganti blue-50/700 ke Indigo --}}
-                           class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 @error('photo') {{ $errorBorder }} @enderror">
-                    @error('photo') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
+                    <div class="p-6 text-center">
+                        <div class="relative w-40 h-40 mx-auto mb-6 group">
+                            <img id="photo-preview" src="{{ asset('images/default_avatar.png') }}" alt="Preview" 
+                                 class="w-full h-full rounded-full object-cover border-4 border-white shadow-xl group-hover:scale-105 transition duration-300">
+                             <div class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">Ganti Foto</span>
+                             </div>
+                             <input type="file" name="photo" id="photo" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*">
+                        </div>
+                        <p class="text-xs text-gray-500 mb-2">Klik foto untuk mengupload.</p>
+                        <p class="text-xs text-indigo-500 font-medium bg-indigo-50 py-1 px-2 rounded-lg inline-block">Max 2MB (JPG/PNG)</p>
+                        @error('photo') <p class="mt-2 text-sm text-red-600 font-bold">{{ $message }}</p> @enderror
+                    </div>
                 </div>
-
-                {{-- Kolom 2 & 3: Informasi Pokok, Kontak, TTL (2/3) --}}
-                <div class="md:col-span-2 space-y-6">
-                    <h4 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Informasi Pokok & Identitas</h4>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Nama Lengkap <span class="text-red-600">*</span></label>
-                            <input type="text" name="name" id="name" value="{{ old('name') }}" required class="{{ $inputClass }} @error('name') {{ $errorBorder }} @enderror">
-                            @error('name') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <label for="gender" class="block text-sm font-semibold text-gray-700 mb-1">Jenis Kelamin <span class="text-red-600">*</span></label>
-                            <select name="gender" id="gender" required class="{{ $inputClass }} @error('gender') {{ $errorBorder }} @enderror">
-                                <option value="">Pilih Jenis Kelamin</option>
-                                <option value="Laki-laki" {{ old('gender') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
-                                <option value="Perempuan" {{ old('gender') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
-                            </select>
-                            @error('gender') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label for="nisn" class="block text-sm font-semibold text-gray-700 mb-1">NISN <span class="text-red-600">*</span></label>
-                            <input type="text" name="nisn" id="nisn" value="{{ old('nisn') }}" required class="{{ $inputClass }} @error('nisn') {{ $errorBorder }} @enderror">
-                            @error('nisn') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <label for="nis" class="block text-sm font-semibold text-gray-700 mb-1">NIS</label>
-                            <input type="text" name="nis" id="nis" value="{{ old('nis') }}" class="{{ $inputClass }} @error('nis') {{ $errorBorder }} @enderror">
-                            @error('nis') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                        </div>
-                    </div>
-                    
-                    <h4 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2 pt-2">Informasi Kontak & TTL</h4>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label for="birth_place" class="block text-sm font-semibold text-gray-700 mb-1">Tempat Lahir</label>
-                            <input type="text" name="birth_place" id="birth_place" value="{{ old('birth_place') }}" class="{{ $inputClass }} @error('birth_place') {{ $errorBorder }} @enderror">
-                            @error('birth_place') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <label for="birth_date" class="block text-sm font-semibold text-gray-700 mb-1">Tanggal Lahir</label>
-                            <input type="date" name="birth_date" id="birth_date" value="{{ old('birth_date') }}" class="{{ $inputClass }} @error('birth_date') {{ $errorBorder }} @enderror">
-                            @error('birth_date') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <label for="phone_number" class="block text-sm font-semibold text-gray-700 mb-1">No. HP Wali</label>
-                            <input type="text" name="phone_number" id="phone_number" value="{{ old('phone_number') }}" class="{{ $inputClass }} @error('phone_number') {{ $errorBorder }} @enderror">
-                            @error('phone_number') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label for="address" class="block text-sm font-semibold text-gray-700 mb-1">Alamat</label>
-                        <textarea name="address" id="address" rows="2" class="{{ $inputClass }} @error('address') {{ $errorBorder }} @enderror">{{ old('address') }}</textarea>
-                        @error('address') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                    </div>
-
-                    {{-- Tombol Aksi --}}
-                    <div class="pt-6 border-t border-gray-200 flex justify-end space-x-3">
-                        <a href="{{ route('walikelas.students.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-base font-medium rounded-lg shadow-sm 
-                                    text-gray-700 bg-white hover:bg-gray-100 transition duration-150 transform hover:scale-[1.02]">
-                            <i class="fas fa-arrow-left mr-2"></i> Batal
-                        </a>
-                        {{-- Tombol Simpan (Green) --}}
-                        <button type="submit" class="inline-flex items-center px-5 py-2.5 border border-transparent text-base font-bold rounded-lg shadow-md 
-                                    text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-offset-2 focus:ring-green-500/50 transition duration-150 transform hover:-translate-y-0.5" id="submitBtn">
-                            <i class="fas fa-save mr-2"></i> Simpan Siswa
-                        </button>
+                
+                {{-- Info Card --}}
+                <div class="bg-indigo-900 rounded-3xl shadow-xl border border-indigo-800 overflow-hidden text-white relative">
+                    <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+                    <div class="p-6 relative z-10">
+                        <h4 class="text-lg font-bold mb-3 flex items-center">
+                            <i class="fas fa-lightbulb text-yellow-400 mr-2"></i> Tips
+                        </h4>
+                        <ul class="space-y-3 text-indigo-100 text-sm">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mt-1 mr-2 text-indigo-400"></i>
+                                <span>NISN wajib unik. Gunakan data Dapodik.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mt-1 mr-2 text-indigo-400"></i>
+                                <span>Siswa otomatis masuk ke kelas Anda: <b>{{ $class->name ?? '...' }}</b></span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mt-1 mr-2 text-indigo-400"></i>
+                                <span>Gunakan foto formal untuk kartu pelajar.</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
 @stop
 
 @section('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
 <script>
-    $(document).ready(function() {
-        // Preview Foto (LOGIKA AMAN)
-        document.getElementById('photo').addEventListener('change', function(event) {
+    document.addEventListener('DOMContentLoaded', function() {
+        const photoInput = document.getElementById('photo');
+        const photoPreview = document.getElementById('photo-preview');
+
+        photoInput.addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('photo-preview').src = e.target.result;
-                };
+                reader.onload = function(e) { photoPreview.src = e.target.result; };
                 reader.readAsDataURL(file);
+            } else {
+                photoPreview.src = '{{ asset('images/default_avatar.png') }}';
             }
+        });
+    });
+
+    $(document).ready(function() {
+        $('#studentForm').on('submit', function() {
+            const submitBtn = $(this).find('button[type="submit"]');
+            submitBtn.prop('disabled', true).addClass('transform transition duration-150 ease-in-out').html('<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...');
         });
 
-        // Form submission loading state (LOGIKA AMAN)
-        $('#studentForm').on('submit', function() {
-            const submitBtn = $('#submitBtn');
-            if (this.checkValidity() === false) {
-                 return;
-            }
-            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...');
-        });
+        $('#nisn, #nis').on('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
+        $('#phone_number').on('input', function() { this.value = this.value.replace(/[^0-9+]/g, ''); });
         
-        // Auto-hide alerts
-        setTimeout(function() {
-            $('.alert-dismissible').fadeOut(400);
-        }, 5000);
+        @if(session('success')) Swal.fire({ icon: 'success', title: 'Berhasil!', text: '{{ session('success') }}', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 }); @endif
+        @if(session('error')) Swal.fire({ icon: 'error', title: 'Error!', text: '{{ session('error') }}', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 }); @endif
     });
 </script>
-@endsection
-
-@section('css')
-<style>
-/* --- MINIMAL CUSTOM CSS FOR TAILWIND --- */
-.text-indigo-600 { color: #4f46e5; }
-.bg-green-600 { background-color: #10b981 !important; }
-.hover\:bg-green-700:hover { background-color: #059669 !important; }
-
-/* Styling File Input (Overridden) */
-.file\:bg-indigo-50 { background-color: #e0e7ff; }
-.file\:text-indigo-700 { color: #4338ca; }
-.file\:hover\:bg-indigo-100:hover { background-color: #c7d2fe; }
-
-/* FIXES */
-.alert { border-radius: 0.5rem; }
-</style>
-@endsection
+@stop

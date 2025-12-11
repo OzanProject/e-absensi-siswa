@@ -7,7 +7,7 @@
 @endphp
 
 {{-- Menghapus 'fixed bottom-0 right-0 left-0 md:left-64 z-20' --}}
-<footer class="mt-8 pt-4 pb-4 
+<footer class="mt-8 pt-4 pb-20 md:pb-6 
                 bg-gray-100/50 border-t border-gray-200 
                 text-sm text-gray-600 
                 px-4 sm:px-6 

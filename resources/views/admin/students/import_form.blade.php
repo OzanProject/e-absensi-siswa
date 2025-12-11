@@ -8,16 +8,16 @@
     
     <div class="mb-2 sm:mb-0">
         <h1 class="text-2xl font-bold text-gray-800 flex items-center">
-            <i class="fas fa-file-import text-gray-600 mr-2"></i> 
+            <i class="fas fa-file-import text-indigo-600 mr-2"></i> 
             <span>Import Data Siswa</span>
         </h1>
     </div>
     
     <nav class="text-sm font-medium text-gray-500" aria-label="Breadcrumb">
         <ol class="flex space-x-2">
-            <li><a href="{{ route('admin.dashboard') }}" class="text-blue-600 hover:text-blue-800">Home</a></li>
+            <li><a href="{{ route('admin.dashboard') }}" class="text-indigo-600 hover:text-indigo-800">Home</a></li>
             <li class="text-gray-400">/</li>
-            <li><a href="{{ route('students.index') }}" class="text-blue-600 hover:text-blue-800">Data Siswa</a></li>
+            <li><a href="{{ route('students.index') }}" class="text-indigo-600 hover:text-indigo-800">Data Siswa</a></li>
             <li class="text-gray-400">/</li>
             <li class="text-gray-600">Import</li>
         </ol>
@@ -63,32 +63,32 @@
                         </div>
                     @endif
 
-                    <h5 class="font-bold mb-3 text-blue-600">1. Unduh Template</h5>
+                    <h5 class="font-bold mb-3 text-indigo-600">1. Unduh Template</h5>
                     <p class="text-gray-600 text-sm">Unduh template ini untuk memastikan format kolom (**NISN, Nama Siswa, Nama Kelas**, dll.) sudah benar sebelum diunggah.</p>
-                    <a href="{{ route('students.export') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg shadow-sm text-white bg-cyan-600 hover:bg-cyan-700 transition duration-150 mb-4" target="_blank">
+                    <a href="{{ route('students.export') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition duration-150 mb-4" target="_blank">
                         <i class="fas fa-file-download mr-1"></i> Unduh Template Excel
                     </a>
                     
-                    <h5 class="font-bold mt-4 mb-3 text-blue-600">2. Unggah File</h5>
+                    <h5 class="font-bold mt-4 mb-3 text-indigo-600">2. Unggah File</h5>
                     <form action="{{ route('students.import') }}" method="POST" enctype="multipart/form-data" id="importForm">
                         @csrf
                         <div class="mb-4">
                             <label for="file" class="block text-sm font-medium text-gray-700 mb-1">Pilih File Excel (.xlsx atau .xls)</label>
                             <input type="file" name="file" id="file" 
-                                    class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 
+                                    class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 
                                             @error('file') border-red-500 @enderror" 
                                     required>
                             @error('file')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                             @enderror
-                            <small class="mt-1 text-xs text-gray-500 block">Maksimal ukuran file: 2MB.</small>
+                            <small class="mt-1 text-xs text-gray-500 block">Maksimal ukuran file: 5MB.</small>
                         </div>
 
                         <div class="mt-4 flex space-x-3">
                             <a href="{{ route('students.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg 
                                             shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition duration-150"><i class="fas fa-arrow-left mr-1"></i> Batal</a>
                             <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg shadow-sm 
-                                            text-white bg-green-600 hover:bg-green-700 transition duration-150" id="submitImportBtn"><i class="fas fa-share-square mr-1"></i> Proses Import</button>
+                                            text-white bg-emerald-600 hover:bg-emerald-700 transition duration-150" id="submitImportBtn"><i class="fas fa-share-square mr-1"></i> Proses Import</button>
                         </div>
                     </form>
                 </div>
@@ -147,18 +147,22 @@
         // 💡 2. TAMPILKAN NOTIFIKASI SUKSES/ERROR DARI SESSION
         const successMessageElement = $('#session-success-alert');
         
-        if (successMessageElement.length) {
-            Swal.close(); // Tutup loading SweetAlert jika ada
+        if (successMessageElement.length > 0) {
+            if (Swal.isVisible()) {
+                Swal.close(); // Tutup loading jika masih terbuka
+            }
             
-            Swal.fire({
-                icon: 'success', 
-                title: 'Import Berhasil!', 
-                text: successMessageElement.data('message'), 
-                toast: true, 
-                position: 'top-end', 
-                showConfirmButton: false, 
-                timer: 5000 
-            });
+            setTimeout(() => { // Beri sedikit jeda agar transisi smooth
+                Swal.fire({
+                    icon: 'success', 
+                    title: 'Import Berhasil!', 
+                    text: successMessageElement.data('message'), 
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#4f46e5', // INDIGO-600
+                    timer: 5000,
+                    timerProgressBar: true
+                });
+            }, 300);
         }
         
         // 3. Hapus alert validasi saat user mulai memilih file baru
@@ -174,14 +178,6 @@
 
 @section('css')
 <style>
-/* CSS Tambahan */
-.text-cyan-600 { color: #0891b2; } 
-.text-red-600 { color: #dc3545; }
-.bg-cyan-600 { background-color: #0891b2 !important; }
-.hover\:bg-cyan-700:hover { background-color: #0e7490 !important; }
-.bg-green-600 { background-color: #10b981 !important; }
-.hover\:bg-green-700:hover { background-color: #059669 !important; }
-
 /* Styling untuk file input agar responsive */
 input[type="file"]::-webkit-file-upload-button {
     visibility: hidden;

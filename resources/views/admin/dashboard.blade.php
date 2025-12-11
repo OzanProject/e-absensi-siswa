@@ -24,174 +24,190 @@
 @stop
 
 @section('content')
-    {{-- ROW 1: Welcome Card (Menggunakan shadow dan border yang lebih halus) --}}
-    <div class="mb-6">
-        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-            <div class="flex items-center justify-between">
-                <div class="flex-grow-1">
-                    <h5 class="text-xl font-bold text-gray-900 mb-1">Selamat Datang, {{ Auth::user()->name }}! 👏</h5> {{-- Mengganti emoji --}}
-                    <p class="text-sm text-gray-500 mt-0">
-                        Sistem <strong class="text-indigo-600">E-Absensi</strong> siap digunakan. 
-                        Anda mengelola data seluruh sekolah.
-                    </p>
-                </div>
-                <div class="ml-4 flex-shrink-0 hidden sm:block">
-                    <i class="fas fa-clipboard-check text-indigo-600 opacity-20 text-4xl"></i>
+    {{-- GRADIENT WELCOME HERO --}}
+    <div class="relative bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-8 mb-8 shadow-2xl overflow-hidden relative">
+        {{-- Abstract Pattern Overlay --}}
+        <div class="absolute inset-0 opacity-10">
+            <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
+            </svg>
+        </div>
+        
+        <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between text-center sm:text-left">
+            <div>
+                <h2 class="text-3xl font-extrabold text-white mb-2 tracking-tight">Selamat Datang, {{ Auth::user()->name }}! 👋</h2>
+                <p class="text-indigo-100 text-lg opacity-90 max-w-xl">
+                    Pantau aktivitas sekolah secara <span class="font-bold text-white">Real-Time</span>. Sistem berjalan optimal.
+                </p>
+            </div>
+            <div class="mt-6 sm:mt-0 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-inner">
+                <div class="flex items-center space-x-3 text-white">
+                    <div class="text-right">
+                        <p class="text-xs text-indigo-200 font-medium uppercase tracking-wider">Jam Server</p>
+                        <p class="text-xl font-mono font-bold" id="dashboard-clock">{{ \Carbon\Carbon::now()->format('H:i') }}</p>
+                    </div>
+                    <i class="fas fa-clock text-3xl opacity-80"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- ROW 2 & 3: KOTAK STATISTIK UTAMA (Responsive Grid 4 Kolom) --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
+    {{-- STATS GRID --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         @php
-            // --- LOGIKA DATA (TIDAK BERUBAH) ---
             $stats = [
-                // [warna, icon, judul, nilai, route]
-                ['indigo', 'fa-user-graduate', 'Total Siswa Aktif', $totalStudents, route('students.index')], // Mengganti green ke indigo
-                ['cyan', 'fa-school', 'Total Kelas Aktif', $totalClasses, route('classes.index')], // Mengganti blue ke cyan
-                ['orange', 'fa-chart-pie', 'Kehadiran Hari Ini', $attendancePercentage . '%', route('report.index')], // Mengganti yellow ke orange, icon chart-line ke chart-pie
-                ['red', 'fa-users-cog', ($pendingUsers > 0 ? 'Akun Menunggu Persetujuan' : 'Total Pengguna'), 
-                 ($pendingUsers > 0 ? $pendingUsers : $totalUsers), 
-                 route('admin.users.index', ['tab' => $pendingUsers > 0 ? 'pending' : 'all'])],
+                ['color' => 'indigo', 'icon' => 'fa-user-graduate', 'label' => 'Total Siswa', 'value' => $totalStudents, 'route' => route('students.index')],
+                ['color' => 'cyan',   'icon' => 'fa-chalkboard',    'label' => 'Total Kelas', 'value' => $totalClasses,  'route' => route('classes.index')],
+                ['color' => 'emerald','icon' => 'fa-check-circle',  'label' => 'Hadir Hari Ini', 'value' => $attendancePercentage . '%', 'route' => route('report.index')],
+                ['color' => 'rose',   'icon' => 'fa-users',         'label' => 'Total User', 'value' => $totalUsers,    'route' => route('admin.users.index')],
             ];
-            $teachers = ['green', 'fa-chalkboard-teacher', 'Total Guru/Wali Kelas', $totalTeachers, route('teachers.index')]; // Mengganti gray ke green
             
-            // Gabungkan stats dan teachers ke dalam satu array untuk loop
-            $allStats = array_merge($stats, [$teachers]);
+            // Handle Pending Users Alert
+            if($pendingUsers > 0) {
+                 $stats[3] = ['color' => 'orange', 'icon' => 'fa-user-clock', 'label' => 'Menunggu Approval', 'value' => $pendingUsers, 'route' => route('admin.users.index', ['tab' => 'pending'])];
+            }
         @endphp
 
-        @foreach($allStats as $stat)
-        
-            @if ($loop->index == 4)
-                {{-- Spacer untuk item ke-5 --}}
-                <div class="hidden lg:block lg:col-span-3"></div>
-            @endif
-        
-            <a href="{{ $stat[4] }}" class="block group"> {{-- Tambahkan class group untuk efek hover --}}
-                {{-- PERUBAHAN UTAMA: Design Card Box Lebih Clean --}}
-                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 h-full 
-                             hover:shadow-xl transition duration-300 transform group-hover:scale-[1.03]
-                             ring-2 ring-transparent group-hover:ring-{{ $stat[0] }}-300/50">
+        @foreach($stats as $stat)
+            <a href="{{ $stat['route'] }}" class="group relative">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative overflow-hidden">
+                    {{-- Decorative Blur --}}
+                    <div class="absolute -top-4 -right-4 w-24 h-24 bg-{{ $stat['color'] }}-50 rounded-full blur-2xl opacity-50 transition-all group-hover:scale-150"></div>
                     
-                    <div class="flex justify-between items-start">
+                    <div class="relative z-10 flex items-start justify-between">
                         <div>
-                            {{-- Judul dan Icon Kecil di atas --}}
-                            <div class="text-{{ $stat[0] }}-600 mb-2 flex items-center">
-                                <i class="fas {{ $stat[1] }} mr-2 text-lg"></i>
-                                <p class="text-sm font-semibold uppercase text-{{ $stat[0] }}-600">{{ $stat[2] }}</p>
-                            </div>
-                            
-                            {{-- Nilai Statistik --}}
-                            <h3 class="text-4xl font-extrabold text-gray-900 mt-1">
-                                @if($stat[2] == 'Akun Menunggu Persetujuan' && $stat[3] > 0)
-                                    <span class="bg-red-500 text-white text-xl px-3 py-1 rounded-full shadow-lg animate-pulse">{{ $stat[3] }}</span>
-                                @else
-                                    {{ $stat[3] }}
-                                @endif
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{{ $stat['label'] }}</p>
+                            <h3 class="text-3xl font-black text-gray-800 tracking-tight group-hover:text-{{ $stat['color'] }}-600 transition-colors">
+                                {{ $stat['value'] }}
                             </h3>
                         </div>
-                        
-                        {{-- Icon Besar Dihilangkan untuk Clean Design --}}
-                    </div>
-                    
-                    {{-- Tombol Lihat Detail/Action (Diposisikan di Bawah) --}}
-                    <div class="mt-4 pt-3 border-t border-gray-100 text-sm font-semibold tracking-wide text-{{ $stat[0] }}-600 group-hover:text-{{ $stat[0] }}-700 flex items-center">
-                        {{ $stat[2] == 'Akun Menunggu Persetujuan' ? 'Kelola Pengguna' : 'Lihat Detail' }} 
-                        <i class="fas fa-arrow-right ml-2 text-sm transition duration-150 group-hover:translate-x-1"></i>
+                        <div class="bg-{{ $stat['color'] }}-100 p-3 rounded-xl text-{{ $stat['color'] }}-600 group-hover:rotate-12 transition-transform duration-300 shadow-sm">
+                            <i class="fas {{ $stat['icon'] }} text-xl"></i>
+                        </div>
                     </div>
                 </div>
             </a>
         @endforeach
     </div>
-    
-    {{-- ROW 4: Log Absensi dan Info Sistem (Responsive Grid 2 Kolom) --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+
+    {{-- MAIN CONTENT GRID (Timeline & Info) --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {{-- LOG ABSENSI TERBARU (List Bersih) --}}
-        <div>
-            <div class="bg-white rounded-xl shadow-lg h-full border border-gray-100">
-                <div class="p-4 border-b border-gray-100">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                        <i class="fas fa-history mr-2 text-indigo-500"></i> {{-- Menggunakan Indigo --}}
-                        Aktivitas Absensi Terbaru
+        {{-- ACTIVITY TIMELINE (2 Columns) --}}
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+                    <h3 class="font-bold text-gray-800 text-lg flex items-center">
+                        <span class="bg-indigo-100 p-2 rounded-lg mr-3 text-indigo-600"><i class="fas fa-stream"></i></span>
+                        Live Absensi Timeline
                     </h3>
+                    <a href="{{ route('report.index') }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-3 py-1.5 rounded-full transition">
+                        View All
+                    </a>
                 </div>
                 
-                <ul class="divide-y divide-gray-100">
+                <div class="p-6 max-h-[500px] overflow-y-auto custom-scrollbar">
                     @forelse($recentAbsences as $absence)
-                    <li class="flex justify-between items-center px-4 py-3 hover:bg-indigo-50/20 transition duration-150">
-                        <div class="text-sm flex items-center flex-1 min-w-0">
-                            @php
-                                $isOut = $absence->checkout_time;
-                                $status = $isOut ? 'PULANG' : $absence->status;
-                                
-                                // Penyesuaian Warna Badge untuk tampilan yang lebih modern
-                                // Menggunakan kelas warna Tailwind dengan konsisten
-                                if ($isOut) { $badgeColor = 'bg-indigo-500 text-white'; } 
-                                elseif ($absence->status == 'Terlambat') { $badgeColor = 'bg-yellow-400 text-gray-800'; } // Teks gelap pada kuning terang
-                                elseif (in_array($absence->status, ['Hadir'])) { $badgeColor = 'bg-green-500 text-white'; } 
-                                else { $badgeColor = 'bg-red-500 text-white'; }
-                            @endphp
+                        @php
+                            $isOut = $absence->checkout_time;
+                            $status = $isOut ? 'PULANG' : $absence->status;
+                            $time = $isOut ? $absence->checkout_time->format('H:i') : $absence->attendance_time->format('H:i');
                             
-                            {{-- Nama Siswa & Kelas --}}
-                            <i class="fas fa-user-circle text-gray-400 mr-3 text-xl flex-shrink-0"></i>
-                            <div class="min-w-0 flex-1 overflow-hidden">
-                                <strong class="text-gray-800 font-semibold truncate block">{{ $absence->student->name ?? 'N/A' }}</strong> 
-                                <span class="text-xs font-medium bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full mt-1 inline-block whitespace-nowrap">
-                                    {{ $absence->student->class?->name ?? 'N/A' }}
-                                </span>
+                            $colorMap = [
+                                'Hadir' => 'teal',
+                                'Terlambat' => 'amber',
+                                'Alpa' => 'red',
+                                'Izin' => 'blue',
+                                'Sakit' => 'purple',
+                                'PULANG' => 'indigo'
+                            ];
+                            $color = $colorMap[$status] ?? 'gray';
+                        @endphp
+                        
+                        <div class="relative pl-8 pb-8 last:pb-0 border-l-2 border-gray-100 last:border-l-0">
+                            {{-- Timeline Dot --}}
+                            <div class="absolute -left-[9px] top-0 bg-white border-4 border-{{ $color }}-100 h-5 w-5 rounded-full z-10 flex items-center justify-center">
+                                <div class="bg-{{ $color }}-500 h-2.5 w-2.5 rounded-full"></div>
+                            </div>
+                            
+                            {{-- Content --}}
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between group">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-1">
+                                        <h4 class="font-bold text-gray-800 text-sm group-hover:text-indigo-600 transition">{{ $absence->student->name ?? 'Siswa Dihapus' }}</h4>
+                                        <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500">{{ $absence->student->class->name ?? '-' }}</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400">
+                                        Scan via <span class="font-medium text-gray-500">QR Code</span>
+                                    </p>
+                                </div>
+                                
+                                <div class="mt-2 sm:mt-0 text-right">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{ $color }}-100 text-{{ $color }}-800">
+                                        {{ $status }}
+                                    </span>
+                                    <p class="text-xs font-mono font-bold text-gray-400 mt-1">{{ $time }}</p>
+                                </div>
                             </div>
                         </div>
-                        {{-- Badge Status --}}
-                        <span class="text-xs font-bold {{ $badgeColor }} px-3 py-1.5 rounded-full whitespace-nowrap shadow-sm ml-4 flex-shrink-0">
-                            {{ $status }} | {{ $isOut ? $absence->checkout_time->format('H:i') : $absence->attendance_time->format('H:i') }}
-                        </span>
-                    </li>
                     @empty
-                    <li class="p-6 text-center text-gray-500 text-sm">Belum ada aktivitas absensi hari ini.</li>
+                        <div class="text-center py-12">
+                            <div class="bg-gray-50 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-coffee text-gray-300 text-2xl"></i>
+                            </div>
+                            <p class="text-gray-500 font-medium">Belum ada aktivitas absensi hari ini.</p>
+                        </div>
                     @endforelse
-                </ul>
+                </div>
             </div>
         </div>
 
-        {{-- INFO SISTEM & PENGATURAN --}}
-        <div>
-            <div class="bg-white rounded-xl shadow-lg h-full border border-gray-100">
-                <div class="p-4 border-b border-gray-100">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                        <i class="fas fa-info-circle mr-2 text-indigo-500"></i>
-                        System Info & Konfigurasi
-                    </h3>
-                </div>
+        {{-- SIDEBAR: SYSTEM & QUICK ACTIONS --}}
+        <div class="space-y-6">
+            
+            {{-- System Status Card --}}
+            <div class="bg-white rounded-3xl shadow-lg border border-gray-100 p-6">
+                <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-server text-gray-400 mr-2"></i> System Health
+                </h3>
                 
-                <div class="p-6"> {{-- Padding lebih besar --}}
-                    <div class="grid grid-cols-2 gap-y-6 gap-x-4">
-                        
-                        {{-- Data Info (Menggunakan box sederhana) --}}
-                        @foreach([
-                            'Total Semua Pengguna' => $totalUsers,
-                            'Zona Waktu Server' => 'WIB (Asia/Jakarta)',
-                            'PHP Version' => $phpVersion,
-                            'Laravel Version' => app()->version(),
-                        ] as $label => $value)
-                            <div class="border-l-4 border-indigo-500 pl-3 bg-indigo-50/30 p-2 rounded-lg">
-                                <small class="text-xs font-semibold text-gray-500 block uppercase tracking-wider">{{ $label }}</small>
-                                <p class="mt-0.5 text-xl font-extrabold text-gray-900">{{ $value }}</p>
-                            </div>
-                        @endforeach
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <div class="flex items-center">
+                            <div class="h-2 w-2 bg-green-500 rounded-full animate-pulse mr-3"></div>
+                            <span class="text-sm font-medium text-gray-600">Status Database</span>
+                        </div>
+                        <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded">Connected</span>
                     </div>
-                    
-                    <a href="{{ route('settings.index') }}" 
-                       class="mt-8 inline-flex items-center px-6 py-3 border border-transparent text-sm font-bold 
-                              rounded-xl shadow-lg text-white bg-indigo-600 hover:bg-indigo-700 
-                              focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-indigo-500/50 
-                              transition duration-150 transform hover:-translate-y-0.5">
-                        <i class="fas fa-cogs mr-2"></i> Kelola Pengaturan Sistem
+
+                    <div class="p-3 bg-gray-50 rounded-xl">
+                        <p class="text-xs text-gray-500 mb-1">Environment</p>
+                        <div class="flex justify-between items-end">
+                            <span class="text-sm font-bold text-gray-700">Laravel v{{ app()->version() }}</span>
+                            <span class="text-xs text-gray-400">PHP {{ $phpVersion }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Quick Actions --}}
+            <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl shadow-lg p-6 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
+                
+                <h3 class="font-bold text-lg mb-4 relative z-10">Quick Actions</h3>
+                
+                <div class="grid grid-cols-2 gap-3 relative z-10">
+                    <a href="{{ route('admin.absensi.scan') }}" class="bg-white/10 hover:bg-white/20 p-3 rounded-xl text-center transition backdrop-blur-sm border border-white/5">
+                        <i class="fas fa-qrcode text-xl mb-2 text-indigo-400"></i>
+                        <p class="text-xs font-semibold">Scan Live</p>
+                    </a>
+                    <a href="{{ route('report.index') }}" class="bg-white/10 hover:bg-white/20 p-3 rounded-xl text-center transition backdrop-blur-sm border border-white/5">
+                        <i class="fas fa-file-export text-xl mb-2 text-emerald-400"></i>
+                        <p class="text-xs font-semibold">Laporan</p>
                     </a>
                 </div>
             </div>
+
         </div>
     </div>
 @stop
@@ -207,7 +223,7 @@
             Swal.fire({ 
                 icon: 'success', 
                 title: 'Berhasil!', 
-                text: '{{ session('success') }}', 
+                text: {!! json_encode(session('success')) !!}, 
                 toast: true, 
                 position: 'top-end', 
                 showConfirmButton: false, 
@@ -218,7 +234,7 @@
             Swal.fire({ 
                 icon: 'error', 
                 title: 'Gagal!', 
-                text: '{{ session('error') }}', 
+                text: {!! json_encode(session('error')) !!}, 
                 toast: true, 
                 position: 'top-end', 
                 showConfirmButton: false, 

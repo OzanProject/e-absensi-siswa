@@ -37,8 +37,8 @@
 @endphp
 
 <aside id="main-sidebar"
-    class="fixed top-0 left-0 z-40 h-full w-64 bg-gray-800 
-           transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl">
+    class="fixed top-0 left-0 z-50 h-full w-64 bg-gray-900 
+           transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-[4px_0_24px_rgba(0,0,0,0.1)] border-r border-gray-800">
 
     {{-- 1. BRAND LINK (Logo & Nama Sekolah) --}}
     {{-- Padding vertikal disesuaikan menjadi p-4 py-3 untuk tampilan yang lebih ramping --}}
@@ -122,6 +122,24 @@
                                         </a>
                                     </li>
                                 @endforeach
+                                {{-- MANAJEMEN PELAJARAN --}}
+                                <li>
+                                    <a href="{{ route('admin.subjects.index') }}"
+                                        class="flex items-center p-2 rounded-md transition duration-150 text-sm 
+                                                {{ isActive('admin/subjects*') ? $activeSubClass : $defaultSubClass }}">
+                                        <i class="fas fa-book-open text-xs w-3 h-3 mr-3 opacity-75"></i>
+                                        <span class="ml-1">Mata Pelajaran</span>
+                                    </a>
+                                </li>
+                                {{-- MANAJEMEN JADWAL --}}
+                                <li>
+                                    <a href="{{ route('admin.schedules.index') }}"
+                                        class="flex items-center p-2 rounded-md transition duration-150 text-sm 
+                                                {{ isActive('admin/schedules*') ? $activeSubClass : $defaultSubClass }}">
+                                        <i class="far fa-calendar-alt text-xs w-3 h-3 mr-3 opacity-75"></i>
+                                        <span class="ml-1">Atur Jadwal</span>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
 
@@ -145,6 +163,15 @@
                                 </a>
                             </li>
                         @endforeach
+
+                        {{-- Kelola Pengumuman --}}
+                        <li>
+                            <a href="{{ route('announcements.index') }}"
+                               class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('admin/announcements*') ? $activeClass : $defaultClass }}">
+                                <i class="fas fa-bullhorn w-5 h-5 mr-3"></i>
+                                <span class="text-sm">Kelola Pengumuman</span>
+                            </a>
+                        </li>
 
                         {{-- HEADER: OPERASI UTAMA (Absensi) --}}
                         <li
@@ -315,6 +342,15 @@
                                 class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('orangtua/izin*') ? $activeClass : $defaultClass }}">
                                 <i class="fas fa-file-medical-alt w-5 h-5 mr-3"></i>
                                 <span class="text-sm">Pengajuan Izin/Sakit</span>
+                            </a>
+                        </li>
+
+                        {{-- Jadwal Pelajaran (Baru) --}}
+                        <li>
+                            <a href="{{ route('orangtua.jadwal.index') }}"
+                                class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('orangtua/jadwal*') ? $activeClass : $defaultClass }}">
+                                <i class="far fa-calendar-alt w-5 h-5 mr-3"></i>
+                                <span class="text-sm">Jadwal Pelajaran</span>
                             </a>
                         </li>
 

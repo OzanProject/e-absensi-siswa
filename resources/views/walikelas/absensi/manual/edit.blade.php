@@ -1,252 +1,167 @@
 @extends('layouts.adminlte')
 
-@section('title', 'Edit Absensi: ' . ($attendance->student->name ?? 'Siswa'))
-
-@section('content_header')
-{{-- HEADER: Menggunakan Tailwind & Warna Amber/Indigo --}}
-<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-    <h1 class="text-2xl font-bold text-gray-800 flex items-center mb-2 sm:mb-0">
-        <i class="fas fa-user-edit text-amber-500 mr-2"></i>
-        <span>Edit Absensi: {{ $attendance->student->name ?? 'Siswa' }}</span>
-    </h1>
-    <nav class="text-sm font-medium text-gray-500" aria-label="Breadcrumb">
-        <ol class="flex space-x-2">
-            <li><a href="{{ route('walikelas.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150">Dashboard</a></li>
-            <li class="text-gray-400">/</li>
-            <li><a href="{{ route('walikelas.absensi.manual.index') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150">Absensi Manual</a></li>
-            <li class="text-gray-400">/</li>
-            <li class="text-gray-600 font-semibold">Edit</li>
-        </ol>
-    </nav>
-</div>
-@stop
+@section('title', 'Koreksi Absensi')
 
 @section('content')
-    {{-- Notifikasi Sukses/Error (Styling Tailwind) --}}
-    @if(session('success'))
-        <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg relative mb-6 alert-dismissible" role="alert">
-            <i class="icon fas fa-check-circle mr-2"></i> {{ session('success') }}
+<div class="max-w-5xl mx-auto space-y-6">
+
+    {{-- PAGE HEADER --}}
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Koreksi Data Absensi</h2>
+            <p class="text-sm text-gray-500 mt-1">Siswa: <span class="font-bold text-indigo-600">{{ $attendance->student->name ?? 'N/A' }}</span></p>
         </div>
-    @endif
-    @if(session('error'))
-        <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg relative mb-6 alert-dismissible" role="alert">
-            <i class="icon fas fa-ban mr-2"></i> {{ session('error') }}
-        </div>
-    @endif
+        <nav class="flex text-sm font-medium text-gray-500 space-x-2" aria-label="Breadcrumb">
+            <a href="{{ route('walikelas.absensi.manual.index') }}" class="text-gray-500 hover:text-indigo-600 transition">
+                <i class="fas fa-arrow-left mr-1"></i> Kembali
+            </a>
+        </nav>
+    </div>
     
-    <div class="grid grid-cols-1 lg:grid-cols-3 lg:gap-6">
+    {{-- Main Grid --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {{-- KOLOM KIRI: FORM EDIT UTAMA (2/3) --}}
-        <div class="lg:col-span-2">
-            <div class="bg-white rounded-xl shadow-lg border border-gray-100">
-                <div class="p-5 border-b border-gray-100">
-                    <h3 class="text-xl font-bold text-gray-800 flex items-center"><i class="fas fa-clipboard-list mr-2 text-indigo-500"></i> Koreksi Data Kehadiran</h3>
+        {{-- LEFT COLUMN: FORM (2/3) --}}
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100 bg-amber-50/50 flex justify-between items-center">
+                    <h3 class="font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-edit text-amber-500 mr-2"></i> Form Perubahan Data
+                    </h3>
                 </div>
-
-                <div class="p-6">
-                    
-                    @php
-                        // Helper Class
-                        $inputClass = 'w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-150';
-                        $errorBorder = 'border-red-500';
-                        $defaultBorder = 'border-gray-300';
-                    @endphp
-
-                    {{-- Alert Validasi Error dari Controller --}}
+                
+                <div class="p-8">
                     @if ($errors->any())
-                        <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg relative mb-6">
-                            <i class="fas fa-exclamation-triangle mr-2"></i> Harap periksa kembali input Anda.
+                        <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-xl mb-6 text-sm font-medium">
+                            <i class="fas fa-exclamation-triangle mr-2"></i> Mohon periksa kembali inputan Anda.
                         </div>
                     @endif
 
-                    {{-- Form di-submit ke route manual.update dengan method PUT --}}
                     <form action="{{ route('walikelas.absensi.manual.update', $attendance->id) }}" method="POST" id="editAbsenceForm" class="space-y-6">
-                        @csrf
-                        @method('PUT')
+                        @csrf @method('PUT')
+                        <input type="hidden" name="nis" value="{{ $attendance->student->nis ?? '' }}">
 
-                        {{-- Tampilkan Info Siswa --}}
-                        <div class="border-b border-gray-200 pb-4 mb-4">
-                            <h5 class="text-lg font-bold text-gray-800 flex items-center"><i class="fas fa-user mr-2 text-purple-600"></i> Siswa: {{ $attendance->student->name ?? 'N/A' }}</h5>
-                            <p class="text-xs text-gray-500 mt-2 flex justify-between">
-                                <span>Waktu Masuk Tercatat: <strong class="text-gray-800">{{ $attendance->attendance_time ? $attendance->attendance_time->format('d/m/Y H:i:s') : 'N/A' }}</strong></span>
-                                <span>Waktu Pulang: 
-                                    <strong class="text-gray-800">
-                                        {{ $attendance->checkout_time ? $attendance->checkout_time->format('H:i:s') : 'BELUM PULANG' }}
-                                    </strong>
-                                </span>
-                            </p>
-                            
-                            {{-- Hidden Input: NIS Siswa (LOGIKA AMAN) --}}
-                            <input type="hidden" name="nis" value="{{ $attendance->student->nis ?? '' }}">
-                        </div>
-                        
-                        {{-- Status Kehadiran --}}
-                        <div>
-                            <label for="editAttStatus" class="block text-sm font-semibold text-gray-700 mb-1">Ubah Status Kehadiran <span class="text-red-600">*</span></label>
-                            <select class="{{ $inputClass }} @error('status') {{ $errorBorder }} @else {{ $defaultBorder }} @enderror" name="status" id="editAttStatus" required>
-                                <option value="">Pilih Status</option>
-                                @foreach(['Hadir', 'Terlambat', 'Sakit', 'Izin', 'Alpha'] as $status)
-                                    <option value="{{ $status }}" {{ old('status', $attendance->status) == $status ? 'selected' : '' }}>
-                                        {{ $status }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('status') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                        </div>
-                        
-                        {{-- Keterangan --}}
-                        <div>
-                            <label for="editAttNotes" class="block text-sm font-semibold text-gray-700 mb-1">Keterangan Awal (Opsional)</label>
-                            <textarea class="{{ $inputClass }} @error('notes') {{ $errorBorder }} @else {{ $defaultBorder }} @enderror" name="notes" id="editAttNotes" rows="3">{{ old('notes', $attendance->notes) }}</textarea>
-                            @error('notes') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                        </div>
-
-                        {{-- 💡 Alasan Koreksi (Wajib untuk Audit) --}}
-                        <div class="mt-6 border border-amber-400 bg-amber-50 p-4 rounded-lg">
-                            <label for="correction_reason" class="text-sm text-gray-700 mb-2 font-bold flex items-center">
-                                <i class="fas fa-file-signature mr-2 text-amber-600"></i> Alasan Koreksi/Audit <span class="text-red-600 ml-1">*</span>
-                            </label>
-                            <textarea class="w-full px-3 py-2 border border-amber-300 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 @error('correction_reason') {{ $errorBorder }} @else {{ $defaultBorder }} @enderror" name="correction_reason" id="correction_reason" rows="2" required>{{ old('correction_reason', $attendance->correction_note) }}</textarea>
-                            @error('correction_reason') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                            <small class="text-xs text-gray-500 mt-1 block">Wajib diisi untuk tujuan audit (mis: Perubahan dari Izin menjadi Sakit karena surat dokter baru).</small>
-                        </div>
-
-                        {{-- Tombol Aksi --}}
-                        <div class="mt-6 border-t border-gray-100 pt-4 flex justify-between items-center">
-                            <div class="flex space-x-3">
-                                <a href="{{ route('walikelas.absensi.manual.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-base font-medium rounded-lg shadow-sm 
-                                                text-gray-700 bg-white hover:bg-gray-100 transition duration-150 transform hover:scale-[1.02]">
-                                    <i class="fas fa-arrow-left mr-2"></i> Batal
-                                </a>
-                                {{-- Tombol Simpan Perubahan (Amber) --}}
-                                <button type="submit" class="inline-flex items-center px-5 py-2.5 border border-transparent text-base font-bold rounded-lg shadow-md 
-                                        text-gray-800 bg-amber-400 hover:bg-amber-500 focus:ring-4 focus:ring-offset-2 focus:ring-amber-500/50 transition duration-150 transform hover:-translate-y-0.5" id="submitEditBtn">
-                                    <i class="fas fa-save mr-2"></i> Simpan Perubahan
-                                </button>
+                        {{-- CURRENT INFO BOX --}}
+                        <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100 grid grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Masuk</span>
+                                <span class="font-mono font-bold text-gray-800">{{ $attendance->attendance_time ? $attendance->attendance_time->format('H:i') : '-' }}</span>
                             </div>
-                            
-                            {{-- Tombol Hapus --}}
-                            <button type="button" 
-                                    class="inline-flex items-center px-4 py-2 border border-transparent text-base font-bold rounded-lg shadow-md 
-                                    text-white bg-red-600 hover:bg-red-700 transition duration-150 transform hover:scale-[1.02]" 
-                                    onclick="confirmDeleteAttendance('{{ $attendance->id }}', '{{ $attendance->student->name ?? 'Absensi' }}')">
-                                <i class="fas fa-trash mr-2"></i> Hapus Absensi Ini
+                            <div>
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Pulang</span>
+                                <span class="font-mono font-bold text-gray-800">{{ $attendance->checkout_time ? $attendance->checkout_time->format('H:i') : 'Belum' }}</span>
+                            </div>
+                        </div>
+
+                        {{-- STATUS SELECTION --}}
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-3">Status Baru <span class="text-red-500">*</span></label>
+                            <div class="grid grid-cols-3 sm:grid-cols-5 gap-3">
+                                @foreach(['Hadir', 'Terlambat', 'Sakit', 'Izin', 'Alpha'] as $status)
+                                    <label class="cursor-pointer group">
+                                        <input type="radio" name="status" value="{{ $status }}" class="peer sr-only" required {{ old('status', $attendance->status) == $status ? 'checked' : '' }}>
+                                        <div class="rounded-xl border-2 border-gray-200 p-3 text-center transition-all bg-white hover:bg-gray-50 peer-checked:border-amber-500 peer-checked:bg-amber-50 peer-checked:text-amber-700 peer-checked:shadow-sm">
+                                            <span class="text-xs sm:text-sm font-bold">{{ $status }}</span>
+                                        </div>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- NOTES --}}
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Catatan Tambahan</label>
+                            <textarea class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition text-sm" 
+                                      name="notes" rows="2">{{ old('notes', $attendance->notes) }}</textarea>
+                        </div>
+
+                        {{-- AUDIT REASON (REQUIRED) --}}
+                        <div class="bg-amber-50 rounded-2xl p-5 border border-amber-200">
+                            <label class="block text-sm font-bold text-amber-800 mb-2">
+                                <i class="fas fa-file-signature mr-1"></i> Alasan Koreksi (Audit Log) <span class="text-red-500">*</span>
+                            </label>
+                            <textarea class="w-full px-4 py-3 rounded-xl border border-amber-300 bg-white focus:ring-2 focus:ring-amber-500 focus:border-transparent transition text-sm" 
+                                      name="correction_reason" rows="2" required placeholder="Jelaskan alasan perubahan data ini...">{{ old('correction_reason', $attendance->correction_note) }}</textarea>
+                            <p class="text-xs text-amber-600 mt-2 font-medium">Wajib diisi untuk rekam jejak sistem.</p>
+                        </div>
+
+                        {{-- ACTIONS --}}
+                        <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                            <button type="button" onclick="confirmDelete()" class="text-red-500 hover:text-red-700 font-bold text-sm px-4 py-2 rounded-lg hover:bg-red-50 transition">
+                                <i class="fas fa-trash mr-1"></i> Hapus Data
+                            </button>
+                            <button type="submit" id="saveBtn" class="px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg shadow-amber-500/30 transition transform hover:-translate-y-1">
+                                Simpan Perubahan
                             </button>
                         </div>
                     </form>
-                    
-                    {{-- Form Delete Tersembunyi (LOGIKA AMAN) --}}
-                    <form id="delete-att-form-{{ $attendance->id }}" 
-                          action="{{ route('walikelas.absensi.destroy', $attendance->id) }}" 
-                          method="POST" class="hidden">
-                        @csrf
-                        @method('DELETE')
+
+                    <form id="deleteForm" action="{{ route('walikelas.absensi.destroy', $attendance->id) }}" method="POST" class="hidden">
+                        @csrf @method('DELETE')
                     </form>
-
                 </div>
             </div>
         </div>
 
-        {{-- KOLOM KANAN: Informasi --}}
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-xl shadow-lg border border-gray-100">
-                <div class="p-5 border-b border-gray-100">
-                    <h3 class="text-xl font-bold text-gray-800 flex items-center"><i class="fas fa-lightbulb mr-2 text-indigo-500"></i> Tips Koreksi</h3>
-                </div>
-                <div class="p-6 text-sm">
-                    {{-- Blok Audit Terakhir --}}
-                    @if($attendance->is_manual_corrected)
-                    <div class="bg-indigo-50 border-l-4 border-indigo-500 p-3 mb-4 rounded-lg">
-                        <strong class="text-indigo-700 font-bold">Audit Terakhir:</strong>
-                        <p class="text-xs text-indigo-600 mt-1">Dikoreksi oleh: {{ $attendance->corrected_by ?? 'N/A' }}</p>
-                        <p class="text-xs text-indigo-600">Alasan: {{ $attendance->correction_note ?? 'Tidak ada catatan.' }}</p>
-                    </div>
-                    @endif
-                    <ul class="list-disc ml-5 space-y-2 text-gray-600">
-                        <li>Mengubah status menjadi **Sakit/Izin/Alpha** akan menyetel waktu pulang (*checkout_time*) menjadi NULL.</li>
-                        <li>**Alasan Koreksi wajib** diisi untuk melacak siapa dan mengapa data ini diubah.</li>
-                        <li>Gunakan tombol **Hapus** hanya jika data absensi ini benar-benar salah atau duplikat.</li>
-                    </ul>
+        {{-- RIGHT COLUMN: TIPS (1/3) --}}
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                 <div class="relative z-10">
+                     <h3 class="font-bold text-lg mb-4 flex items-center"><i class="fas fa-info-circle mr-2"></i> Penting</h3>
+                     <ul class="space-y-3 text-sm text-indigo-100">
+                         <li class="flex items-start">
+                             <i class="fas fa-dot-circle mt-1 mr-2 text-xs"></i>
+                             <span>Mengubah status ke <b>Sakit/Izin/Alpha</b> otomatis mereset jam pulang.</span>
+                         </li>
+                         <li class="flex items-start">
+                             <i class="fas fa-dot-circle mt-1 mr-2 text-xs"></i>
+                             <span>Semua perubahan tercatat di <b>Audit Log</b> beserta nama pengubah.</span>
+                         </li>
+                     </ul>
+                 </div>
+                 {{-- Decor --}}
+                 <div class="absolute bottom-0 right-0 -mb-10 -mr-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
+            </div>
+
+            @if($attendance->is_manual_corrected)
+            <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                <h4 class="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wide">Riwayat Terakhir</h4>
+                <div class="text-sm space-y-2">
+                    <p><span class="text-gray-500">Oleh:</span> <br> <span class="font-medium text-gray-900">{{ $attendance->corrected_by ?? 'System' }}</span></p>
+                    <p><span class="text-gray-500">Alasan:</span> <br> <span class="font-medium text-gray-900 italic">"{{ $attendance->correction_note }}"</span></p>
                 </div>
             </div>
+            @endif
         </div>
+
     </div>
+</div>
 @stop
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    
-    $(document).ready(function() {
-        // 🚨 FUNGSI HAPUS ABSENSI (SweetAlert2) - LOGIKA AMAN
-        window.confirmDeleteAttendance = function(attendanceId, studentName) {
-            Swal.fire({
-                title: 'Hapus Absensi?',
-                text: `Yakin ingin menghapus catatan absensi ${studentName}? Tindakan ini tidak dapat dibatalkan.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626', // Red
-                cancelButtonColor: '#6c757d', // Gray
-                confirmButtonText: 'Ya, Hapus!',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const form = $(`#delete-att-form-${attendanceId}`);
-                    
-                    if (form.length) {
-                        // Memaksa submit dari form tersembunyi
-                        form.submit(); 
-                    }
-                }
-            });
-        };
-
-        // 🚨 FUNGSI SUBMIT LOADING STATE (LOGIKA AMAN)
-        $('#editAbsenceForm').on('submit', function() {
-            const submitBtn = $('#submitEditBtn');
-            // Cek validitas form HTML5
-            if (this.checkValidity() === false) {
-                 return;
-            }
-            // Tambahkan efek transform/hover ke loading state agar konsisten
-            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...');
-        });
-        
-        // Auto-dismiss alerts
-        setTimeout(function() {
-            $('.alert-dismissible').fadeOut(400);
-        }, 5000);
+    $('#editAbsenceForm').on('submit', function() {
+        if(this.checkValidity()) {
+            $('#saveBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...');
+        }
     });
+
+    function confirmDelete() {
+        Swal.fire({
+            title: 'Hapus Permanen?',
+            text: "Data absensi ini akan hilang.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) $('#deleteForm').submit();
+        });
+    }
+
+    // Auto fade alerts
+    setTimeout(() => $('.alert-dismissible').fadeOut(), 5000);
 </script>
-@endsection
-
-@section('css')
-<style>
-/* --- MINIMAL CUSTOM CSS FOR TAILWIND --- */
-.text-amber-500 { color: #f59e0b; }
-.text-indigo-600 { color: #4f46e5; }
-.text-indigo-500 { color: #6366f1; } 
-.text-purple-600 { color: #9333ea; }
-
-/* Warna Amber Button dan Focus */
-.bg-amber-400 { background-color: #fbbf24; }
-.hover\:bg-amber-500:hover { background-color: #f59e0b; }
-.bg-amber-50 { background-color: #fff7ed; }
-.border-amber-300 { border-color: #fcd34d; }
-.border-amber-400 { border-color: #fbbf24; }
-.text-amber-600 { color: #d97706; }
-
-/* Warna Custom Blocks */
-.bg-indigo-50 { background-color: #eef2ff; }
-.border-indigo-500 { border-color: #6366f1; }
-.text-indigo-700 { color: #4338ca; }
-
-.bg-red-600 { background-color: #dc2626 !important; }
-.hover\:bg-red-700:hover { background-color: #b91c1c !important; }
-
-/* Default Border */
-.border-gray-300 { border-color: #d1d5db; }
-
-/* Menjamin form tersembunyi */
-.hidden { display: none !important; }
-</style>
 @endsection

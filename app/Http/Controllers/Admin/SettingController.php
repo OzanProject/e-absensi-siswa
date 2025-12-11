@@ -42,13 +42,22 @@ class SettingController extends Controller
         // 1. Validasi Input
         $request->validate([
             'school_name' => 'required|string|max:255',
-            // 💡 SOLUSI FIX: Mengubah format validasi dari H:i:s menjadi H:i
             'attendance_start_time' => 'required|date_format:H:i',
             'attendance_end_time' => 'required|date_format:H:i', 
             'late_tolerance_minutes' => 'required|integer|min:0',
             'school_logo_file' => 'nullable|mimes:jpeg,png,jpg|max:2048', 
             'wa_api_endpoint' => 'nullable|url|max:255',
             'wa_api_key' => 'nullable|string|max:255',
+        ], [
+            'school_name.required' => 'Nama sekolah wajib diisi.',
+            'attendance_start_time.required' => 'Jam masuk wajib diisi.',
+            'attendance_start_time.date_format' => 'Format jam masuk harus HH:MM.',
+            'attendance_end_time.required' => 'Jam pulang wajib diisi.',
+            'attendance_end_time.date_format' => 'Format jam pulang harus HH:MM.',
+            'late_tolerance_minutes.required' => 'Toleransi keterlambatan wajib diisi.',
+            'school_logo_file.mimes' => 'Logo harus berupa format gambar (jpeg, png, jpg).',
+            'school_logo_file.max' => 'Ukuran logo maksimal 2MB.',
+            'wa_api_endpoint.url' => 'Format URL Endpoint WhatsApp tidak valid.',
         ]);
         
         $logoPath = null;

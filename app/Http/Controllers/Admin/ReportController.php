@@ -59,12 +59,21 @@ class ReportController extends Controller
     /**
      * Menampilkan hasil laporan absensi berdasarkan filter.
      */
+    /**
+     * Menampilkan hasil laporan absensi berdasarkan filter.
+     */
     public function generate(Request $request)
     {
         $request->validate([
             'class_id' => 'nullable|exists:classes,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+        ], [
+            'start_date.required' => 'Tanggal awal wajib diisi.',
+            'start_date.date' => 'Format tanggal awal tidak valid.',
+            'end_date.required' => 'Tanggal akhir wajib diisi.',
+            'end_date.date' => 'Format tanggal akhir tidak valid.',
+            'end_date.after_or_equal' => 'Tanggal akhir harus sama atau setelah tanggal awal.',
         ]);
 
         $startDate = Carbon::parse($request->start_date)->startOfDay();
@@ -86,6 +95,10 @@ class ReportController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'class_id' => 'nullable|exists:classes,id',
+        ], [
+            'start_date.required' => 'Tanggal awal wajib diisi.',
+            'end_date.required' => 'Tanggal akhir wajib diisi.',
+            'end_date.after_or_equal' => 'Tanggal akhir tidak valid.',
         ]);
         
         $startDate = Carbon::parse($request->start_date)->startOfDay();
@@ -95,12 +108,11 @@ class ReportController extends Controller
         // Data absensi diambil menggunakan helper
         $absences = $this->getReportData($startDate, $endDate, $classId);
         
-        $className = $classId ? ClassModel::find($classId)->name : 'Semua Kelas';
+        $className = $classId ? ClassModel::find($classId)->name : 'Semua-Kelas';
 
         $fileName = "Laporan_Absensi_{$className}_{$startDate->format('Ymd')}_to_{$endDate->format('Ymd')}.xlsx";
 
-        // 💡 Perbaikan Panggil Export Class: Mengirim koleksi data yang sudah di-query.
-        return Excel::download(new AbsenceReportExport($absences, $startDate, $endDate), $fileName);
+        return Excel::download(new AbsenceReportExport($absences), $fileName);
     }
 
     /**
@@ -112,6 +124,10 @@ class ReportController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'class_id' => 'nullable|exists:classes,id',
+        ], [
+            'start_date.required' => 'Tanggal awal wajib diisi.',
+            'end_date.required' => 'Tanggal akhir wajib diisi.',
+            'end_date.after_or_equal' => 'Tanggal akhir tidak valid.',
         ]);
 
         $startDate = Carbon::parse($request->start_date)->startOfDay();
@@ -128,10 +144,9 @@ class ReportController extends Controller
             'class' => $class,
         ];
         
-        // Render PDF menggunakan Facade
         $pdf = Pdf::loadView('admin.reports.pdf_template', $data); 
         
-        $fileName = "Laporan_Absensi_PDF_" . Carbon::now()->format('YmdHis') . ".pdf";
+        $fileName = "Laporan_Absensi_" . ($class ? $class->name . "_" : "Semua_Kelas_") . $startDate->format('Ymd') . "-" . $endDate->format('Ymd') . ".pdf";
         
         return $pdf->stream($fileName);
     }

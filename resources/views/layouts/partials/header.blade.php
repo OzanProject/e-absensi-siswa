@@ -7,10 +7,10 @@
     $userRole = Str::upper($user->role ?? 'USER');
 @endphp
 
-<header class="fixed top-0 left-0 md:left-64 right-0 z-30 
-             bg-white border-b border-gray-200 shadow-lg 
+<header class="fixed top-0 left-0 md:left-64 right-0 z-40 
+             bg-white/90 backdrop-blur-md border-b border-gray-200/50 shadow-sm 
              transition-all duration-300 ease-in-out">
-    {{-- Menyesuaikan tinggi header dari h-16 (64px) menjadi h-[4rem] (64px) dan padding horizontal --}}
+    {{-- Glassmorphism applied: bg-white/90 + backdrop-blur-md --}}
     <nav class="flex items-center justify-between h-[4rem] px-4 sm:px-6 lg:px-8">
         
         {{-- Sisi Kiri: Toggle Sidebar (Mobile) & Navigasi Dasar --}}

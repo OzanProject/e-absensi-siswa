@@ -1,162 +1,208 @@
 @extends('layouts.adminlte')
 
-@section('title', 'Filter Laporan Absensi')
+@section('title', 'Laporan Absensi')
 
 @section('content_header')
-{{-- HEADER: Menggunakan Tailwind & Warna Teal/Indigo --}}
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-    
-    <h1 class="text-2xl font-bold text-gray-800 flex items-center mb-2 sm:mb-0">
-        <i class="fas fa-filter text-teal-500 mr-2"></i>
-        <span>Filter Laporan Absensi</span>
-    </h1>
-    
-    <nav class="text-sm font-medium text-gray-500" aria-label="Breadcrumb">
+    <div>
+        <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center">
+            <i class="fas fa-file-alt text-purple-600 mr-3"></i>
+            Laporan Absensi
+        </h1>
+        <p class="text-sm text-gray-500 mt-1 font-medium">Filter dan unduh laporan kehadiran siswa.</p>
+    </div>
+    <nav class="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100" aria-label="Breadcrumb">
         <ol class="flex space-x-2">
-            <li><a href="{{ route('admin.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150">Home</a></li>
-            <li class="text-gray-400">/</li>
-            <li class="text-gray-600 font-semibold">Laporan</li>
+            <li><a href="{{ route('admin.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150"><i class="fas fa-home"></i></a></li>
+            <li class="text-gray-300">/</li>
+            <li class="text-gray-800 font-bold">Laporan</li>
         </ol>
     </nav>
 </div>
 @stop
 
 @section('content')
-    <div class="bg-white rounded-xl shadow-lg border border-gray-100">
-        <div class="p-5 border-b border-gray-100">
-            <h3 class="text-xl font-bold text-gray-800 flex items-center">
-                <i class="fas fa-calendar-alt mr-2 text-indigo-500"></i> Tentukan Periode Laporan
-            </h3>
-        </div>
+    <div class="grid grid-cols-1 lg:grid-cols-4 lg:gap-6">
         
-        <div class="p-6">
-            
-            {{-- Form ini akan diarahkan ke Controller Report untuk memproses data --}}
-            <form action="{{ route('report.generate') }}" method="GET" id="filterForm" class="space-y-6">
+        {{-- CARD KIRI: FORM FILTER (3 Kolom) --}}
+        <div class="lg:col-span-3">
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100 bg-purple-50/30">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-filter mr-2 text-purple-600"></i> Filter Laporan
+                    </h3>
+                </div>
                 
-                @php
-                    // Pastikan variabel $classes tersedia dari Controller
-                    $classes = $classes ?? []; 
+                <div class="p-6">
+                    <form action="{{ route('report.generate') }}" method="GET" id="filterForm" class="space-y-6">
+                        @php
+                            $classes = $classes ?? []; 
+                            $inputClass = 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition duration-200 bg-gray-50 focus:bg-white text-gray-800';
+                            $inputErrorClass = 'w-full px-4 py-3 rounded-xl border border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition duration-200 bg-red-50 text-red-900';
+                            
+                            $currentMonthStart = \Carbon\Carbon::now()->startOfMonth()->format('Y-m-d');
+                            $currentDate = \Carbon\Carbon::now()->format('Y-m-d');
+                        @endphp
+        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            
+                            {{-- Filter Kelas --}}
+                            <div>
+                                <label for="class_id" class="block text-sm font-bold text-gray-700 mb-2">Pilih Kelas</label>
+                                <div class="relative">
+                                    <select name="class_id" id="class_id" class="w-full select2-form-control">
+                                        <option value="">-- Semua Kelas --</option>
+                                        @foreach($classes as $class)
+                                            <option value="{{ $class->id }}" {{ old('class_id') == $class->id ? 'selected' : '' }}>
+                                                {{ $class->name }} (Tingkat {{ $class->grade }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @error('class_id') <p class="mt-2 text-sm text-red-600 font-medium"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
+                            </div>
+                            
+                            {{-- Dari Tanggal --}}
+                            <div>
+                                <label for="start_date" class="block text-sm font-bold text-gray-700 mb-2">Dari Tanggal <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fas fa-calendar-alt text-gray-400"></i>
+                                    </div>
+                                    <input type="date" name="start_date" id="start_date" 
+                                        class="pl-10 {{ $errors->has('start_date') ? $inputErrorClass : $inputClass }}" 
+                                        value="{{ old('start_date', $currentMonthStart) }}" 
+                                        required>
+                                </div>
+                                @error('start_date') <p class="mt-2 text-sm text-red-600 font-medium"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
+                            </div>
+        
+                            {{-- Sampai Tanggal --}}
+                            <div>
+                                <label for="end_date" class="block text-sm font-bold text-gray-700 mb-2">Sampai Tanggal <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fas fa-calendar-check text-gray-400"></i>
+                                    </div>
+                                    <input type="date" name="end_date" id="end_date" 
+                                        class="pl-10 {{ $errors->has('end_date') ? $inputErrorClass : $inputClass }}" 
+                                        value="{{ old('end_date', $currentDate) }}" 
+                                        required>
+                                </div>
+                                @error('end_date') <p class="mt-2 text-sm text-red-600 font-medium"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
+                            </div>
+                        </div>
                     
-                    // Input Class fokus ke Teal
-                    $inputClass = 'w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition duration-150';
-                    $errorBorder = 'border-red-500';
-                    $defaultBorder = 'border-gray-300';
-                    $currentMonthStart = \Carbon\Carbon::now()->startOfMonth()->format('Y-m-d');
-                    $currentDate = \Carbon\Carbon::now()->format('Y-m-d');
-                @endphp
+                        <div class="pt-6 border-t border-gray-100 mt-6 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 justify-end items-center">
+                            {{-- Tombol Tampilkan Laporan --}}
+                            <button type="submit" 
+                                    class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl shadow-lg 
+                                           text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 
+                                           focus:ring-4 focus:ring-purple-500/50 transition duration-150 transform hover:-translate-y-0.5" 
+                                    id="submitFilterBtn">
+                                <i class="fas fa-search mr-2"></i> Tampilkan Laporan
+                            </button>
+                            
+                            {{-- Tombol Export Excel --}}
+                            <button type="button" id="exportExcelBtn" 
+                                    class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl shadow-md 
+                                           text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:ring-green-500/50 transition duration-150 transform hover:-translate-y-0.5">
+                                <i class="fas fa-file-excel mr-2"></i> Export Excel
+                            </button>
+                        </div>
+                    </form>
+                    
+                    {{-- Form Tersembunyi untuk Export --}}
+                    <form action="{{ route('report.export.excel') }}" method="GET" id="exportForm" class="hidden">
+                        <input type="hidden" name="class_id" id="export_class_id">
+                        <input type="hidden" name="start_date" id="export_start_date">
+                        <input type="hidden" name="end_date" id="export_end_date">
+                    </form>
+                </div>
+            </div>
+        </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    
-                    {{-- Filter Kelas --}}
-                    <div>
-                        <label for="class_id" class="block text-sm font-semibold text-gray-700 mb-1">Pilih Kelas</label>
-                        <select name="class_id" id="class_id" 
-                                class="w-full select2-form-control border @error('class_id') {{ $errorBorder }} @else {{ $defaultBorder }} @enderror">
-                            <option value="">-- Semua Kelas --</option>
-                            @foreach($classes as $class)
-                                <option value="{{ $class->id }}" {{ old('class_id') == $class->id ? 'selected' : '' }}>
-                                    {{ $class->name }} (Tingkat {{ $class->grade }})
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('class_id') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                    </div>
-                    
-                    {{-- Dari Tanggal --}}
-                    <div>
-                        <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-1">Dari Tanggal <span class="text-red-600">*</span></label>
-                        <input type="date" name="start_date" id="start_date" 
-                            class="{{ $inputClass }} @error('start_date') {{ $errorBorder }} @else {{ $defaultBorder }} @enderror" 
-                            value="{{ old('start_date', $currentMonthStart) }}" 
-                            required>
-                        @error('start_date') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                    </div>
-
-                    {{-- Sampai Tanggal --}}
-                    <div>
-                        <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-1">Sampai Tanggal <span class="text-red-600">*</span></label>
-                        <input type="date" name="end_date" id="end_date" 
-                            class="{{ $inputClass }} @error('end_date') {{ $errorBorder }} @else {{ $defaultBorder }} @enderror" 
-                            value="{{ old('end_date', $currentDate) }}" 
-                            required>
-                        @error('end_date') <p class="mt-2 text-sm text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
+        {{-- CARD KANAN: PANDUAN (1 Kolom) --}}
+        <div class="lg:col-span-1 mt-6 lg:mt-0">
+             <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100 bg-gray-50/50">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center"><i class="fas fa-info-circle mr-2 text-indigo-500"></i> Panduan</h3>
+                </div>
+                <div class="p-6 text-sm space-y-4 text-gray-600">
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                             <div class="bg-purple-100 p-2 rounded-lg text-purple-600 mr-3 flex-shrink-0">
+                                <i class="fas fa-filter"></i>
+                             </div>
+                            <div>
+                                <strong class="block text-gray-800">Filter Data</strong>
+                                <span class="text-xs">Pilih kelas dan rentang tanggal untuk melihat data spesifik.</span>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                             <div class="bg-green-100 p-2 rounded-lg text-green-600 mr-3 flex-shrink-0">
+                                <i class="fas fa-file-excel"></i>
+                             </div>
+                            <div>
+                                <strong class="block text-gray-800">Export Excel</strong>
+                                <span class="text-xs">Unduh laporan lengkap dalam format .xlsx untuk diolah lebih lanjut.</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            
-                <div class="pt-6 border-t border-gray-100 mt-6 flex space-x-3">
-                    <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-base font-medium rounded-lg shadow-sm 
-                                    text-gray-700 bg-white hover:bg-gray-100 transition duration-150 transform hover:scale-[1.02]">
-                        <i class="fas fa-arrow-left mr-2"></i> Kembali
-                    </a>
-                    
-                    {{-- Tombol Tampilkan Laporan --}}
-                    <button type="submit" class="inline-flex items-center px-5 py-2.5 border border-transparent text-base font-bold rounded-lg shadow-md 
-                                    text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-offset-2 focus:ring-indigo-500/50 transition duration-150 transform hover:-translate-y-0.5" id="submitFilterBtn">
-                        <i class="fas fa-search mr-2"></i> Tampilkan Laporan
-                    </button>
-                    
-                    {{-- Tombol Export Excel --}}
-                    <button type="button" id="exportExcelBtn" class="inline-flex items-center px-5 py-2.5 border border-transparent text-base font-bold rounded-lg shadow-md 
-                                    text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:ring-offset-2 focus:ring-teal-500/50 transition duration-150 transform hover:-translate-y-0.5" title="Export Laporan ke Excel">
-                        <i class="fas fa-file-excel mr-2"></i> Export Excel
-                    </button>
-                </div>
-            </form>
-            
-            {{-- Form Tersembunyi untuk Export (Logika AMAN) --}}
-            <form action="{{ route('report.export.excel') }}" method="GET" id="exportForm" class="hidden">
-                <input type="hidden" name="class_id" id="export_class_id">
-                <input type="hidden" name="start_date" id="export_start_date">
-                <input type="hidden" name="end_date" id="export_end_date">
-            </form>
-
+            </div>
         </div>
     </div>
 @stop
 
 @section('js')
 <script src="{{ asset('template/adminlte/plugins/select2/js/select2.full.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Pastikan JQuery tersedia di master layout
-    
     $(function () {
-        // Initialize Select2
+        // Initialize Select2 with Bootstrap 4 theme
         $('.select2-form-control').select2({ theme: 'bootstrap4', placeholder: '-- Semua Kelas --', allowClear: true });
         
-        // 🚨 FUNGSI UTAMA: Menyinkronkan nilai filter dan submit form Export (LOGIKA AMAN)
+        // Custom styling fix for Select2 container to match Tailwind input height
+        $('.select2-container .select2-selection--single').css('height', '50px');
+        $('.select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered').css({
+            'line-height': '48px',
+            'padding-left': '1rem' 
+        });
+
+        // Function: Sync values & Submit Export
         function syncAndSubmitExport() {
             const classId = $('#class_id').val() || '';
             const startDate = $('#start_date').val(); 
             const endDate = $('#end_date').val(); 
             
-            // Validasi Dasar
             if (!startDate || !endDate) {
-                alert('Harap isi "Dari Tanggal" dan "Sampai Tanggal" terlebih dahulu di form Filter.');
+                 Swal.fire({
+                    icon: 'warning',
+                    title: 'Filter Belum Lengkap',
+                    text: 'Harap isi "Dari Tanggal" dan "Sampai Tanggal" terlebih dahulu.',
+                    confirmButtonColor: '#6366f1'
+                });
                 return false;
             }
 
-            // Sinkronkan nilai ke form tersembunyi
             $('#export_class_id').val(classId);
             $('#export_start_date').val(startDate);
             $('#export_end_date').val(endDate);
 
-            // Lanjutkan submit form Export
             $('#exportForm').submit();
         }
         
-        // 🚨 Event Listener untuk Tombol Export Excel (LOGIKA AMAN)
+        // Event Listener: Export Button
         $('#exportExcelBtn').on('click', function(e) {
             e.preventDefault(); 
             syncAndSubmitExport();
         });
         
-        // Optimasi: Loading state untuk Tampilkan Laporan (LOGIKA AMAN)
+        // Event Listener: Submit Loading State
         $('#filterForm').on('submit', function() {
-            const submitBtn = $('#submitFilterBtn');
-            // Cek validasi form HTML5
             if (this.checkValidity()) {
-                 submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Memuat...');
+                 $('#submitFilterBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Memuat...');
             }
         });
     });
@@ -165,24 +211,15 @@
 
 @section('css')
 <style>
-/* CSS KUSTOM MINIMAL UNTUK KOMPATIBILITAS */
-.select2-form-control { width: 100% !important; }
-.text-teal-500 { color: #20c997; } 
-.bg-teal-600 { background-color: #0d9488 !important; }
-.hover\:bg-teal-700:hover { background-color: #0f766e !important; }
-
-/* Select2 Fix for AdminLTE/Bootstrap (Dipertahankan untuk Select2) */
+/* CSS Override untuk Select2 agar selaras dengan input Tailwind */
 .select2-container--bootstrap4 .select2-selection--single {
-    height: calc(2.25rem + 2px) !important;
+    border: 1px solid #e5e7eb !important; /* border-gray-200 */
+    border-radius: 0.75rem !important; /* rounded-xl */
+    background-color: #f9fafb !important; /* bg-gray-50 */
 }
-.select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
-    line-height: 1.5 !important;
-    padding-top: 5px !important; 
+.select2-container--bootstrap4 .select2-selection--single:focus {
+    border-color: #a855f7 !important; /* border-purple-500 */
+    box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1) !important;
 }
-.text-red-600 { color: #dc3545; }
-.text-indigo-600 { color: #4f46e5; }
-.bg-indigo-600 { background-color: #4f46e5 !important; }
-.hover\:bg-indigo-700:hover { background-color: #4338ca !important; }
-
 </style>
 @stop
