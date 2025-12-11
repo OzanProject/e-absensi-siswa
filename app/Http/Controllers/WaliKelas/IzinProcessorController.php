@@ -119,4 +119,26 @@ class IzinProcessorController extends Controller
 
         return redirect()->back()->with('success', "Permintaan Izin/Sakit untuk {$izinRequest->student->name} berhasil ditolak.");
     }
+
+    /**
+     * Hapus permintaan izin/sakit (opsi bersih-bersih data).
+     */
+    public function destroy(IzinRequest $izinRequest)
+    {
+        $classId = $this->getClassId();
+
+        // 🛑 Otorisasi: Pastikan Wali Kelas hanya hapus data kelasnya sendiri
+        if ($izinRequest->student->class_id !== $classId) {
+            abort(403, 'Akses Ditolak. Data ini bukan milik siswa kelas Anda.');
+        }
+
+        // Hapus file lampiran jika ada
+        if ($izinRequest->attachment_path && Storage::disk('public')->exists($izinRequest->attachment_path)) {
+            Storage::disk('public')->delete($izinRequest->attachment_path);
+        }
+
+        $izinRequest->delete();
+
+        return redirect()->back()->with('success', "Data pengajuan izin berhasil dihapus.");
+    }
 }

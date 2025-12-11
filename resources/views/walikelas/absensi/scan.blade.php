@@ -41,14 +41,19 @@
 
             {{-- Scanner Card --}}
             <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden relative">
-                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/30">
-                    <h3 class="font-bold text-gray-800 flex items-center">
-                        <span class="w-2 h-6 bg-indigo-500 rounded-full mr-3"></span>
-                        Kamera Scanner
-                    </h3>
-                    <div id="camera-status-indicator" class="flex items-center space-x-2 text-xs font-medium text-gray-400">
-                        <span class="w-2 h-2 rounded-full bg-gray-300"></span>
-                        <span>Offline</span>
+                <div class="px-6 py-4 border-b border-gray-100 flex flex-wrap sm:flex-nowrap justify-between items-center bg-gray-50/50">
+                    {{-- Left: Title --}}
+                    <div class="flex items-center">
+                        <h3 class="font-bold text-gray-800 flex items-center text-lg">
+                            <span class="w-1.5 h-6 bg-indigo-500 rounded-full mr-3"></span>
+                            Kamera Scanner
+                        </h3>
+                    </div>
+
+                    {{-- Right: Status --}}
+                    <div id="camera-status-indicator" class="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 text-gray-400 rounded-lg text-xs font-bold shadow-sm transition-all duration-300">
+                         <span class="w-2 h-2 rounded-full bg-gray-300"></span>
+                         <span>Offline</span>
                     </div>
                 </div>
                 
@@ -310,15 +315,16 @@
         }
     }
 
-    // --- INITIALIZATION ---
+    // --- INITIALIZATION (ROBUST SIMPLE VERSION) ---
     $(document).ready(function() {
-        const config = {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0
+        const config = { 
+            fps: 10, 
+            qrbox: { width: 250, height: 250 }, 
+            aspectRatio: 1.0 
         };
 
-        // Start Camera
+        // Langsung start dengan konfigurasi environment (Kamera Belakang)
+        // Ini lebih stabil di berbagai browser/perangkat dibanding getCameras()
         html5QrCode.start(
             { facingMode: "environment" }, 
             config, 
@@ -326,9 +332,14 @@
         ).then(() => {
             updateCameraStatus('active');
         }).catch(err => {
-            console.error(err);
+            console.error("Camera Error: ", err);
             updateCameraStatus('error');
-            Swal.fire('Error Kamera', 'Tidak dapat mengakses kamera. Pastikan izin diberikan.', 'error');
+            Swal.fire({
+                icon: 'error',
+                title: 'Kamera Gagal Akses',
+                text: 'Pastikan izin kamera diberikan dan akses via HTTPS atau Localhost.',
+                footer: err.message
+            });
         });
     });
 

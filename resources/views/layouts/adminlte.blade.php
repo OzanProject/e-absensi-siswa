@@ -32,10 +32,17 @@
         {{-- Scripts Tailwind (Wajib menggunakan @vite) --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
+        {{-- AOS ANIMATION --}}
+        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
         @yield('css')
     </head>
     
     <body class="font-inter antialiased bg-gray-100 text-gray-800 h-full">
+        
+        {{-- GLOBAL LOADER --}}
+        @include('layouts.partials.loader')
+
         <div class="flex h-full">
             
             {{-- 1. Sidebar --}}
@@ -81,10 +88,19 @@
         <script src="{{ asset('template/adminlte/plugins/jquery/jquery.min.js') }}"></script>
         <script src="{{ asset('template/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
-        {{-- Select2 dan Instascan JS (Tidak ada perubahan pada logika) --}}
+        {{-- Select2 dan Instascan JS --}}
         <script src="{{ asset('template/adminlte/plugins/select2/js/select2.full.min.js') }}"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/instascan/1.0.0/instascan.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        {{-- AOS ANIMATION JS --}}
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+        <script>
+            AOS.init({
+                duration: 800,
+                once: true,
+            });
+        </script>
 
         @yield('js')
         

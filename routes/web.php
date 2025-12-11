@@ -184,6 +184,7 @@ Route::middleware(['auth', 'role:wali_kelas'])->group(function () {
         Route::get('/', [IzinProcessorController::class, 'index'])->name('walikelas.izin.index'); // Daftar permintaan
         Route::post('{izinRequest}/approve', [IzinProcessorController::class, 'approve'])->name('walikelas.izin.approve');
         Route::post('{izinRequest}/reject', [IzinProcessorController::class, 'reject'])->name('walikelas.izin.reject');
+        Route::delete('{izinRequest}', [IzinProcessorController::class, 'destroy'])->name('walikelas.izin.destroy');
     });
 });
 

@@ -44,6 +44,20 @@ class CustomRegisteredUserController extends Controller
             'is_approved' => false,
         ]);
 
+        // ✅ AUTO-CREATE PROFILE: Membuat data profil kosong agar user muncul di menu Admin
+        if ($user->role === 'wali_kelas') {
+            \App\Models\HomeroomTeacher::create([
+                'user_id' => $user->id,
+                // 'class_id' biarkan null dulu, admin yang set
+            ]);
+        } elseif ($user->role === 'orang_tua') {
+            \App\Models\ParentModel::create([
+                'user_id' => $user->id,
+                'name' => $user->name, // Gunakan nama yang sama dengan user
+                // 'phone_number' & 'relation_status' bisa diupdate user nanti
+            ]);
+        }
+
         // 🛑 PENTING: Event Registered yang memicu pengiriman email DIHAPUS
         // event(new Registered($user)); // HAPUS BARIS INI!
 

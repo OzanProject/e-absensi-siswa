@@ -25,7 +25,7 @@
 
 @section('content')
     {{-- GRADIENT WELCOME HERO --}}
-    <div class="relative bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-8 mb-8 shadow-2xl overflow-hidden relative">
+    <div class="relative bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-8 mb-8 shadow-2xl overflow-hidden relative" data-aos="fade-down">
         {{-- Abstract Pattern Overlay --}}
         <div class="absolute inset-0 opacity-10">
             <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -68,8 +68,8 @@
             }
         @endphp
 
-        @foreach($stats as $stat)
-            <a href="{{ $stat['route'] }}" class="group relative">
+        @foreach($stats as $index => $stat)
+            <a href="{{ $stat['route'] }}" class="group relative" data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative overflow-hidden">
                     {{-- Decorative Blur --}}
                     <div class="absolute -top-4 -right-4 w-24 h-24 bg-{{ $stat['color'] }}-50 rounded-full blur-2xl opacity-50 transition-all group-hover:scale-150"></div>

@@ -40,14 +40,41 @@
             {{-- Camera Card --}}
             <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 relative">
                 {{-- Header --}}
-                <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-                    <h3 class="font-bold text-gray-700 flex items-center">
-                        <span class="w-2 h-6 bg-indigo-500 rounded-full mr-3"></span>
-                        Kamera Aktif
-                    </h3>
-                    <span class="text-xs font-semibold px-2 py-1 bg-green-100 text-green-700 rounded-md animate-pulse">
-                        ● LIVE
-                    </span>
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex flex-wrap sm:flex-nowrap justify-between items-center gap-4">
+                    {{-- Left: Title --}}
+                    <div class="flex items-center">
+                        <h3 class="font-bold text-gray-700 flex items-center text-lg">
+                            <span class="w-1.5 h-6 bg-indigo-500 rounded-full mr-3"></span>
+                            Kamera Aktif
+                        </h3>
+                    </div>
+
+                    {{-- Right: Controls --}}
+                    <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                        {{-- Live Badge --}}
+                        <div class="flex items-center gap-2 px-3 py-1.5 bg-white border border-green-200 text-green-700 rounded-lg text-xs font-bold shadow-sm">
+                            <span class="relative flex h-2 w-2">
+                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                            </span>
+                            LIVE
+                        </div>
+
+                         {{-- Camera Selector --}}
+                        <div id="camera-selector-container" class="hidden">
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-gray-400 group-hover:text-indigo-500 transition-colors">
+                                    <i class="fas fa-camera text-xs"></i>
+                                </div>
+                                <select id="camera-select" class="pl-9 pr-8 py-1.5 text-xs font-bold text-gray-600 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition-all hover:border-indigo-300 w-full sm:w-auto cursor-pointer appearance-none">
+                                    {{-- Options populated via JS --}}
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none text-gray-400">
+                                    <i class="fas fa-chevron-down text-[10px]"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Camera Feed Wrapper --}}
@@ -58,7 +85,7 @@
 
                     {{-- CSS Viewfinder Overlay --}}
                     <div class="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
-                        <div class="w-64 h-64 border-2 border-white/30 rounded-3xl relative shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]">
+                        <div class="w-64 h-64 border-2 border-white/30 rounded-3xl relative">
                             {{-- Corners --}}
                             <div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-indigo-500 rounded-tl-xl shadow-sm"></div>
                             <div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-indigo-500 rounded-tr-xl shadow-sm"></div>

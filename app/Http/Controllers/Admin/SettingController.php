@@ -29,6 +29,11 @@ class SettingController extends Controller
             'wa_api_endpoint' => 'Endpoint API WhatsApp',
             'wa_api_key' => 'Kunci API WhatsApp',
             'school_logo' => 'Logo Sekolah (URL/Path)', 
+            'school_email' => 'Email Resmi',
+            'school_phone' => 'Nomor Telepon',
+            'school_address' => 'Alamat Sekolah',
+            'social_facebook' => 'URL Facebook',
+            'social_instagram' => 'URL Instagram', 
         ];
 
         return view('admin.settings.index', compact('settings', 'keys'));
@@ -48,6 +53,13 @@ class SettingController extends Controller
             'school_logo_file' => 'nullable|mimes:jpeg,png,jpg|max:2048', 
             'wa_api_endpoint' => 'nullable|url|max:255',
             'wa_api_key' => 'nullable|string|max:255',
+            // Kontak
+            'school_email' => 'nullable|email|max:255',
+            'school_phone' => 'nullable|string|max:20',
+            'school_address' => 'nullable|string|max:500',
+            // Sosmed
+            'social_facebook' => 'nullable|url|max:255',
+            'social_instagram' => 'nullable|url|max:255',
         ], [
             'school_name.required' => 'Nama sekolah wajib diisi.',
             'attendance_start_time.required' => 'Jam masuk wajib diisi.',

@@ -139,9 +139,10 @@
                         </td>
 
                         {{-- AKSI --}}
+                        {{-- AKSI --}}
                         <td class="px-6 py-4 align-top text-center">
-                            @if($request->status === 'Pending')
-                                <div class="flex justify-center space-x-2">
+                            <div class="flex justify-center items-center space-x-2">
+                                @if($request->status === 'Pending')
                                     <button onclick="confirmProcess('{{ $request->id }}', 'approve')" 
                                             class="w-8 h-8 flex items-center justify-center rounded-xl bg-green-50 text-green-600 hover:bg-green-100 hover:scale-110 transition shadow-sm border border-green-200"
                                             title="Setujui">
@@ -152,10 +153,17 @@
                                             title="Tolak">
                                         <i class="fas fa-times"></i>
                                     </button>
-                                </div>
-                            @else
-                                <span class="text-gray-400 text-xs">- Selesai -</span>
-                            @endif
+                                @else
+                                    {{-- Jika sudah diproses, tampilkan badge status kecil saja atau kosong --}}
+                                @endif
+
+                                {{-- Tombol Hapus: Selalu muncul (baik Pending maupun Selesai) --}}
+                                <button onclick="confirmProcess('{{ $request->id }}', 'delete')" 
+                                        class="w-8 h-8 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600 hover:scale-110 transition shadow-sm border border-gray-200 hover:border-red-200"
+                                        title="Hapus Data">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     @empty
@@ -189,19 +197,34 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Konfirmasi SweetAlert
+    // Konfirmasi SweetAlert
     window.confirmProcess = function(id, action) {
-        const isApprove = action === 'approve';
-        const title = isApprove ? 'Setujui Permintaan?' : 'Tolak Permintaan?';
-        const text = isApprove 
-            ? 'Siswa akan dicatat sebagai Izin/Sakit pada tanggal absensi.' 
-            : 'Permintaan akan ditolak dan tidak masuk absensi.';
-        const confirmBtnColor = isApprove ? '#4f46e5' : '#ef4444'; // Indigo vs Red
-        const confirmBtnText = isApprove ? 'Ya, Setujui' : 'Ya, Tolak';
+        let title, text, confirmBtnColor, confirmBtnText, method;
+
+        if (action === 'approve') {
+            title = 'Setujui Permintaan?';
+            text = 'Siswa akan dicatat sebagai Izin/Sakit pada tanggal absensi.';
+            confirmBtnColor = '#4f46e5'; // Indigo
+            confirmBtnText = 'Ya, Setujui';
+            method = 'POST';
+        } else if (action === 'reject') {
+            title = 'Tolak Permintaan?';
+            text = 'Permintaan akan ditolak dan tidak masuk absensi.';
+            confirmBtnColor = '#ef4444'; // Red
+            confirmBtnText = 'Ya, Tolak';
+            method = 'POST';
+        } else if (action === 'delete') {
+            title = 'Hapus Data?';
+            text = 'Data pengajuan ini akan dihapus permanen. Lanjutkan?';
+            confirmBtnColor = '#d946ef'; // Fuchsia/Pinkish for warning but different from danger
+            confirmBtnText = 'Ya, Hapus';
+            method = 'DELETE';
+        }
 
         Swal.fire({
             title: title,
             text: text,
-            icon: isApprove ? 'question' : 'warning',
+            icon: action === 'delete' ? 'warning' : 'question',
             showCancelButton: true,
             confirmButtonColor: confirmBtnColor,
             cancelButtonColor: '#9ca3af',
@@ -212,14 +235,31 @@
             if (result.isConfirmed) {
                 // Form Submit Logic
                 const form = document.createElement('form');
-                form.action = '{{ url('walikelas/izin') }}/' + id + '/' + action; 
-                form.method = 'POST';
+                
+                // Construct URL correctly
+                if (action === 'delete') {
+                     // Route: walikelas/izin/{id}
+                     form.action = '{{ url('walikelas/izin') }}/' + id;
+                } else {
+                     // Route: walikelas/izin/{id}/{action}
+                     form.action = '{{ url('walikelas/izin') }}/' + id + '/' + action; 
+                }
+
+                form.method = 'POST'; // Laravel method spoofing requires POST
                 form.style.display = 'none';
 
                 const csrfToken = document.createElement('input');
                 csrfToken.name = '_token';
                 csrfToken.value = '{{ csrf_token() }}';
                 form.appendChild(csrfToken);
+                
+                // Add Method Spoofing for DELETE if needed
+                if (method === 'DELETE') {
+                    const methodInput = document.createElement('input');
+                    methodInput.name = '_method';
+                    methodInput.value = 'DELETE';
+                    form.appendChild(methodInput);
+                }
 
                 document.body.appendChild(form);
                 form.submit();

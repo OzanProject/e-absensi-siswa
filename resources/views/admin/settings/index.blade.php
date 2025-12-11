@@ -151,7 +151,7 @@
                         </div>
 
                         {{-- BAGIAN 3: WHATSAPP --}}
-                        <div class="mb-6">
+                        <div class="mb-8">
                             <h5 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-dashed border-gray-200 flex items-center">
                                 <span class="bg-green-100 text-green-600 w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-sm">
                                     <i class="fab fa-whatsapp"></i>
@@ -175,6 +175,87 @@
                                             value="{{ old('wa_api_key', $settings['wa_api_key'] ?? '') }}"
                                             placeholder="Masukkan token rahasia...">
                                     @error('wa_api_key') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- BAGIAN 4: KONTAK & MEDIA SOSIAL --}}
+                        <div class="mb-8">
+                            <h5 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-dashed border-gray-200 flex items-center">
+                                <span class="bg-blue-100 text-blue-600 w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-sm">
+                                    <i class="fas fa-address-book"></i>
+                                </span>
+                                Kontak & Media Sosial
+                            </h5>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {{-- Email --}}
+                                <div>
+                                    <label for="school_email" class="{{ $labelClass }}">Email Resmi</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-envelope text-gray-400"></i>
+                                        </div>
+                                        <input type="email" name="school_email" id="school_email" 
+                                                class="pl-10 {{ $errors->has('school_email') ? $inputErrorClass : $inputClass }}" 
+                                                value="{{ old('school_email', $settings['school_email'] ?? '') }}"
+                                                placeholder="admin@sekolah.sch.id">
+                                    </div>
+                                    @error('school_email') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
+
+                                {{-- Telepon --}}
+                                <div>
+                                    <label for="school_phone" class="{{ $labelClass }}">No. Telepon</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-phone text-gray-400"></i>
+                                        </div>
+                                        <input type="text" name="school_phone" id="school_phone" 
+                                                class="pl-10 {{ $errors->has('school_phone') ? $inputErrorClass : $inputClass }}" 
+                                                value="{{ old('school_phone', $settings['school_phone'] ?? '') }}"
+                                                placeholder="(021) 12345678">
+                                    </div>
+                                    @error('school_phone') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
+
+                                {{-- Alamat --}}
+                                <div class="md:col-span-2">
+                                    <label for="school_address" class="{{ $labelClass }}">Alamat Lengkap</label>
+                                    <textarea name="school_address" id="school_address" rows="2"
+                                            class="{{ $errors->has('school_address') ? $inputErrorClass : $inputClass }}"
+                                            placeholder="Jl. Merdeka No. 45, Jakarta">{{ old('school_address', $settings['school_address'] ?? '') }}</textarea>
+                                    @error('school_address') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
+
+                                {{-- Facebook --}}
+                                <div>
+                                    <label for="social_facebook" class="{{ $labelClass }}">Link Facebook</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fab fa-facebook text-gray-400"></i>
+                                        </div>
+                                        <input type="url" name="social_facebook" id="social_facebook" 
+                                                class="pl-10 {{ $errors->has('social_facebook') ? $inputErrorClass : $inputClass }}" 
+                                                value="{{ old('social_facebook', $settings['social_facebook'] ?? '') }}"
+                                                placeholder="https://facebook.com/sekolah">
+                                    </div>
+                                    @error('social_facebook') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
+
+                                {{-- Instagram --}}
+                                <div>
+                                    <label for="social_instagram" class="{{ $labelClass }}">Link Instagram</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fab fa-instagram text-gray-400"></i>
+                                        </div>
+                                        <input type="url" name="social_instagram" id="social_instagram" 
+                                                class="pl-10 {{ $errors->has('social_instagram') ? $inputErrorClass : $inputClass }}" 
+                                                value="{{ old('social_instagram', $settings['social_instagram'] ?? '') }}"
+                                                placeholder="https://instagram.com/sekolah">
+                                    </div>
+                                    @error('social_instagram') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
                                 </div>
                             </div>
                         </div>

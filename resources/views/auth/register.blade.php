@@ -1,145 +1,168 @@
 @extends('layouts.guest') 
 
-@section('title', 'Daftar Akun Baru')
+@section('title', 'Daftar - ' . ($globalSettings['school_name'] ?? 'Sistem Absensi'))
 
 @section('content')
-{{-- Wrapper Konten ini akan berada di dalam div class="login-box" (didefinisikan di guest layout) --}}
-@php
-    // Logika PHP untuk setting
-    $settings = $settings ?? \App\Models\Setting::pluck('value', 'key')->toArray(); 
-    $schoolName = $settings['school_name'] ?? 'E-ABSENSI SISWA';
-    $schoolLogoPath = $settings['school_logo'] ?? null;
-    $logoSrc = (isset($schoolLogoPath) && $schoolLogoPath && file_exists(public_path('storage/' . $schoolLogoPath)))
-                ? asset('storage/' . $schoolLogoPath)
-                : null;
-@endphp
+<div class="min-h-screen flex text-gray-900">
 
-<div class="bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
-    
-    {{-- CARD HEADER: Branding --}}
-    <div class="bg-gray-200 text-center p-6 border-b-2 border-gray-300">
-        {{-- LOGO BRANDING --}}
-        @if($logoSrc)
-            <img src="{{ $logoSrc }}" alt="Logo Sekolah" class="max-h-14 w-auto mx-auto mb-3 object-contain">
-        @else
-            <i class="fas fa-clipboard-check text-indigo-600 text-4xl mb-3"></i>
-        @endif
-        
-        <div class="text-2xl font-bold text-indigo-600">
-            {{ $schoolName }}
+    {{-- LEFT COLUMN: Branding (Hidden on Mobile) --}}
+    <div class="hidden lg:flex lg:w-1/2 xl:w-5/12 bg-indigo-900 relative flex-col justify-between p-12 overflow-hidden">
+        {{-- Background --}}
+        <div class="absolute inset-0 z-0">
+            <div class="absolute inset-0 bg-gradient-to-tr from-purple-900 to-indigo-900 opacity-90"></div>
+            {{-- Abstract Shapes --}}
+            <div class="absolute bottom-0 right-0 -mr-20 -mb-20 w-96 h-96 rounded-full bg-purple-500 opacity-20 blur-3xl"></div>
+            <div class="absolute top-0 left-0 -ml-20 -mt-20 w-80 h-80 rounded-full bg-indigo-500 opacity-20 blur-3xl"></div>
+             <div class="absolute inset-0" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 30px 30px; opacity: 0.05;"></div>
         </div>
-        <p class="text-gray-500 text-sm mt-1">Daftar Akun Pengguna Baru</p>
+
+        {{-- Branding --}}
+        <div class="relative z-10 flex items-center space-x-3">
+             @if($globalSettings['logo_url'])
+                <img src="{{ $globalSettings['logo_url'] }}" alt="Logo" class="h-10 w-auto bg-white/10 p-1.5 rounded-lg backdrop-blur-sm">
+            @else
+                <div class="h-10 w-10 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                    <i class="fas fa-school text-white"></i>
+                </div>
+            @endif
+            <span class="text-white font-bold text-lg tracking-wide uppercase opacity-90">{{ $globalSettings['school_name'] ?? 'E-Absensi' }}</span>
+        </div>
+
+        {{-- Hero Text --}}
+        <div class="relative z-10 mt-10">
+            <h1 class="text-4xl xl:text-5xl font-extrabold text-white leading-tight mb-6">
+                Bergabunglah <br> Bersama Kami
+            </h1>
+            <p class="text-indigo-200 text-lg max-w-md leading-relaxed">
+                Buat akun baru untuk mulai mengelola atau memantau aktivitas akademik secara digital. Cepat, mudah, dan aman.
+            </p>
+        </div>
+
+        {{-- Footer --}}
+        <div class="relative z-10 text-indigo-300 text-sm font-medium">
+             &copy; {{ date('Y') }} {{ $globalSettings['school_name'] ?? 'Sekolah' }}. All rights reserved.
+        </div>
     </div>
-    
-    {{-- CARD BODY: Form --}}
-    <div class="p-6">
+
+    {{-- RIGHT COLUMN: Register Form --}}
+    <div class="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24 bg-white relative overflow-y-auto">
         
-        {{-- ✅ PESAN STATUS/SUCCESS DARI SESSION --}}
-        @if (session('status') || session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg text-sm mb-3" role="alert">
-                {{ session('status') ?? session('success') }}
-            </div>
-        @endif
-
-        @if ($errors->any())
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-1.5 rounded-lg text-sm mb-3" role="alert">
-                Harap periksa kembali isian Anda.
-            </div>
-        @endif
-
-        <form method="POST" action="{{ route('register') }}" id="registerForm">
-            @csrf
-            
-            @php
-                $inputGroupBaseClass = 'relative flex items-center mb-4';
-                $inputClass = 'w-full px-3 py-2 border rounded-lg pl-10 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm';
-                $errorInputClass = 'border-red-500';
-            @endphp
-            
-            {{-- Name Input --}}
-            <div class="{{ $inputGroupBaseClass }}">
-                <input type="text" name="name" 
-                        class="{{ $inputClass }} @error('name') {{ $errorInputClass }} @enderror" 
-                        placeholder="Nama Lengkap" value="{{ old('name') }}" required autofocus autocomplete="name">
-                <span class="absolute left-0 mt-0 ml-3 text-gray-400"><span class="fas fa-user"></span></span>
-            </div>
-            @error('name') <span class="text-red-600 text-xs mt-1 d-block"> {{ $message }} </span> @enderror
-
-            {{-- Email Input --}}
-            <div class="{{ $inputGroupBaseClass }}">
-                <input type="email" name="email" 
-                        class="{{ $inputClass }} @error('email') {{ $errorInputClass }} @enderror" 
-                        placeholder="Email Login" value="{{ old('email') }}" required autocomplete="username">
-                <span class="absolute left-0 mt-0 ml-3 text-gray-400"><span class="fas fa-envelope"></span></span>
-            </div>
-            @error('email') <span class="text-red-600 text-xs mt-1 d-block"> {{ $message }} </span> @enderror
-
-            {{-- ROLE SELECT INPUT --}}
-            <div class="{{ $inputGroupBaseClass }}">
-                <select name="role" class="w-full px-3 py-2 border rounded-lg pl-10 shadow-sm text-gray-500 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('role') {{ $errorInputClass }} @enderror" required>
-                    <option value="" disabled selected>Daftar sebagai...</option>
-                    <option value="siswa" {{ old('role') == 'siswa' ? 'selected' : '' }}>Siswa</option>
-                    <option value="wali_kelas" {{ old('role') == 'wali_kelas' ? 'selected' : '' }}>Guru/Wali Kelas</option>
-                    <option value="orang_tua" {{ old('role') == 'orang_tua' ? 'selected' : '' }}>Orang Tua</option>
-                </select>
-                <span class="absolute left-0 mt-0 ml-3 text-gray-400"><span class="fas fa-id-badge"></span></span>
-            </div>
-            @error('role') <span class="text-red-600 text-xs mt-1 d-block"> {{ $message }} </span> @enderror
-
-
-            {{-- Password Input --}}
-            <div class="{{ $inputGroupBaseClass }}">
-                <input type="password" name="password" 
-                        class="{{ $inputClass }} @error('password') {{ $errorInputClass }} @enderror" 
-                        placeholder="Password" required autocomplete="new-password">
-                <span class="absolute left-0 mt-0 ml-3 text-gray-400"><span class="fas fa-lock"></span></span>
-            </div>
-            @error('password') <span class="text-red-600 text-xs mt-1 d-block"> {{ $message }} </span> @enderror
-
-            {{-- Confirm Password Input --}}
-            <div class="relative flex items-center mb-4">
-                <input type="password" name="password_confirmation" 
-                        class="{{ $inputClass }} @error('password_confirmation') {{ $errorInputClass }} @enderror" 
-                        placeholder="Ulangi Password" required autocomplete="new-password">
-                <span class="absolute left-0 mt-0 ml-3 text-gray-400"><span class="fas fa-lock"></span></span>
-            </div>
-            @error('password_confirmation') <span class="text-red-600 text-xs mt-1 d-block"> {{ $message }} </span> @enderror
-
-
-            <div class="mt-5">
-                <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 text-base font-semibold rounded-lg shadow-md 
-                        text-white bg-indigo-600 hover:bg-indigo-700 transition duration-150" id="registerBtn">
-                    Daftar Akun
-                </button>
-            </div>
-        </form>
-        
-        {{-- NAVIGASI PUBLIK --}}
-        <div class="flex justify-center flex-wrap mt-3 text-sm space-x-3">
-            <a href="{{ route('landing') }}" class="text-indigo-600 hover:text-indigo-700">
-                <i class="fas fa-arrow-left mr-1"></i> Beranda
-            </a> 
-            <span class="text-gray-400">|</span> 
-            <a href="{{ route('login') }}" class="text-gray-500 hover:text-indigo-600">Sudah punya akun? Masuk</a>
+        {{-- Mobile Header --}}
+        <div class="lg:hidden text-center mb-8">
+             @if($globalSettings['logo_url'])
+                <img src="{{ $globalSettings['logo_url'] }}" alt="Logo" class="h-14 w-auto mx-auto mb-4">
+            @endif
+            <h2 class="text-2xl font-bold text-gray-900">Buat Akun Baru</h2>
         </div>
-        
+
+        <div class="mx-auto w-full max-w-sm lg:max-w-md">
+            
+            <div class="text-left mb-8 hidden lg:block">
+                <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Registrasi Akun</h2>
+                <p class="mt-2 text-sm text-gray-500">
+                    Lengkapi formulir di bawah ini dengan benar.
+                </p>
+            </div>
+
+            @if ($errors->any())
+                 <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700">Mohon periksa inputan Anda.</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <form action="{{ route('register') }}" method="POST" class="space-y-5" id="registerForm">
+                @csrf
+                
+                {{-- Name --}}
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                    <input id="name" name="name" type="text" autocomplete="name" required autofocus
+                        class="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition @error('name') border-red-500 @enderror" 
+                        placeholder="Contoh: Budi Santoso" value="{{ old('name') }}">
+                     @error('name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+
+                {{-- Email --}}
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required 
+                        class="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition @error('email') border-red-500 @enderror" 
+                        placeholder="nama@email.com" value="{{ old('email') }}">
+                     @error('email') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+
+                {{-- Role --}}
+                <div>
+                    <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Mendaftar Sebagai</label>
+                    <div class="relative">
+                        <select id="role" name="role" required class="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition bg-white cursor-pointer @error('role') border-red-500 @enderror">
+                            <option value="" disabled selected>Pilih Peran...</option>
+                            {{-- <option value="siswa" {{ old('role') == 'siswa' ? 'selected' : '' }}>Siswa</option> --}}
+                            <option value="wali_kelas" {{ old('role') == 'wali_kelas' ? 'selected' : '' }}>Guru / Wali Kelas</option>
+                            <option value="orang_tua" {{ old('role') == 'orang_tua' ? 'selected' : '' }}>Orang Tua</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                             <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                     @error('role') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+
+                {{-- Password Section --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input id="password" name="password" type="password" required autocomplete="new-password"
+                            class="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition @error('password') border-red-500 @enderror" 
+                            placeholder="••••••••">
+                    </div>
+                    <div>
+                        <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Ulangi Password</label>
+                        <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password"
+                            class="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition" 
+                            placeholder="••••••••">
+                    </div>
+                </div>
+                 @error('password') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+
+                <div class="pt-2">
+                    <button type="submit" id="registerBtn" class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:-translate-y-0.5">
+                        <i class="fas fa-user-plus mt-0.5 mr-2"></i> Daftar Sekarang
+                    </button>
+                    
+                    <p class="mt-4 text-center text-sm text-gray-600">
+                        Sudah punya akun? 
+                        <a href="{{ route('login') }}" class="font-medium text-indigo-600 hover:text-indigo-500 transition">Login disini</a>
+                    </p>
+                </div>
+            </form>
+
+            <div class="mt-8 border-t border-gray-100 pt-6 text-center">
+                 <a href="{{ url('/') }}" class="text-xs text-gray-400 hover:text-gray-600 transition">
+                    &larr; Kembali ke Beranda
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
 
-@push('js')
+@section('js')
 <script>
-    $(document).ready(function() {
-        // Loading State Saat Submit
-        $('#registerForm').on('submit', function() {
-            const btn = $('#registerBtn');
-            // Cek validitas HTML5
-            if (this.checkValidity() === false) {
-                 return;
-            }
-            // Tampilkan loading state
-            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Memproses...');
-        });
+    document.getElementById('registerForm').addEventListener('submit', function() {
+        const btn = document.getElementById('registerBtn');
+        if(this.checkValidity()){
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Memproses...';
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+        }
     });
 </script>
-@endpush
+@endsection

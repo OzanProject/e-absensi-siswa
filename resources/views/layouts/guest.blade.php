@@ -38,44 +38,36 @@
     {{-- 🔥 TAILWIND CSS (MENGGANTIKAN SEMUA CSS ADMINLTE) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js']) 
 
+    {{-- AOS ANIMATION --}}
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
     {{-- Custom CSS --}}
     @stack('css')
 
-    {{-- Custom Styling untuk Form Login yang Di-Tailwind-kan --}}
-    <style>
-        /* Menggantikan 'hold-transition login-page' dengan class Tailwind */
-        .tailwind-login-page {
-            /* Flexbox penuh layar, latar belakang abu-abu */
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f3f4f6; /* bg-gray-100 */
-            font-family: 'Inter', sans-serif;
-        }
-        /* Style untuk container login (Opsional, tergantung konten @yield('content')) */
-        .login-box {
-            width: 90%;
-            max-width: 400px;
-            margin: 1rem;
-        }
-    </style>
-
 </head>
-<body class="tailwind-login-page">
-
-    {{-- Wrapper Konten (Misalnya untuk form Login/Register) --}}
-    <div class="login-box">
-        @yield('content')
-    </div>
+<body class="bg-gray-50 font-sans text-gray-900 antialiased">
     
-    {{-- REQUIRED SCRIPTS (Hanya JQuery dan Bootstrap jika diperlukan) --}}
+    {{-- GLOBAL LOADER --}}
+    @include('layouts.partials.loader')
+
+    {{-- YIELD CONTENT DIRECTLY (Full Width Control) --}}
+    @yield('content')
+    
+    {{-- REQUIRED SCRIPTS --}}
     <script src="{{ asset('template/adminlte/plugins/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('template/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    {{-- adminlte.min.js TIDAK diperlukan lagi karena styling diganti Tailwind --}}
-
+    
+    {{-- AOS ANIMATION JS --}}
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true,
+        });
+    </script>
+    
     {{-- Custom JavaScript --}}
-    @stack('js')
+    @yield('js')
 
 </body>
 </html>
