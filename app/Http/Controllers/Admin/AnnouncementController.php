@@ -40,7 +40,12 @@ class AnnouncementController extends Controller
             'target_id' => 'nullable|required_if:target_type,class|exists:classes,id',
         ]);
 
-        Announcement::create($request->all());
+        // Sanitasi input content untuk mencegah XSS
+        $data = $request->all();
+        $allowedTags = '<p><br><b><i><u><ul><ol><li><strong><em>';
+        $data['content'] = strip_tags($request->content, $allowedTags);
+
+        Announcement::create($data);
 
         return redirect()->route('announcements.index')->with('success', 'Pengumuman berhasil dibuat.');
     }
@@ -77,6 +82,13 @@ class AnnouncementController extends Controller
 
         // Pastikan target_id null jika target_type = all
         $data = $request->all();
+        
+        // Sanitasi input content untuk mencegah XSS
+        $allowedTags = '<p><br><b><i><u><ul><ol><li><strong><em>';
+        if (isset($data['content'])) {
+            $data['content'] = strip_tags($data['content'], $allowedTags);
+        }
+
         if ($data['target_type'] == 'all') {
             $data['target_id'] = null;
         }

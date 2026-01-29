@@ -67,15 +67,25 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
             }
 
             // Helper untuk membersihkan data kosong menjadi NULL agar tidak error Unique SQL
+            // Serta mencegah CSV Injection
             $cleanInput = function($value) {
-                $val = trim($value ?? '');
-                return $val === '' ? null : $val;
+                if (is_null($value)) return null;
+                $val = trim($value);
+                if ($val === '') return null;
+                
+                // Mencegah Formula Injection (dimulai dengan =, +, -, @)
+                if (in_array(substr($val, 0, 1), ['=', '+', '-', '@'])) {
+                    return "'" . $val;
+                }
+                
+                return $val;
             };
 
             // Data yang akan disimpan
             $dataToUpdate = [
                 'nis'           => $cleanInput($row['nis'] ?? null),
-                'name'          => trim($row['nama_siswa']), // Nama wajib, tidak boleh null
+                // Nama wajib, tidak boleh null, tapi tetap perlu sanitasi CSV Injection
+                'name'          => $cleanInput($row['nama_siswa']) ?? trim($row['nama_siswa']), 
                 'email'         => $cleanInput($row['email'] ?? null), // PENTING: Email kosong harus NULL, bukan string kosong
                 'gender'        => trim($row['jenis_kelamin']),
                 'class_id'      => $class_id,
