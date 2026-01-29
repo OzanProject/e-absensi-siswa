@@ -43,7 +43,7 @@ class AnnouncementController extends Controller
         // Sanitasi input content untuk mencegah XSS
         $data = $request->all();
         $allowedTags = '<p><br><b><i><u><ul><ol><li><strong><em>';
-        $data['content'] = strip_tags($request->content, $allowedTags);
+        $data['content'] = strip_tags($request->input('content'), $allowedTags);
 
         Announcement::create($data);
 
