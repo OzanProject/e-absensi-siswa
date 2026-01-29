@@ -27,9 +27,11 @@ class AppServiceProvider extends ServiceProvider
                 
                 // Helper untuk URL Logo
                 $logoPath = $globalSettings['school_logo'] ?? null;
-                $globalSettings['logo_url'] = ($logoPath && file_exists(public_path('storage/' . $logoPath)))
-                    ? asset('storage/' . $logoPath)
-                    : null; // Fallback handled in views or use default asset
+                // FIX: Gunakan Storage::disk('public')->exists() yang lebih aman di hosting daripada public_path()
+                // karena public_path() bergantung pada symlink yang mungkin tidak terdeteksi oleh PHP file_exists
+                $hasLogo = $logoPath && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPath);
+                
+                $globalSettings['logo_url'] = $hasLogo ? asset('storage/' . $logoPath) : null;
 
                 \Illuminate\Support\Facades\View::share('globalSettings', $globalSettings);
             }
