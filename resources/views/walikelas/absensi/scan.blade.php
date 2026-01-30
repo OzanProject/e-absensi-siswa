@@ -1,369 +1,497 @@
 @extends('layouts.adminlte')
 
-@section('title', 'Scan Absensi Kelas')
+@section('title', 'Scan Absensi Wali Kelas')
+
+@section('content_header')
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2 sm:mt-4 mb-2">
+        <div
+            class="flex flex-col md:flex-row justify-between items-center bg-white rounded-xl sm:rounded-3xl p-4 sm:p-6 shadow-lg border border-gray-100">
+            {{-- Title Area --}}
+            <div class="flex items-center space-x-4 w-full md:w-auto mb-4 md:mb-0">
+                <div class="bg-indigo-600 p-3 rounded-xl shadow-lg flex-shrink-0 text-white">
+                    <i class="fas fa-qrcode text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800 tracking-tight">
+                        Scan Absensi Kelas
+                    </h1>
+                    <p class="hidden sm:block text-sm font-medium text-gray-500">
+                        Kelas: <span class="font-bold text-indigo-600">{{ $class->name ?? 'N/A' }}</span>
+                    </p>
+                </div>
+            </div>
+
+            {{-- Right Actions --}}
+            <div class="flex items-center space-x-4 w-full md:w-auto justify-end">
+                <div class="hidden sm:block text-right mr-2">
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Waktu Server</span>
+                    <span class="text-xl font-mono font-bold text-indigo-600 leading-none"
+                        id="server-time-display">{{ date('H:i') }}</span>
+                </div>
+
+                <a href="{{ route('walikelas.dashboard') }}"
+                    class="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200 hover:text-indigo-600 transition">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+@endsection
 
 @section('content')
-<div class="space-y-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-    {{-- PAGE HEADER --}}
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
-        <div>
-            <h2 class="text-lg sm:text-2xl font-bold text-gray-800 tracking-tight">Scan Absensi Harian</h2>
-            <p class="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">Kelas: <span class="font-bold text-indigo-600">{{ $class->name ?? 'N/A' }}</span></p>
-        </div>
-        <nav class="flex text-xs sm:text-sm font-medium text-gray-500 space-x-2" aria-label="Breadcrumb">
-            <a href="{{ route('walikelas.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition">Dashboard</a>
-            <span class="text-gray-400">/</span>
-            <span class="text-gray-600">Scan Absensi</span>
-        </nav>
-    </div>
+            {{-- LEFT COLUMN: SCANNER AREA (7/12) --}}
+            <div class="lg:col-span-7 space-y-6">
+                {{-- Clean Camera Card --}}
+                <div
+                    class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 relative group text-center">
 
-    {{-- MAIN CONTENT GRID --}}
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
-        
-        {{-- KOLOM KIRI: SCANNER (7/12) --}}
-        <div class="lg:col-span-7 space-y-6">
-            {{-- Instructions Card --}}
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-lg p-4 sm:p-6 text-white relative overflow-hidden">
-                <div class="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
-                <div class="flex items-start md:items-center">
-                    <div class="bg-white/20 p-2 sm:p-3 rounded-xl mr-3 sm:mr-4 backdrop-blur-sm">
-                        <i class="fas fa-qrcode text-xl sm:text-2xl"></i>
+                    {{-- Camera Wrapper --}}
+                    <div
+                        class="relative bg-black rounded-3xl overflow-hidden h-[400px] sm:h-[500px] group shadow-inner border border-gray-800">
+                        {{-- 1. Scanner Video Element (Base Layer) --}}
+                        <div id="scanner" class="w-full h-full absolute inset-0 z-10"></div>
+
+                        {{-- 2. Top Bar Overlay (Z-Index 30) --}}
+                        <div
+                            class="absolute top-0 left-0 w-full p-4 z-30 flex justify-between items-start pointer-events-none">
+                            {{-- GPS Indicator --}}
+                            <div id="gps-indicator-area" class="pointer-events-auto"></div>
+
+                            {{-- Live Badge --}}
+                            <div
+                                class="bg-red-500/20 backdrop-blur-md border border-red-500/50 text-white text-[10px] font-bold px-3 py-1 rounded-full flex items-center shadow-lg animate-pulse">
+                                <div class="w-2 h-2 bg-red-500 rounded-full mr-2"></div> LIVE
+                            </div>
+                        </div>
+
+                        {{-- 3. Camera Selector (Hidden by default, can be toggled) --}}
+                        <div id="camera-selector-modal"
+                            class="hidden absolute top-14 right-4 z-40 bg-white p-2 rounded-lg shadow-xl">
+                            <select id="camera-select"
+                                class="text-xs border-gray-200 rounded-md focus:ring-indigo-500"></select>
+                        </div>
+
+
+                        {{-- 4. Center Viewfinder Overlay (Z-Index 20) --}}
+                        <div class="absolute inset-0 pointer-events-none z-20 flex flex-col items-center justify-center">
+
+                            {{-- Scanning Box --}}
+                            <div
+                                class="w-64 h-64 sm:w-72 sm:h-72 border-2 border-white/50 rounded-3xl relative overflow-hidden backdrop-blur-[2px] shadow-[0_0_100px_rgba(0,0,0,0.3)]">
+                                {{-- Corner Accents --}}
+                                <div
+                                    class="absolute top-0 left-0 w-10 h-10 border-t-4 border-l-4 border-indigo-400 rounded-tl-2xl">
+                                </div>
+                                <div
+                                    class="absolute top-0 right-0 w-10 h-10 border-t-4 border-r-4 border-indigo-400 rounded-tr-2xl">
+                                </div>
+                                <div
+                                    class="absolute bottom-0 left-0 w-10 h-10 border-b-4 border-l-4 border-indigo-400 rounded-bl-2xl">
+                                </div>
+                                <div
+                                    class="absolute bottom-0 right-0 w-10 h-10 border-b-4 border-r-4 border-indigo-400 rounded-br-2xl">
+                                </div>
+
+                                {{-- Laser --}}
+                                <div
+                                    class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-400 to-transparent opacity-80 animate-scan shadow-[0_0_20px_rgba(99,102,241,0.8)]">
+                                </div>
+                            </div>
+
+                            {{-- Instruction Text --}}
+                            <p
+                                class="mt-6 text-white/90 text-xs font-semibold bg-black/40 px-4 py-1.5 rounded-full backdrop-blur-md border border-white/10 tracking-wide">
+                                <i class="fas fa-expand-arrows-alt mr-1"></i> Arahkan QR Code ke dalam kotak
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Footer Status --}}
+                    <div class="px-6 py-4 bg-white border-t border-gray-100 z-30 relative min-h-[5rem]">
+                        <div id="scan-status">
+                            {{-- Default State --}}
+                            <div
+                                class="flex items-center justify-center p-2 text-gray-500 animate__animated animate__fadeIn">
+                                <i class="fas fa-camera mr-2"></i> Menunggu kamera siap...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Tips Card --}}
+                <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 flex items-start space-x-4">
+                    <div class="bg-indigo-100 p-2 rounded-lg text-indigo-600 flex-shrink-0">
+                        <i class="fas fa-info-circle text-lg"></i>
                     </div>
                     <div>
-                        <h3 class="text-base sm:text-lg font-bold">Mode Pindai Aktif</h3>
-                        <p class="text-blue-100 text-xs sm:text-sm opacity-90">
-                            Arahkan kartu pelajar siswa ke kamera. Sistem akan mencatat Masuk/Pulang secara otomatis.
+                        <h4 class="font-bold text-indigo-900 text-sm">Informasi Penggunaan</h4>
+                        <p class="text-indigo-800/80 text-xs mt-1 leading-relaxed">
+                            Sistem akan otomatis mencatat kehadiran saat QR Code valid terdeteksi.
+                            Pastikan fitur lokasi (GPS) pada browser Anda diaktifkan untuk validasi jarak.
                         </p>
                     </div>
                 </div>
             </div>
 
-            {{-- Scanner Card --}}
-            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden relative">
-                <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex flex-wrap sm:flex-nowrap justify-between items-center bg-gray-50/50">
-                    {{-- Left: Title --}}
-                    <div class="flex items-center">
-                        <h3 class="font-bold text-gray-800 flex items-center text-sm sm:text-lg">
-                            <span class="w-1.5 h-5 sm:h-6 bg-indigo-500 rounded-full mr-2 sm:mr-3"></span>
-                            Kamera Scanner
+            {{-- RIGHT COLUMN: RECENT ACTIVITY LOG (5/12) --}}
+            <div class="lg:col-span-5 h-full">
+                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 h-full flex flex-col overflow-hidden relative"
+                    style="max-height: calc(100vh - 200px);">
+                    {{-- Log Header --}}
+                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h3 class="font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-history text-gray-400 mr-2"></i> Aktivitas Terbaru
                         </h3>
+                        <button onclick="location.reload()"
+                            class="text-xs bg-white border border-gray-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 px-3 py-1.5 rounded-lg transition duration-200 shadow-sm">
+                            Refresh
+                        </button>
                     </div>
 
-                    {{-- Right: Status --}}
-                    <div id="camera-status-indicator" class="flex items-center gap-2 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-white border border-gray-200 text-gray-400 rounded-lg text-[10px] sm:text-xs font-bold shadow-sm transition-all duration-300">
-                         <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gray-300"></span>
-                         <span>Offline</span>
-                    </div>
-                </div>
-                
-                <div class="p-0 sm:p-6 bg-black sm:bg-white">
-                    {{-- SCANNER CONTAINER --}}
-                    <div class="relative bg-black rounded-none sm:rounded-2xl overflow-hidden shadow-inner mx-auto w-full h-[320px] sm:h-auto sm:max-w-[500px] sm:aspect-[4/3]">
-                        <div id="scanner" class="w-full h-full object-cover"></div>
-                        
-                        {{-- Overlay Guide --}}
-                        <div class="absolute inset-0 border-0 sm:border-2 border-white/30 rounded-none sm:rounded-2xl pointer-events-none"></div>
-                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <div class="w-2/3 h-2/3 sm:w-64 sm:h-64 border-2 border-dashed border-indigo-400/70 rounded-xl relative">
-                                <div class="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-indigo-500 -mt-1 -ml-1"></div>
-                                <div class="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-indigo-500 -mt-1 -mr-1"></div>
-                                <div class="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-indigo-500 -mb-1 -ml-1"></div>
-                                <div class="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-indigo-500 -mb-1 -mr-1"></div>
-                            </div>
-                        </div>
-                    </div>
+                    {{-- Scrollable List Area --}}
+                    <div class="flex-1 overflow-y-auto bg-gray-50/30 p-4" id="attendance-log-container">
+                        <ul id="attendance-log" class="space-y-3">
+                            @forelse($recentAbsences as $absence)
+                                @php
+                                    $status = $absence->status;
+                                    $isOut = $absence->checkout_time != null;
+                                    $isLate = $status == 'Terlambat';
+                                    $time = $isOut ? $absence->checkout_time->format('H:i') : $absence->attendance_time->format('H:i');
 
-                    {{-- Status Message --}}
-                    <div id="scan-status" class="mt-4 px-4 pb-4 sm:px-0 sm:pb-0 hidden transform transition-all duration-300 ease-in-out">
-                        {{-- Content injected by JS --}}
-                    </div>
-                </div>
-            </div>
-        </div>
+                                    // Style Config
+                                    if ($isOut) {
+                                        $style = ['border' => 'border-purple-500', 'bg' => 'bg-purple-100', 'text' => 'text-purple-700', 'icon' => 'fa-door-open', 'label' => 'PULANG'];
+                                    } elseif ($isLate) {
+                                        $style = ['border' => 'border-amber-500', 'bg' => 'bg-amber-100', 'text' => 'text-amber-700', 'icon' => 'fa-exclamation', 'label' => 'TERLAMBAT'];
+                                    } else {
+                                        $style = ['border' => 'border-emerald-500', 'bg' => 'bg-emerald-100', 'text' => 'text-emerald-700', 'icon' => 'fa-check', 'label' => 'MASUK'];
+                                    }
 
-        {{-- KOLOM KANAN: LIVE LOG (5/12) --}}
-        <div class="lg:col-span-5">
-            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 h-full flex flex-col">
-                <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 bg-gray-50/30">
-                    <h3 class="font-bold text-gray-800 flex items-center text-sm sm:text-base">
-                        <i class="fas fa-history text-indigo-500 mr-2"></i> Riwayat Scan Hari Ini
-                    </h3>
-                </div>
-                
-                {{-- SCROLLABLE LOG AREA --}}
-                <div class="flex-1 overflow-y-auto p-3 sm:p-4 custom-scrollbar" style="max-height: 400px; sm:max-height: 600px;">
-                    <ul class="space-y-2 sm:space-y-3" id="attendance-log">
-                        @forelse($recentAbsences as $absence)
-                            @php
-                                $status = $absence->status;
-                                $isCheckout = !is_null($absence->checkout_time);
-                                $displayStatus = $isCheckout ? 'PULANG' : ($status == 'Terlambat' ? 'TERLAMBAT' : 'MASUK');
-                                
-                                $cardColor = match($displayStatus) {
-                                    'PULANG' => 'bg-blue-50 border-blue-100',
-                                    'TERLAMBAT' => 'bg-amber-50 border-amber-100',
-                                    'MASUK' => 'bg-green-50 border-green-100',
-                                    default => 'bg-gray-50 border-gray-100'
-                                };
-                                $iconColor = match($displayStatus) {
-                                    'PULANG' => 'text-blue-600 bg-blue-100',
-                                    'TERLAMBAT' => 'text-amber-600 bg-amber-100',
-                                    'MASUK' => 'text-green-600 bg-green-100',
-                                    default => 'text-gray-600 bg-gray-100'
-                                };
-                                $icon = match($displayStatus) {
-                                    'PULANG' => 'fa-door-open',
-                                    'TERLAMBAT' => 'fa-exclamation-triangle',
-                                    default => 'fa-check'
-                                };
-                                $time = $isCheckout ? $absence->checkout_time->format('H:i') : $absence->attendance_time->format('H:i');
-                            @endphp
-                            
-                            <li class="p-3 rounded-xl border {{ $cardColor }} hover:shadow-md transition-all duration-200">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full {{ $iconColor }} flex items-center justify-center flex-shrink-0 text-xs sm:text-base">
-                                        <i class="fas {{ $icon }}"></i>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-xs sm:text-sm font-bold text-gray-900 truncate">{{ $absence->student->name }}</p>
-                                        <div class="flex items-center text-[10px] sm:text-xs space-x-2 mt-0.5">
-                                            <span class="font-bold opacity-80">{{ $displayStatus }}</span>
-                                            <span class="text-gray-400">•</span>
-                                            <span class="text-gray-500 font-mono">{{ $time }}</span>
+                                    // Check distance if available
+                                    $distance = $absence->distance ?? 0; // Check if model accessor/attribute exists or passed manually? Actually model doesn't store distance, only lat/long. 
+                                    // Wait, in controller we save lat/long. Distance is calculated on the fly for response. 
+                                    // Current view 'scan_live' passed 'distance' in AJAX response only. 
+                                    // For initial load list, we might not have distance unless we calculate it or store it. 
+                                    // The Absense model has 'latitude' and 'longitude'. We could calculate it here if school coords known, but for now let's show lat/long or just hide if 0.
+                                    // Actually, let's keep it simple for the initial list.
+                                @endphp
+                                <li
+                                    class="bg-white p-3 rounded-xl border-l-4 {{ $style['border'] }} shadow-sm hover:shadow-md transition-shadow">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex space-x-3">
+                                            <div
+                                                class="w-10 h-10 rounded-full {{ $style['bg'] }} flex items-center justify-center {{ $style['text'] }}">
+                                                <i class="fas {{ $style['icon'] }}"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-bold text-gray-800 text-sm">
+                                                    {{ $absence->student->name ?? 'Siswa' }}
+                                                </p>
+                                                <p class="text-xs text-gray-500">{{ $absence->student->class->name ?? '-' }}</p>
+                                                {{-- Optional: Show lat/long map link if desired, or skip --}}
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span
+                                                class="text-xs font-bold {{ $style['text'] }} block">{{ $style['label'] }}</span>
+                                            <span class="text-xs text-gray-400 font-mono">{{ $time }}</span>
                                         </div>
                                     </div>
-                                </div>
-                            </li>
-                        @empty
-                            <li class="text-center py-6 sm:py-10" id="empty-log-msg">
-                                <div class="bg-gray-50 w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <i class="fas fa-clipboard-list text-gray-300 text-lg sm:text-2xl"></i>
-                                </div>
-                                <p class="text-gray-400 text-xs sm:text-sm">Belum ada aktivitas scan.</p>
-                            </li>
-                        @endforelse
-                    </ul>
+                                </li>
+                            @empty
+                                <li class="flex flex-col items-center justify-center py-10 text-gray-400">
+                                    <i class="fas fa-clipboard text-4xl mb-2 opacity-20"></i>
+                                    <span class="text-sm">Belum ada data hari ini</span>
+                                </li>
+                            @endforelse
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    {{-- AUDIO --}}
-    <audio id="scanSuccessAudio" src="{{ asset('assets/audio/scan-beep.mp3') }}" preload="auto"></audio>
-</div>
-@stop
+@endsection
 
 @section('js')
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script> 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
-<script>
-    // --- KONFIGURASI ---
-    const scanUrl = '{{ route("walikelas.absensi.record") }}'; 
-    const csrfToken = '{{ csrf_token() }}';
-    const scanDelay = 2500; // 2.5 detik
-    let lastScanTime = 0;
-    let isProcessing = false;
-    
-    // --- ELEMENTS ---
-    const html5QrCode = new Html5Qrcode("scanner"); 
-    const scanStatus = $('#scan-status');
-    const audio = document.getElementById('scanSuccessAudio'); 
-    const attendanceLog = $('#attendance-log');
-    const cameraIndicator = $('#camera-status-indicator');
+    {{-- Libraries --}}
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    // --- HELPER: UPDATE CAMERA STATUS ---
-    function updateCameraStatus(status) {
-        let color = 'bg-gray-300';
-        let text = 'Offline';
-        if(status === 'active') { color = 'bg-green-500 animate-pulse'; text = 'Live'; }
-        if(status === 'error') { color = 'bg-red-500'; text = 'Error'; }
-        
-        cameraIndicator.html(`
-            <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${color}"></span>
-            <span class="${status === 'active' ? 'text-green-600' : 'text-gray-400'}">${text}</span>
-        `);
-    }
-
-    // --- HELPER: ADD LOG ITEM (ANIMATED) ---
-    function addLogItem(data) {
-        // Hapus empty state jika ada
-        $('#empty-log-msg').remove();
-
-        const typeMap = {
-            'IN': { 
-                'Hadir': { status: 'MASUK', subClass: 'bg-green-50 border-green-100', iconClass: 'bg-green-100 text-green-600', icon: 'fa-check' },
-                'Terlambat': { status: 'TERLAMBAT', subClass: 'bg-amber-50 border-amber-100', iconClass: 'bg-amber-100 text-amber-600', icon: 'fa-exclamation-triangle' }
-            },
-            'OUT': { 
-                'default': { status: 'PULANG', subClass: 'bg-blue-50 border-blue-100', iconClass: 'bg-blue-100 text-blue-600', icon: 'fa-door-open' }
-            }
-        };
-
-        const config = (data.type === 'IN') ? typeMap['IN'][data.status] : typeMap['OUT']['default'];
-        const time = new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
-
-        const itemHtml = `
-            <li class="p-3 rounded-xl border ${config.subClass} hover:shadow-md transition-all duration-500 transform translate-y-[-10px] opacity-0" id="new-log-item">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full ${config.iconClass} flex items-center justify-center flex-shrink-0 text-xs sm:text-base">
-                        <i class="fas ${config.icon}"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-xs sm:text-sm font-bold text-gray-900 truncate">${data.student.name}</p>
-                        <div class="flex items-center text-[10px] sm:text-xs space-x-2 mt-0.5">
-                            <span class="font-bold opacity-80">${config.status}</span>
-                            <span class="text-gray-400">•</span>
-                            <span class="text-gray-500 font-mono">${time}</span>
-                        </div>
-                    </div>
-                </div>
-            </li>
-        `;
-        
-        attendanceLog.prepend(itemHtml);
-        
-        // Trigger Animation
-        setTimeout(() => {
-            $('#new-log-item').removeClass('translate-y-[-10px] opacity-0').removeAttr('id');
-        }, 50);
-    }
-
-    // --- MAIN LOGIC: PROCESS BARCODE ---
-    function processBarcode(code) {
-        if(isProcessing) return;
-        isProcessing = true;
-        
-        // UI Feedback: Processing
-        scanStatus.removeClass('hidden bg-green-50 bg-red-50 bg-amber-50 text-green-700 text-red-700 text-amber-700')
-                  .addClass('block bg-blue-50 text-blue-700 p-4 rounded-xl border border-blue-100 shadow-sm flex items-center justify-center')
-                  .html('<i class="fas fa-spinner fa-spin mr-2"></i> Memproses Data...');
-
-        $.ajax({
-            url: scanUrl,
-            method: 'POST',
-            data: { _token: csrfToken, barcode: code },
-            success: function(res) {
-                // Audio Feedback
-                if(audio) { audio.currentTime = 0; audio.play().catch(()=>{}); }
-
-                // Success UI
-                let colorClass = res.status === 'Terlambat' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-green-50 text-green-700 border-green-200';
-                let icon = res.status === 'Terlambat' ? 'fa-exclamation-triangle' : 'fa-check-circle';
-                
-                scanStatus.removeClass('bg-blue-50 text-blue-700 border-blue-100')
-                          .addClass(colorClass)
-                          .html(`<i class="fas ${icon} mr-2"></i> <span class="font-bold">${res.message}</span>`);
-
-                // Toast
-                const toastType = res.status === 'Terlambat' ? 'warning' : 'success';
-                Swal.fire({
-                    icon: toastType,
-                    title: 'Berhasil',
-                    text: res.message,
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-
-                // Update Log
-                addLogItem(res);
-            },
-            error: function(xhr) {
-                let msg = xhr.responseJSON?.message || 'Gagal memproses data';
-                let isWarning = xhr.status === 409; // 409 usually means "Already Scanned" or "Too Early"
-                
-                let colorClass = isWarning ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-red-50 text-red-700 border-red-200';
-                let icon = isWarning ? 'fa-exclamation-circle' : 'fa-times-circle';
-
-                scanStatus.removeClass('bg-blue-50 text-blue-700 border-blue-100')
-                          .addClass(colorClass)
-                          .html(`<i class="fas ${icon} mr-2"></i> <span class="font-bold">${msg}</span>`);
-                
-                Swal.fire({
-                    icon: isWarning ? 'warning' : 'error',
-                    title: isWarning ? 'Perhatian' : 'Gagal',
-                    text: msg,
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            },
-            complete: function() {
-                // Resume Scanning after delay
-                setTimeout(() => {
-                    isProcessing = false;
-                    scanStatus.addClass('hidden'); // Hide status to clean UI
-                    
-                    if(html5QrCode.isScanning()) {
-                        html5QrCode.resume();
-                    }
-                }, scanDelay);
+    <script>
+        // --- PREVENT CONSOLE SPAM FROM EXTENSIONS ---
+        window.addEventListener('error', function (e) {
+            if (e.filename && e.filename.includes('content.js')) {
+                e.preventDefault(); // Suppress extension errors
             }
         });
-    }
 
-    // --- QR CODE CALLBACK ---
-    function onScanSuccess(decodedText, decodedResult) {
-        let currentTime = new Date().getTime();
-        if(currentTime - lastScanTime > scanDelay) {
-            lastScanTime = currentTime;
-            html5QrCode.pause(); // Pause camera visually
-            processBarcode(decodedText);
-        }
-    }
+        // --- CONFIG ---
+        const scanUrl = '{{ route("walikelas.absensi.record") }}';
+        const csrfToken = '{{ csrf_token() }}';
+        const RESCAN_DELAY = 2500;
+        let isProcessing = false;
+        let currentLat = null;
+        let currentLng = null;
 
-    // --- INITIALIZATION (ROBUST SIMPLE VERSION) ---
-    $(document).ready(function() {
-        const config = { 
-            fps: 10, 
-            qrbox: { width: 250, height: 250 } // Aspect Ratio removed
+        // --- UI TEMPLATES ---
+        const UI = {
+            ready: `
+                        <div class="flex items-center justify-center p-3 text-emerald-600 bg-emerald-50 rounded-lg border border-emerald-100 animate__animated animate__fadeIn">
+                            <i class="fas fa-check-circle text-xl mr-2"></i>
+                            <div>
+                                <span class="font-bold text-sm block">Sistem Siap</span>
+                                <span class="text-xs opacity-80">Silakan scan kartu siswa</span>
+                            </div>
+                        </div>`,
+            processing: `
+                        <div class="flex items-center justify-center p-3 text-indigo-600 bg-indigo-50 rounded-lg border border-indigo-100 animate__animated animate__fadeIn">
+                            <i class="fas fa-circle-notch fa-spin text-xl mr-2"></i>
+                            <div>
+                                <span class="font-bold text-sm block">Memproses...</span>
+                                <span class="text-xs opacity-80">Mohon tunggu sebentar</span>
+                            </div>
+                        </div>`,
+            error: (msg) => `
+                        <div class="flex items-center justify-center p-3 text-red-600 bg-red-50 rounded-lg border border-red-100 animate__animated animate__headShake">
+                            <i class="fas fa-exclamation-triangle text-xl mr-2"></i>
+                            <div>
+                                <span class="font-bold text-sm block">Gagal</span>
+                                <span class="text-xs opacity-80">${msg}</span>
+                            </div>
+                        </div>`
         };
 
-        // Langsung start dengan konfigurasi environment (Kamera Belakang)
-        // Ini lebih stabil di berbagai browser/perangkat dibanding getCameras()
-        html5QrCode.start(
-            { facingMode: "environment" }, 
-            config, 
-            onScanSuccess
-        ).then(() => {
-            updateCameraStatus('active');
-        }).catch(err => {
-            console.error("Camera Error: ", err);
-            updateCameraStatus('error');
+        const scanStatus = $('#scan-status');
+
+        // --- FUNCTIONS ---
+
+        function showToast(type, message) {
             Swal.fire({
-                icon: 'error',
-                title: 'Kamera Gagal Akses',
-                text: 'Pastikan izin kamera diberikan dan akses via HTTPS atau Localhost.',
-                footer: err.message
+                icon: type === 'primary' ? 'success' : type, // 'primary' is used for OUT usually
+                text: message,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        }
+
+        function playBeep(isSuccess) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            if (isSuccess) {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1000, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1500, ctx.currentTime + 0.1);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(150, ctx.currentTime + 0.3);
+            }
+
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (isSuccess ? 0.2 : 0.4));
+
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + (isSuccess ? 0.2 : 0.4));
+        }
+
+        function logToSidebar(data) {
+            let style = {};
+            // Determine style based on response type/status
+            if (data.type === 'OUT') {
+                style = { border: 'border-purple-500', bg: 'bg-purple-100', text: 'text-purple-700', icon: 'fa-door-open', label: 'PULANG' };
+            } else if (data.status === 'Terlambat') {
+                style = { border: 'border-amber-500', bg: 'bg-amber-100', text: 'text-amber-700', icon: 'fa-exclamation', label: 'TERLAMBAT' };
+            } else if (data.type === 'IN') {
+                style = { border: 'border-emerald-500', bg: 'bg-emerald-100', text: 'text-emerald-700', icon: 'fa-check', label: 'MASUK' };
+            } else {
+                style = { border: 'border-red-500', bg: 'bg-red-100', text: 'text-red-700', icon: 'fa-times', label: 'GAGAL' };
+            }
+
+            const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            const distanceInfo = data.distance ? `<p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-map-marker-alt mr-1"></i> ${data.distance}m</p>` : '';
+
+            const html = `
+                        <li class="bg-white p-3 rounded-xl border-l-4 ${style.border} shadow-sm animate__animated animate__fadeInLeft hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start">
+                                <div class="flex space-x-3">
+                                    <div class="w-10 h-10 rounded-full ${style.bg} flex items-center justify-center ${style.text}">
+                                        <i class="fas ${style.icon}"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm">${data.student.name || 'Siswa'}</p>
+                                        <p class="text-xs text-gray-500">${data.student.class || '-'}</p>
+                                        ${distanceInfo}
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-bold ${style.text} block">${style.label}</span>
+                                    <span class="text-xs text-gray-400 font-mono">${time}</span>
+                                </div>
+                            </div>
+                        </li>
+                    `;
+
+            const list = $('#attendance-log');
+            list.prepend(html);
+            list.find('li:gt(15)').remove(); // Keep max 15 items
+            // Remove "empty" placeholder if exists
+            const emptyPlaceholder = list.find('li.text-center');
+            if (emptyPlaceholder.length) emptyPlaceholder.remove();
+        }
+
+        function processBarcode(code) {
+            if (isProcessing) return;
+            isProcessing = true;
+            scanStatus.html(UI.processing);
+
+            $.ajax({
+                url: scanUrl,
+                method: 'POST',
+                data: {
+                    _token: csrfToken,
+                    barcode: code,
+                    latitude: currentLat,
+                    longitude: currentLng
+                },
+                success: function (response) {
+                    playBeep(true);
+                    let type = 'success';
+                    if (response.type === 'IN' && response.status === 'Terlambat') type = 'warning';
+                    if (response.type === 'OUT') type = 'info'; // Use info/primary for OUT
+
+                    let msg = response.message;
+                    if (response.distance) msg += ` (${response.distance}m)`;
+
+                    showToast(type, msg);
+
+                    // Add to log
+                    logToSidebar({
+                        type: response.type,
+                        status: response.status,
+                        student: { name: response.student.name, class: response.student.class },
+                        distance: response.distance
+                    });
+
+                    scanStatus.html(UI.ready);
+                },
+                error: function (xhr) {
+                    playBeep(false);
+                    let msg = 'Terjadi kesalahan sistem.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+
+                    showToast('error', msg);
+                    scanStatus.html(UI.error(msg));
+                },
+                complete: function () {
+                    setTimeout(() => {
+                        isProcessing = false;
+                        if (scanStatus.text().includes('Gagal')) scanStatus.html(UI.ready);
+                    }, RESCAN_DELAY);
+                }
+            });
+        }
+
+        function onScanSuccess(decodedText) {
+            if (!isProcessing && decodedText.length > 2) {
+                processBarcode(decodedText);
+            }
+        }
+
+        // --- INIT ---
+        $(document).ready(function () {
+            // Clock
+            setInterval(() => {
+                const now = new Date();
+                $('#server-time-display').text(now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }));
+            }, 1000);
+
+            // GPS
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        currentLat = pos.coords.latitude;
+                        currentLng = pos.coords.longitude;
+                        $('#gps-indicator-area').html(`
+                                        <div class="bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs flex items-center shadow-lg border border-white/10">
+                                            <span class="relative flex h-2 w-2 mr-2">
+                                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                            </span>
+                                            GPS Aktif
+                                        </div>`);
+                    },
+                    (err) => {
+                        console.warn('GPS Error', err);
+                        $('#gps-indicator-area').html(`
+                                        <div class="bg-red-600/80 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs flex items-center shadow-lg border border-white/10">
+                                            <i class="fas fa-exclamation-triangle mr-1.5"></i> GPS Off
+                                        </div>`);
+                        Swal.fire({ icon: 'warning', title: 'GPS Mati', text: 'Lokasi tidak terdeteksi. Absensi mungkin ditolak jika validasi radius aktif.', toast: true, position: 'top-end', timer: 5000 });
+                    },
+                    { enableHighAccuracy: true }
+                );
+            }
+
+            // Scanner
+            const html5QrCode = new Html5Qrcode("scanner");
+            const config = { fps: 15, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
+
+            html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+                .then(() => scanStatus.html(UI.ready))
+                .catch(err => {
+                    scanStatus.html(UI.error('Kamera tidak dapat diakses/izin ditolak.'));
+                    console.error(err);
+                });
+
+            // Cleanup
+            window.addEventListener('beforeunload', () => {
+                if (html5QrCode.isScanning) html5QrCode.stop().catch(err => { });
             });
         });
-    });
-
-    // Cleanup
-    $(window).on('beforeunload', function(){
-        if(html5QrCode.isScanning()){
-            html5QrCode.stop().catch(()=>{});
-        }
-    });
-
-</script>
+    </script>
 @endsection
 
 @section('css')
-<style>
-    /* Custom Scrollbar for Log */
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-    
-    /* Animation Utility */
-    @keyframes slideDownFade {
-        from { transform: translateY(-10px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-</style>
+    <style>
+        /* Gradient Animation for Scanner Laser */
+        @keyframes scan {
+            0% {
+                top: 0;
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 100%;
+                opacity: 0;
+            }
+        }
+
+        .animate-scan {
+            animation: scan 2s infinite ease-in-out;
+        }
+
+        /* Ensure video covers the div properly */
+        #scanner video {
+            object-fit: cover;
+            border-radius: 12px;
+        }
+    </style>
 @endsection

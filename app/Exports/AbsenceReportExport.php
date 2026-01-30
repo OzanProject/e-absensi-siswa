@@ -34,7 +34,7 @@ class AbsenceReportExport implements FromCollection, WithHeadings, WithMapping, 
     {
         return 'Laporan Absensi';
     }
-    
+
     /**
      * Mengembalikan koleksi absensi yang sudah di-query dari Controller.
      */
@@ -43,7 +43,7 @@ class AbsenceReportExport implements FromCollection, WithHeadings, WithMapping, 
         // 💡 KUNCI: Langsung mengembalikan koleksi yang sudah disortir dan difilter
         return $this->absences;
     }
-    
+
     /**
      * Definisi Header/Judul Kolom Excel.
      */
@@ -58,9 +58,12 @@ class AbsenceReportExport implements FromCollection, WithHeadings, WithMapping, 
             'Kelas',
             'Status',
             'Keterlambatan (Menit)',
+            'Latitude',
+            'Longitude',
+            'IP Address',
         ];
     }
-    
+
     /**
      * Mapping data ke kolom header.
      */
@@ -68,19 +71,22 @@ class AbsenceReportExport implements FromCollection, WithHeadings, WithMapping, 
     {
         $this->rowNumber++;
         $status = $absence->status ?? 'N/A';
-        
+
         return [
             $this->rowNumber,
             $absence->attendance_time->format('d/m/Y'),
             $absence->attendance_time->format('H:i:s'),
             $absence->student->nisn ?? 'N/A',
             $absence->student->name ?? 'Siswa Dihapus',
-            $absence->student->class->name ?? 'N/A', 
+            $absence->student->class->name ?? 'N/A',
             $status,
             ($status == 'Terlambat') ? $absence->late_duration . ' min' : '-',
+            $absence->latitude ?? '-',
+            $absence->longitude ?? '-',
+            $absence->ip_address ?? '-',
         ];
     }
-    
+
     /**
      * Tambahkan style pada header (baris 1).
      */

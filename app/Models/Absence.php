@@ -10,13 +10,16 @@ class Absence extends Model
     use HasFactory;
 
     protected $fillable = [
-        'student_id', 
+        'student_id',
         'attendance_time',
-        'checkout_time', 
-        'status', 
-        'late_duration', 
-        'reason', 
-        'recorded_by'
+        'checkout_time',
+        'status',
+        'late_duration',
+        'reason',
+        'recorded_by',
+        'latitude',
+        'longitude',
+        'ip_address'
     ];
 
     protected $casts = [

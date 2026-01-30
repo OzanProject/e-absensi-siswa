@@ -10,7 +10,8 @@
         <div>
             <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Hasil Laporan</h2>
             <p class="text-sm text-gray-500 mt-1">
-                Periode: <span class="font-bold text-gray-800">{{ $startDate->format('d/m/Y') }}</span> s/d <span class="font-bold text-gray-800">{{ $endDate->format('d/m/Y') }}</span>
+                Periode: <span class="font-bold text-gray-800">{{ $startDate->format('d/m/Y') }}</span> s/d <span
+                    class="font-bold text-gray-800">{{ $endDate->format('d/m/Y') }}</span>
             </p>
         </div>
         <nav class="flex text-sm font-medium text-gray-500 space-x-2" aria-label="Breadcrumb">
@@ -23,37 +24,40 @@
     </div>
 
     <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-        
+
         {{-- TOOLBAR --}}
-        <div class="p-6 border-b border-gray-100 bg-gray-50/50 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+        <div
+            class="p-6 border-b border-gray-100 bg-gray-50/50 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <h3 class="font-bold text-gray-800 flex items-center">
                 <span class="w-2 h-6 bg-indigo-500 rounded-full mr-3"></span>
                 Data Absensi Kelas {{ $class->name }}
             </h3>
-            
+
             <div class="flex space-x-3">
                 {{-- EXPORT EXCEL --}}
                 <form action="{{ route('report.export.excel') }}" method="GET" target="_blank">
                     <input type="hidden" name="class_id" value="{{ $class->id }}">
                     <input type="hidden" name="start_date" value="{{ $startDate->format('Y-m-d') }}">
                     <input type="hidden" name="end_date" value="{{ $endDate->format('Y-m-d') }}">
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-500/20 transition transform hover:-translate-y-0.5">
+                    <button type="submit"
+                        class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-500/20 transition transform hover:-translate-y-0.5">
                         <i class="fas fa-file-excel mr-2"></i> Excel
                     </button>
                 </form>
-                
+
                 {{-- EXPORT PDF --}}
                 <form action="{{ route('report.export.pdf') }}" method="GET" target="_blank">
                     <input type="hidden" name="class_id" value="{{ $class->id }}">
                     <input type="hidden" name="start_date" value="{{ $startDate->format('Y-m-d') }}">
                     <input type="hidden" name="end_date" value="{{ $endDate->format('Y-m-d') }}">
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-red-500/20 transition transform hover:-translate-y-0.5">
+                    <button type="submit"
+                        class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-red-500/20 transition transform hover:-translate-y-0.5">
                         <i class="fas fa-file-pdf mr-2"></i> PDF
                     </button>
                 </form>
             </div>
         </div>
-        
+
         <div class="p-0">
             @if($absences->isEmpty())
                 <div class="flex flex-col items-center justify-center py-16">
@@ -64,62 +68,86 @@
                     <p class="text-gray-500 mt-2">Belum ada aktivitas absensi pada periode ini.</p>
                 </div>
             @else
-                <div class="overflow-x-auto"> 
+                <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
-                        <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-bold border-b border-gray-100">
+                        <thead
+                            class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-bold border-b border-gray-100">
                             <tr>
                                 <th class="px-6 py-4 text-center w-12">#</th>
                                 <th class="px-6 py-4">Nama Siswa</th>
                                 <th class="px-6 py-4">Tanggal</th>
-                                <th class="px-6 py-4">Jam Masuk</th> 
-                                <th class="px-6 py-4">Jam Pulang</th> 
-                                <th class="px-6 py-4">Status</th> 
+                                <th class="px-6 py-4">Jam Masuk</th>
+                                <th class="px-6 py-4">Jam Pulang</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4">Lokasi / IP</th>
                                 <th class="px-6 py-4 text-center">Ket.</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
                             @foreach($absences as $absence)
-                            @php
-                                $statusBadge = match($absence->status) {
-                                    'Hadir' => 'bg-green-100 text-green-700 border-green-200',
-                                    'Terlambat' => 'bg-amber-100 text-amber-700 border-amber-200',
-                                    'Sakit' => 'bg-cyan-100 text-cyan-700 border-cyan-200',
-                                    'Izin' => 'bg-blue-100 text-blue-700 border-blue-200',
-                                    'Alpha' => 'bg-red-100 text-red-700 border-red-200',
-                                    default => 'bg-gray-100 text-gray-700'
-                                };
-                            @endphp
-                            <tr class="hover:bg-gray-50 transition duration-150 group">
-                                <td class="px-6 py-4 text-center text-sm font-bold text-gray-400 group-hover:text-indigo-500">{{ $loop->iteration }}</td>
-                                <td class="px-6 py-4 text-sm font-bold text-gray-900">{{ $absence->student->name }}</td>
-                                <td class="px-6 py-4 text-sm font-medium text-gray-600">
-                                    {{ $absence->attendance_time->translatedFormat('d F Y') }}
-                                </td>
-                                <td class="px-6 py-4 text-sm font-mono text-gray-700">
-                                    {{ $absence->attendance_time->format('H:i') }}
-                                </td>
-                                <td class="px-6 py-4 text-sm font-mono text-gray-700">
-                                    @if($absence->checkout_time)
-                                        {{ $absence->checkout_time->format('H:i') }}
-                                    @else
-                                        <span class="text-gray-400 text-xs italic">Belum</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="px-3 py-1 inline-flex text-xs font-bold rounded-lg border {{ $statusBadge }}">
-                                        {{ $absence->status }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-center text-sm text-gray-500">
-                                    @if ($absence->status == 'Terlambat')
-                                        <span class="text-amber-600 font-bold text-xs">+{{ $absence->late_duration }}m</span>
-                                    @elseif($absence->notes)
-                                        <span class="text-xs truncate max-w-[100px] inline-block" title="{{ $absence->notes }}">{{ $absence->notes }}</span>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                            </tr>
+                                @php
+                                    $statusBadge = match ($absence->status) {
+                                        'Hadir' => 'bg-green-100 text-green-700 border-green-200',
+                                        'Terlambat' => 'bg-amber-100 text-amber-700 border-amber-200',
+                                        'Sakit' => 'bg-cyan-100 text-cyan-700 border-cyan-200',
+                                        'Izin' => 'bg-blue-100 text-blue-700 border-blue-200',
+                                        'Alpha' => 'bg-red-100 text-red-700 border-red-200',
+                                        default => 'bg-gray-100 text-gray-700'
+                                    };
+                                @endphp
+                                <tr class="hover:bg-gray-50 transition duration-150 group">
+                                    <td
+                                        class="px-6 py-4 text-center text-sm font-bold text-gray-400 group-hover:text-indigo-500">
+                                        {{ $loop->iteration }}</td>
+                                    <td class="px-6 py-4 text-sm font-bold text-gray-900">{{ $absence->student->name }}</td>
+                                    <td class="px-6 py-4 text-sm font-medium text-gray-600">
+                                        {{ $absence->attendance_time->translatedFormat('d F Y') }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm font-mono text-gray-700">
+                                        {{ $absence->attendance_time->format('H:i') }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm font-mono text-gray-700">
+                                        @if($absence->checkout_time)
+                                            {{ $absence->checkout_time->format('H:i') }}
+                                        @else
+                                            <span class="text-gray-400 text-xs italic">Belum</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span
+                                            class="px-3 py-1 inline-flex text-xs font-bold rounded-lg border {{ $statusBadge }}">
+                                            {{ $absence->status }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if($absence->latitude && $absence->longitude)
+                                            <a href="https://www.google.com/maps?q={{ $absence->latitude }},{{ $absence->longitude }}" target="_blank" 
+                                               class="text-xs text-indigo-600 hover:text-indigo-800 hover:underline flex items-center mb-1">
+                                                <i class="fas fa-map-marker-alt text-red-500 mr-1.5"></i> Maps
+                                            </a>
+                                        @endif
+                                        
+                                        @if($absence->ip_address)
+                                            <div class="text-[10px] text-gray-500 font-mono bg-gray-50 px-1.5 py-0.5 rounded inline-block border border-gray-100">
+                                                IP: {{ $absence->ip_address }}
+                                            </div>
+                                        @endif
+                                        
+                                        @if(!$absence->latitude && !$absence->ip_address)
+                                         <span class="text-xs text-gray-400">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 text-center text-sm text-gray-500">
+                                        @if ($absence->status == 'Terlambat')
+                                            <span class="text-amber-600 font-bold text-xs">+{{ $absence->late_duration }}m</span>
+                                        @elseif($absence->notes)
+                                            <span class="text-xs truncate max-w-[100px] inline-block"
+                                                title="{{ $absence->notes }}">{{ $absence->notes }}</span>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -132,6 +160,6 @@
 
 @section('css')
 <style>
-/* Custom overrides if necessary */
+    /* Custom overrides if necessary */
 </style>
 @stop
