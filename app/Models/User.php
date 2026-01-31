@@ -9,8 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 // Mengimpor model yang diperlukan
-use App\Models\HomeroomTeacher; 
-use App\Models\ParentModel; 
+use App\Models\HomeroomTeacher;
+use App\Models\ParentModel;
 
 class User extends Authenticatable // implements MustVerifyEmail dihapus
 {
@@ -36,7 +36,7 @@ class User extends Authenticatable // implements MustVerifyEmail dihapus
 
     // Accessor untuk ditampilkan di JSON/View
     protected $appends = [
-        'role_label', 
+        'role_label',
         'role_badge_class',
     ];
 
@@ -57,22 +57,25 @@ class User extends Authenticatable // implements MustVerifyEmail dihapus
             'siswa' => 'Siswa',
         ][$this->role] ?? 'Unknown Role';
     }
-    
+
     /**
      * Mendapatkan kelas CSS badge berdasarkan peran.
      */
     public function getRoleBadgeClassAttribute(): string
     {
-        if ($this->role === 'wali_kelas') return 'badge-info';
-        if ($this->role === 'orang_tua') return 'badge-primary';
-        if ($this->role === 'super_admin') return 'badge-danger'; 
+        if ($this->role === 'wali_kelas')
+            return 'badge-info';
+        if ($this->role === 'orang_tua')
+            return 'badge-primary';
+        if ($this->role === 'super_admin')
+            return 'badge-danger';
         return 'badge-secondary';
     }
 
     // =======================================================
     // 2. HELPER ROLE METHODS (Pengecekan Peran Cepat)
     // =======================================================
-    
+
     public function isSuperAdmin(): bool
     {
         return $this->role === 'super_admin';
@@ -101,14 +104,14 @@ class User extends Authenticatable // implements MustVerifyEmail dihapus
     // =======================================================
     // 3. RELATIONSHIPS (Diperbarui dengan asumsi user_id)
     // =======================================================
-    
+
     /**
      * Relasi ke data Guru Wali Kelas.
      * Asumsi: foreign key di tabel homeroom_teachers adalah 'user_id'.
      */
     public function homeroomTeacher(): HasOne
     {
-        return $this->hasOne(HomeroomTeacher::class, 'user_id'); 
+        return $this->hasOne(HomeroomTeacher::class, 'user_id');
     }
 
     /**
@@ -117,6 +120,14 @@ class User extends Authenticatable // implements MustVerifyEmail dihapus
      */
     public function parentRecord(): HasOne
     {
-        return $this->hasOne(ParentModel::class, 'user_id'); 
+        return $this->hasOne(ParentModel::class, 'user_id');
+    }
+
+    /**
+     * Relasi ke jadwal mengajar (sebagai Guru).
+     */
+    public function teachingSchedules(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Schedule::class, 'teacher_id');
     }
 }

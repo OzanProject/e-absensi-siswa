@@ -8,14 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class ClassModel extends Model
 {
     use HasFactory;
-    
+
     // 🔥 PERBAIKAN SEBELUMNYA: Ini sudah benar, menentukan nama tabel eksplisit.
-    protected $table = 'classes'; 
-    
+    protected $table = 'classes';
+
     // ✅ PERBAIKAN SEKARANG: Tambahkan major dan description ke fillable
     protected $fillable = [
-        'name', 
-        'grade', 
+        'name',
+        'grade',
         'major',      // <-- DITAMBAHKAN
         'description' // <-- DITAMBAHKAN
     ];
@@ -30,5 +30,10 @@ class ClassModel extends Model
         // Relasi Kebalikan: Satu Kelas memiliki satu Wali Kelas
         // Asumsi model HomeroomTeacher ada
         return $this->hasOne(HomeroomTeacher::class, 'class_id');
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class, 'class_id');
     }
 }

@@ -69,7 +69,7 @@
 
                 {{-- Content Header --}}
                 {{-- Memberi batas bawah yang lebih menonjol dan padding yang konsisten --}}
-                <header class="bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-200 sticky top-0 z-35">
+                <header class="bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-200">
                     <div class="max-w-full mx-auto py-3 px-4 sm:px-6 lg:px-8">
                         @yield('content_header')
                     </div>

@@ -1,111 +1,120 @@
 @extends('layouts.adminlte')
 
-@section('title', 'Edit Akun: ' . $teacher->name)
+@section('title', 'Edit Wali Kelas')
 
 @section('content_header')
-{{-- HEADER: Menggunakan Tailwind & Warna Amber/Indigo --}}
-<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-    
-    <div class="mb-2 sm:mb-0">
-        <h1 class="text-2xl font-bold text-gray-800 flex items-center mb-2 sm:mb-0">
-            {{-- Menggunakan warna Amber untuk Edit --}}
-            <i class="fas fa-user-edit text-amber-500 mr-2"></i> 
-            <span>Edit Akun Wali Kelas</span>
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-800 tracking-tight flex items-center">
+            <i class="fas fa-user-edit text-amber-500 mr-2"></i> Edit Wali Kelas
         </h1>
-        <p class="text-sm text-gray-500 mt-1">Perbarui data atau penugasan kelas untuk <strong>{{ $teacher->name }}</strong>.</p>
+        <p class="text-sm text-gray-500 mt-1">Perbarui informasi akun dan penugasan kelas.</p>
     </div>
-    
-    <nav class="text-sm font-medium text-gray-500" aria-label="Breadcrumb">
-        <ol class="flex space-x-2">
-            <li><a href="{{ route('admin.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150">Home</a></li>
-            <li class="text-gray-400">/</li>
-            <li><a href="{{ route('teachers.index') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150">Data Wali Kelas</a></li>
-            <li class="text-gray-400">/</li>
-            <li class="text-gray-600 font-semibold">Edit Akun</li>
-        </ol>
-    </nav>
+    <a href="{{ route('teachers.index') }}" class="group flex items-center px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 hover:text-indigo-600 transition-all duration-200 shadow-sm">
+        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Kembali
+    </a>
 </div>
 @stop
 
 @section('content')
-    <div class="grid grid-cols-1 lg:grid-cols-3 lg:gap-6">
-        
-        {{-- KOLOM KIRI: FORM EDIT UTAMA (2/3 Kolom) --}}
-        <div class="lg:col-span-2">
-            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden"> 
-                <div class="p-6 border-b border-gray-100 bg-amber-50/30">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center"><i class="fas fa-edit mr-2 text-amber-500"></i> Form Edit Data</h3>
-                </div>
-                <div class="p-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {{-- Form Section --}}
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+            <div class="p-8">
+                {{-- Error Handling --}}
+                @if ($errors->any())
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-r-lg animate__animated animate__fadeIn">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">Periksa inputan Anda:</h3>
+                                <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                <form action="{{ route('teachers.update', $teacher->id) }}" method="POST" id="teacherForm">
+                    @csrf
+                    @method('PUT')
                     
-                    {{-- Validasi Error Global --}}
-                    @if($errors->any())
-                        <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-xl relative mb-6 shadow-sm">
-                            <div class="flex items-start">
-                                <i class="fas fa-exclamation-triangle mt-1 mr-3"></i>
-                                <div>
-                                    <span class="font-bold">Terjadi Kesalahan!</span>
-                                    <ul class="mt-1 list-disc list-inside text-sm">
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
+                    {{-- Section: Data Akun --}}
+                    <div class="mb-8">
+                        <h4 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-100">
+                            <i class="fas fa-id-card text-amber-500 mr-2"></i> Data Akun
+                        </h4>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {{-- Nama --}}
+                            <div class="md:col-span-2">
+                                <label for="name" class="block text-sm font-bold text-gray-700 mb-2">
+                                    Nama Lengkap <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative rounded-xl shadow-sm group">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fas fa-user text-gray-400 group-focus-within:text-amber-500 transition-colors"></i>
+                                    </div>
+                                    <input type="text" name="name" id="name" value="{{ old('name', $teacher->name) }}" required 
+                                           class="focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 block w-full pl-11 border-gray-300 rounded-xl py-3.5 transition-all text-sm font-medium placeholder-gray-400">
                                 </div>
                             </div>
-                        </div>
-                    @endif
-                    
-                    <form action="{{ route('teachers.update', $teacher->id) }}" method="POST" id="teacherForm" class="space-y-6">
-                        @csrf
-                        @method('PUT')
-                        
-                        @php
-                            // Helper Class untuk Input Styling (Fokus Purple/Ungu)
-                            $currentClassId = $teacher->homeroomTeacher->class_id ?? null; // Ambil ID kelas yang diampu saat ini
-                            $labelClass = 'block text-sm font-bold text-gray-700 mb-2';
-                            $inputClass = 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition duration-200 bg-gray-50 focus:bg-white';
-                            $inputErrorClass = 'w-full px-4 py-3 rounded-xl border border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition duration-200 bg-red-50';
-                        @endphp
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            {{-- Nama Guru --}}
-                            <div class="sm:col-span-2">
-                                <label for="name" class="{{ $labelClass }}">Nama Lengkap <span class="text-red-500">*</span></label>
-                                <input type="text" name="name" id="name" 
-                                        class="@error('name') {{ $inputErrorClass }} @else {{ $inputClass }} @enderror" 
-                                        value="{{ old('name', $teacher->name) }}" 
-                                        placeholder="Nama lengkap guru"
-                                        required>
-                                @error('name') <p class="mt-2 text-sm text-red-600 font-medium"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
+                            {{-- Email --}}
+                            <div class="md:col-span-2">
+                                <label for="email" class="block text-sm font-bold text-gray-700 mb-2">
+                                    Email (Login) <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative rounded-xl shadow-sm group">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fas fa-envelope text-gray-400 group-focus-within:text-amber-500 transition-colors"></i>
+                                    </div>
+                                    <input type="email" name="email" id="email" value="{{ old('email', $teacher->email) }}" required 
+                                           class="focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 block w-full pl-11 border-gray-300 rounded-xl py-3.5 transition-all text-sm font-medium placeholder-gray-400">
+                                </div>
                             </div>
                             
-                            {{-- Email --}}
-                            <div class="sm:col-span-2">
-                                <label for="email" class="{{ $labelClass }}">Email (Login) <span class="text-red-500">*</span></label>
-                                <input type="email" name="email" id="email" 
-                                        class="@error('email') {{ $inputErrorClass }} @else {{ $inputClass }} @enderror" 
-                                        value="{{ old('email', $teacher->email) }}" 
-                                        placeholder="Email unik untuk login"
-                                        required>
-                                @error('email') <p class="mt-2 text-sm text-red-600 font-medium"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                            </div>
-
-                            {{-- Password (Opsional) --}}
-                            <div class="sm:col-span-2">
-                                <label for="password" class="{{ $labelClass }}">Password Baru (Opsional)</label>
-                                <input type="password" name="password" id="password" 
-                                        class="@error('password') {{ $inputErrorClass }} @else {{ $inputClass }} @enderror"
-                                        placeholder="Isi hanya jika ingin mengganti password">
-                                <p class="mt-2 text-xs text-gray-500">Kosongkan jika tidak ingin mengubah password. Minimal 8 karakter.</p>
-                                @error('password') <p class="mt-2 text-sm text-red-600 font-medium"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
+                            {{-- Password --}}
+                            <div class="md:col-span-2">
+                                <label for="password" class="block text-sm font-bold text-gray-700 mb-2">
+                                    Password Baru (Opsional)
+                                </label>
+                                <div class="relative rounded-xl shadow-sm group">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i class="fas fa-lock text-gray-400 group-focus-within:text-amber-500 transition-colors"></i>
+                                    </div>
+                                    <input type="password" name="password" id="password" 
+                                           class="focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 block w-full pl-11 border-gray-300 rounded-xl py-3.5 transition-all text-sm font-medium placeholder-gray-400"
+                                           placeholder="Isi hanya jika ingin mengubah password">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2 ml-1">
+                                    <i class="fas fa-info-circle mr-1"></i> Biarkan kosong jika tidak ingin mengganti password.
+                                </p>
                             </div>
                         </div>
+                    </div>
 
-                        {{-- Kelas yang Diampu --}}
-                        <div class="pt-4 border-t border-gray-100">
-                             <label for="class_id" class="{{ $labelClass }}">Tugaskan ke Kelas</label>
-                             <div class="relative">
-                                <select name="class_id" id="class_id" class="w-full">
+                    {{-- Section: Penugasan --}}
+                    <div class="mb-6">
+                        <h4 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-100">
+                            <i class="fas fa-chalkboard-teacher text-amber-500 mr-2"></i> Penugasan Kelas
+                        </h4>
+
+                        <div>
+                            <label for="class_id" class="block text-sm font-bold text-gray-700 mb-2">
+                                Wali Kelas Untuk
+                            </label>
+                            <div class="relative rounded-xl shadow-sm group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i class="fas fa-school text-gray-400 group-focus-within:text-amber-500 transition-colors"></i>
+                                </div>
+                                <select name="class_id" id="class_id" class="focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 block w-full pl-11 border-gray-300 rounded-xl py-3.5 transition-all text-sm font-medium placeholder-gray-400">
                                     <option value="">-- Hapus Kelas yang Diampu / Kosongkan --</option>
                                     
                                     @foreach($availableClasses as $class)
@@ -118,95 +127,68 @@
                                         <option value="{{ $class->id }}" 
                                                 {{ $isSelected ? 'selected' : '' }}
                                                 {{ $isDisabled ? 'disabled' : '' }}>
-                                            {{ $class->name }} (Tingkat {{ $class->grade }})
+                                            {{ $class->grade }} - {{ $class->name }}
                                             @if ($isCurrent) (Kelas Saat Ini) @endif
                                             @if ($isDisabled) (Sudah Diampu Guru Lain) @endif
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
-                            @error('class_id') <p class="mt-2 text-sm text-red-600 font-medium"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                            <p class="mt-2 text-xs text-gray-500"><i class="fas fa-info-circle mr-1"></i> Pilih "Hapus Kelas" atau kosongkan untuk menonaktifkan status wali kelas.</p>
+                            <p class="text-xs text-gray-500 mt-2 ml-1">
+                                <i class="fas fa-info-circle mr-1"></i> Pilih "Hapus Kelas" untuk menonaktifkan status wali kelas.
+                            </p>
                         </div>
+                    </div>
 
-                        {{-- Tombol Aksi --}}
-                        <div class="pt-6 mt-6 border-t border-gray-100 flex items-center justify-end space-x-3">
-                            <a href="{{ route('teachers.index') }}" 
-                               class="inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-bold rounded-xl shadow-sm 
-                                      text-gray-700 bg-white hover:bg-gray-50 transition duration-150 transform hover:scale-[1.02]">
-                                <i class="fas fa-arrow-left mr-2"></i> Batal
-                            </a>
-                            {{-- Tombol Perbarui Data (Amber) --}}
-                            <button type="submit" 
-                                    class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl shadow-lg 
-                                           text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 
-                                           focus:ring-4 focus:ring-offset-2 focus:ring-amber-500/50 transition duration-150 transform hover:-translate-y-0.5" 
-                                    id="submitBtn">
-                                <i class="fas fa-save mr-2"></i> Perbarui Akun
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="mt-8 pt-6 border-t border-gray-100 flex items-center justify-end space-x-3">
+                        <a href="{{ route('teachers.index') }}" class="px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition duration-200 shadow-sm">
+                            Batal
+                        </a>
+                        <button type="submit" id="submitBtn" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transform transition hover:-translate-y-1">
+                            <i class="fas fa-save mr-2"></i> Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-        
-        {{-- KOLOM KANAN: INFO & TIPS (1/3 Kolom) --}}
-        <div class="lg:col-span-1 mt-6 lg:mt-0">
-            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-                <div class="p-6 border-b border-gray-100 bg-gray-50/50">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center"><i class="fas fa-user-tag mr-2 text-amber-500"></i> Status Saat Ini</h3>
+    </div>
+    
+    {{-- Info Card --}}
+    <div class="lg:col-span-1">
+        <div class="bg-amber-50 rounded-3xl p-8 border border-amber-100 h-full">
+            <h3 class="text-lg font-bold text-amber-900 mb-6 flex items-center">
+                <div class="w-10 h-10 rounded-xl bg-amber-200 flex items-center justify-center mr-3 shadow-sm">
+                    <i class="fas fa-info-circle text-amber-600"></i>
                 </div>
-                <div class="p-6 text-sm space-y-4 text-gray-600">
-                    <div class="flex items-center justify-between pb-3 border-b border-gray-100">
-                        <span class="text-gray-500">Nama Akun</span>
-                        <span class="font-bold text-gray-800">{{ $teacher->name }}</span>
-                    </div>
-                    <div class="flex items-center justify-between pb-3 border-b border-gray-100">
-                        <span class="text-gray-500">Peran Sistem</span>
-                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-gray-200 text-gray-700">Wali Kelas</span>
-                    </div>
-                    
-                    <div class="pt-2">
-                        <h6 class="font-bold text-gray-800 mb-2">Kelas Saat Ini:</h6>
-                        @if($teacher->homeroomTeacher && $teacher->homeroomTeacher->class)
-                            <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3 text-center">
-                                <span class="text-lg font-bold text-indigo-700 block">{{ $teacher->homeroomTeacher->class->name }}</span>
-                                <span class="text-xs text-indigo-500">(Tingkat {{ $teacher->homeroomTeacher->class->grade }})</span>
-                            </div>
-                            <p class="text-xs mt-3 text-gray-500">Kelas ini akan di-update jika Anda memilih kelas baru di form utama.</p>
-                        @else
-                            <div class="bg-gray-100 border border-gray-200 rounded-lg p-3 text-center">
-                                <span class="text-sm font-bold text-gray-500 block">Belum Mengampu Kelas</span>
-                            </div>
-                            <p class="text-xs mt-3 text-gray-500">Pilih kelas di form utama untuk menugaskan.</p>
-                        @endif
-                    </div>
+                Info Perubahan
+            </h3>
+            <div class="space-y-6">
+                <div class="p-4 bg-white rounded-2xl shadow-sm border border-amber-50">
+                    <h5 class="font-bold text-gray-800 text-sm mb-2"><i class="fas fa-history text-amber-500 mr-1"></i> Terakhir Update</h5>
+                    <p class="text-gray-600 text-xs leading-relaxed font-mono">
+                        {{ $teacher->updated_at->format('d M Y, H:i') }}
+                    </p>
+                </div>
+
+                <div class="p-4 bg-white rounded-2xl shadow-sm border border-amber-50">
+                    <h5 class="font-bold text-gray-800 text-sm mb-2"><i class="fas fa-shield-alt text-amber-500 mr-1"></i> Privasi Data</h5>
+                    <p class="text-gray-600 text-xs leading-relaxed">
+                        Data yang diubah akan langsung berefek pada sistem login wali kelas. Pastikan email tetap unik.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
+</div>
 @stop
 
 @section('js')
-<script src="{{ asset('template/adminlte/plugins/select2/js/select2.full.min.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function() {
-        // Initialize Select2
-        $('#class_id').select2({
-            theme: 'bootstrap4',
-            placeholder: '-- Hapus Kelas yang Diampu / Kosongkan --',
-            allowClear: true,
-            width: '100%'
-        });
-
-        // Form submission loading state
         $('#teacherForm').on('submit', function() {
             if (this.checkValidity() === false) return; 
-            
             const submitBtn = $('#submitBtn');
-            submitBtn.prop('disabled', true)
-                     .html('<i class="fas fa-spinner fa-spin mr-2"></i> Memperbarui...');
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Perbarui...');
         });
     });
 </script>

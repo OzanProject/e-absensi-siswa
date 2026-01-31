@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Schedule;
 use App\Models\ClassModel;
 use App\Models\Subject;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
@@ -22,15 +23,12 @@ class ScheduleController extends Controller
     /**
      * Menampilkan jadwal untuk kelas tertentu.
      */
-    /**
-     * Menampilkan jadwal untuk kelas tertentu.
-     */
     public function show($id)
     {
         $classModel = ClassModel::findOrFail($id);
-        
-        // Eager load jadwal dengan mapel, urutkan hari dan jam
-        $schedules = Schedule::with('subject')
+
+        // Eager load jadwal dengan mapel dan guru
+        $schedules = Schedule::with(['subject', 'teacher'])
             ->where('class_id', $classModel->id)
             ->orderByRaw("FIELD(day, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu')")
             ->orderBy('start_time')
@@ -53,12 +51,14 @@ class ScheduleController extends Controller
         if ($class_id) {
             $preselectedClass = ClassModel::find($class_id);
         }
-        
+
         $classes = ClassModel::orderBy('grade')->orderBy('name')->get();
         $subjects = Subject::orderBy('name')->get();
+        // Ambil data guru
+        $teachers = User::where('role', 'guru')->orderBy('name')->get();
         $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-        return view('admin.schedules.create', compact('classes', 'subjects', 'days', 'preselectedClass'));
+        return view('admin.schedules.create', compact('classes', 'subjects', 'teachers', 'days', 'preselectedClass'));
     }
 
     /**
@@ -69,12 +69,14 @@ class ScheduleController extends Controller
         $request->validate([
             'class_id' => 'required|exists:classes,id',
             'subject_id' => 'required|exists:subjects,id',
+            'teacher_id' => 'required|exists:users,id', // Validasi guru
             'day' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
             'start_time' => 'required',
             'end_time' => 'required|after:start_time',
         ], [
             'class_id.required' => 'Kelas harus dipilih.',
             'subject_id.required' => 'Mata pelajaran harus dipilih.',
+            'teacher_id.required' => 'Guru pengampu harus dipilih.',
             'day.required' => 'Hari harus dipilih.',
             'start_time.required' => 'Jam mulai harus diisi.',
             'end_time.required' => 'Jam selesai harus diisi.',
@@ -93,9 +95,10 @@ class ScheduleController extends Controller
     {
         $classes = ClassModel::orderBy('grade')->orderBy('name')->get();
         $subjects = Subject::orderBy('name')->get();
+        $teachers = User::where('role', 'guru')->orderBy('name')->get(); // Ambil data guru
         $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-        return view('admin.schedules.edit', compact('schedule', 'classes', 'subjects', 'days'));
+        return view('admin.schedules.edit', compact('schedule', 'classes', 'subjects', 'teachers', 'days'));
     }
 
     /**
@@ -105,11 +108,13 @@ class ScheduleController extends Controller
     {
         $request->validate([
             'subject_id' => 'required|exists:subjects,id',
+            'teacher_id' => 'required|exists:users,id', // Validasi admin
             'day' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
             'start_time' => 'required',
             'end_time' => 'required|after:start_time',
         ], [
             'subject_id.required' => 'Mata pelajaran harus dipilih.',
+            'teacher_id.required' => 'Guru pengampu harus dipilih.',
             'end_time.after' => 'Jam selesai harus setelah jam mulai.',
         ]);
 

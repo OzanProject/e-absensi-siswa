@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\LandingController; 
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ClassController;
 use App\Http\Controllers\Admin\ReportController;
@@ -13,7 +13,7 @@ use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Parent\ParentController;
 use App\Http\Controllers\Parent\IzinRequestController;
-use App\Http\Controllers\WaliKelas\AbsenceController; 
+use App\Http\Controllers\WaliKelas\AbsenceController;
 use App\Http\Controllers\Admin\CentralAbsenceController;
 use App\Http\Controllers\WaliKelas\IzinProcessorController;
 use App\Http\Controllers\Admin\ParentController as AdminParentController;
@@ -39,18 +39,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications/latest', [NotificationController::class, 'getLatestNotifications'])->name('notifications.latest');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 // =======================================================
 // 2. RUTE SUPER ADMIN (admin/)
 // =======================================================
 Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->group(function () {
-    
+
     Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
     // --- MANAJEMEN DATA (Resource Routes) ---
     Route::resource('classes', ClassController::class)->names('classes');
     Route::resource('teachers', TeacherController::class)->names('teachers');
+    Route::resource('school-teachers', \App\Http\Controllers\Admin\SchoolTeacherController::class)->names('admin.school-teachers'); // Data Guru
     Route::resource('parents', AdminParentController::class)->names('parents');
     Route::resource('subjects', SubjectController::class)->names('admin.subjects');
     Route::resource('schedules', ScheduleController::class)->names('admin.schedules');
@@ -65,9 +66,9 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->group(function
         Route::get('import', [StudentController::class, 'importForm'])->name('students.importForm');
         Route::post('import', [StudentController::class, 'import'])->name('students.import');
         Route::get('barcode/bulk', [StudentController::class, 'generateBulkBarcode'])->name('students.barcode.bulk');
-        Route::delete('bulk-delete', [StudentController::class, 'bulkDelete'])->name('students.bulkDelete'); 
+        Route::delete('bulk-delete', [StudentController::class, 'bulkDelete'])->name('students.bulkDelete');
         Route::resource('/', StudentController::class, ['parameters' => ['' => 'student']])
-             ->names('students')->except(['show']); 
+            ->names('students')->except(['show']);
     });
 
     // =======================================================
@@ -84,7 +85,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->group(function
 
         // Custom Actions
         Route::put('/{user}/toggle-approval', [UserController::class, 'toggleApproval'])->name('admin.users.toggleApproval');
-        
+
         // ✅ RUTE BULK ACTION (Workaround GET)
         Route::get('/bulk-approve', [UserController::class, 'bulkApprove'])->name('admin.users.bulkApprove');
         Route::get('/bulk-delete', [UserController::class, 'bulkDelete'])->name('admin.users.bulkDelete');
@@ -112,7 +113,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->group(function
     Route::get('absensi', fn() => redirect()->route('admin.absensi.scan'));
 
     Route::prefix('absensi')->group(function () {
-        Route::get('scan-kelas', [CentralAbsenceController::class, 'index'])->name('admin.absensi.scan'); 
+        Route::get('scan-kelas', [CentralAbsenceController::class, 'index'])->name('admin.absensi.scan');
         Route::post('record', [CentralAbsenceController::class, 'record'])->name('admin.absensi.record');
     });
 });
@@ -122,28 +123,28 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->group(function
 // 3. RUTE WALI KELAS (walikelas/)
 // =======================================================
 Route::middleware(['auth', 'role:wali_kelas'])->group(function () {
-    
+
     Route::get('/walikelas/dashboard', [WaliKelasDashboardController::class, 'index'])->name('walikelas.dashboard');
 
     // MODUL SISWA (STUDENTS) - CRUD LENGKAP
     Route::prefix('walikelas/students')->group(function () {
-    
+
         // 1. Resource CRUD (index, create, store, edit, update, destroy)
         //    Rute ini HARUS DULUAN untuk menangkap 'create' dan 'index'
         Route::resource('/', WaliKelasStudentController::class, ['parameters' => ['' => 'student']])
             ->names('walikelas.students')
-            ->except(['show']); 
-            
+            ->except(['show']);
+
         // 2. Rute Eksplisit Non-Parameter (Bulk Actions)
-        Route::delete('bulk-delete', [WaliKelasStudentController::class, 'bulkDelete'])->name('walikelas.students.bulkDelete'); 
+        Route::delete('bulk-delete', [WaliKelasStudentController::class, 'bulkDelete'])->name('walikelas.students.bulkDelete');
         Route::get('barcode/bulk', [WaliKelasStudentController::class, 'generateBulkBarcode'])->name('walikelas.students.barcode.bulk');
-        
+
         // 3. Rute Parameter (Harus diletakkan di paling bawah)
-        Route::get('{student}', [WaliKelasStudentController::class, 'show'])->name('walikelas.students.show'); 
+        Route::get('{student}', [WaliKelasStudentController::class, 'show'])->name('walikelas.students.show');
         Route::get('{student}/barcode', [WaliKelasStudentController::class, 'generateBarcode'])->name('walikelas.students.barcode');
-        
+
     });
-    
+
     // MODUL ABSENSI (Scan & Koreksi Data Log)
     Route::prefix('walikelas/absensi')->group(function () {
         Route::get('scan', [AbsenceController::class, 'scanForm'])->name('walikelas.absensi.scan');
@@ -193,10 +194,10 @@ Route::middleware(['auth', 'role:wali_kelas'])->group(function () {
 // 4. RUTE ORANG TUA (orangtua/)
 // =======================================================
 Route::middleware(['auth', 'role:orang_tua'])->group(function () {
-    
+
     // 1. DASHBOARD (Ringkasan/Statistik)
     Route::get('/orangtua/dashboard', [ParentController::class, 'index'])->name('orangtua.dashboard');
-    
+
     // 2. MODUL RIWAYAT & DETAIL
     // Rute Report Index (Untuk Tabel Riwayat Absensi)
     Route::get('/orangtua/report', [ParentController::class, 'showAbsenceHistory'])->name('orangtua.report.index'); // 💡 Rute Baru
@@ -206,7 +207,7 @@ Route::middleware(['auth', 'role:orang_tua'])->group(function () {
 
     // 💡 MODUL JADWAL PELAJARAN
     Route::get('/orangtua/jadwal', [ParentController::class, 'showSchedule'])->name('orangtua.jadwal.index');
-    
+
     // 3. MODUL IZIN/SAKIT ONLINE
     Route::prefix('orangtua/izin')->group(function () {
         Route::get('/', [IzinRequestController::class, 'index'])->name('orangtua.izin.index');
@@ -220,16 +221,46 @@ Route::middleware(['auth', 'role:orang_tua'])->group(function () {
 // =======================================================
 Route::middleware('auth')->get('/dashboard', function () {
     // ✅ PERBAIKAN: Menambahkan Type Hinting PHPDoc untuk Intelephense
-    /** @var \App\Models\User $user */ 
-    $user = Auth::user(); 
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
 
     if ($user->isSuperAdmin()) {
         return redirect()->route('admin.dashboard');
     } elseif ($user->isWaliKelas()) {
         return redirect()->route('walikelas.dashboard');
+    } elseif ($user->isGuru()) {
+        return redirect()->route('teacher.dashboard');
     } else {
-        // Asumsi: Selain Super Admin dan Wali Kelas, sisanya adalah Orang Tua atau peran default lainnya.
+        // Asumsi: Selain Super Admin, Wali Kelas, dan Guru, sisanya adalah Orang Tua.
         return redirect()->route('orangtua.dashboard');
     }
-    
+
 })->middleware('verified')->name('dashboard');
+
+// =======================================================
+// 6. RUTE GURU (guru/)
+// =======================================================
+Route::middleware(['auth', 'role:guru'])->prefix('guru')->group(function () {
+    Route::get('dashboard', [App\Http\Controllers\Teacher\DashboardController::class, 'index'])->name('teacher.dashboard');
+
+    // Journal & Attendance
+    Route::prefix('journal')->group(function () {
+        Route::get('/', [App\Http\Controllers\Teacher\TeachingJournalController::class, 'index'])->name('teacher.journals.index');
+        Route::get('create/{schedule}', [App\Http\Controllers\Teacher\TeachingJournalController::class, 'create'])->name('teacher.journals.create');
+        Route::post('store/{schedule}', [App\Http\Controllers\Teacher\TeachingJournalController::class, 'store'])->name('teacher.journals.store');
+        Route::get('edit/{journal}', [App\Http\Controllers\Teacher\TeachingJournalController::class, 'edit'])->name('teacher.journals.edit');
+        Route::put('update/{journal}', [App\Http\Controllers\Teacher\TeachingJournalController::class, 'update'])->name('teacher.journals.update');
+    });
+
+    // Scan Absensi (Mapel)
+    Route::prefix('scan')->group(function () {
+        Route::get('/', [App\Http\Controllers\Teacher\ScanController::class, 'index'])->name('teacher.scan.index');
+        Route::get('{schedule}', [App\Http\Controllers\Teacher\ScanController::class, 'scanner'])->name('teacher.scan.scanner');
+        Route::post('{schedule}', [App\Http\Controllers\Teacher\ScanController::class, 'store'])->name('teacher.scan.store');
+    });
+
+    // Laporan Absensi
+    Route::prefix('report')->group(function () {
+        Route::get('/', [App\Http\Controllers\Teacher\ReportController::class, 'index'])->name('teacher.report.index');
+    });
+});

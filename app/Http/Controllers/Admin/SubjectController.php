@@ -13,7 +13,11 @@ class SubjectController extends Controller
      */
     public function index()
     {
-        $subjects = Subject::latest()->paginate(10);
+        $subjects = Subject::with([
+            'schedules' => function ($q) {
+                $q->with('teacher')->select('class_id', 'subject_id', 'teacher_id')->distinct();
+            }
+        ])->latest()->paginate(10);
         return view('admin.subjects.index', compact('subjects'));
     }
 

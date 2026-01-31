@@ -2,47 +2,87 @@
 
 @section('title', 'Kelola Jadwal Pelajaran')
 
-@section('content_header')
-<div class="flex justify-between items-center">
-    <div>
-        <h1 class="text-3xl font-extrabold text-gray-800 flex items-center">
-            <i class="far fa-calendar-alt text-purple-600 mr-3"></i> Jadwal Pelajaran
-        </h1>
-        <p class="text-sm text-gray-500 mt-1">Pilih kelas untuk mengelola jadwal pelajaran.</p>
-    </div>
-</div>
-@stop
-
 @section('content')
-<div class="row">
-    @foreach($classes as $class)
-    <div class="col-md-4 col-sm-6 col-12 mb-4">
-        <a href="{{ route('admin.schedules.show', $class->id) }}" class="block group">
-            <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-2xl relative">
-                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition duration-300">
-                    <i class="fas fa-calendar-alt fa-5x text-indigo-600"></i>
-                </div>
-                <div class="p-6 relative z-10">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600">
-                             Grade {{ $class->grade }}
-                        </span>
-                        <i class="fas fa-arrow-right text-gray-300 group-hover:text-indigo-500 transition duration-300"></i>
-                    </div>
-                    <h3 class="text-2xl font-extrabold text-gray-800 group-hover:text-indigo-600 transition duration-300">
-                        {{ $class->name }}
-                    </h3>
-                    <p class="text-sm text-gray-500 mt-2">
-                        {{ $class->major ?? 'Umum' }}
-                    </p>
-                    <div class="mt-4 flex items-center text-xs text-gray-400">
-                         <i class="fas fa-user-tie mr-2"></i> {{ $class->homeroomTeacher->user->name ?? 'Belum ada Wali Kelas' }}
-                    </div>
-                </div>
-                <div class="h-2 bg-gradient-to-r from-purple-500 to-indigo-500 group-hover:h-3 transition-all duration-300"></div>
-            </div>
-        </a>
+<div class="space-y-6">
+    {{-- PAGE HEADER --}}
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 tracking-tight flex items-center">
+                <i class="fas fa-calendar-alt text-purple-600 mr-3"></i> Kelola Jadwal Pelajaran
+            </h2>
+            <nav class="flex text-sm font-medium text-gray-500 space-x-2 mt-1">
+                <span class="text-gray-500">Pilih kelas untuk melihat atau mengatur jadwal.</span>
+            </nav>
+        </div>
+
+        {{-- Search (Optional Future Feature UI) --}}
+        <div class="relative hidden sm:block">
+            <input type="text" placeholder="Cari kelas..."
+                class="pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm w-64 transition-all">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                <i class="fas fa-search text-gray-400"></i>
+            </span>
+        </div>
     </div>
-    @endforeach
+
+    {{-- CLASSES GRID --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        @foreach($classes as $class)
+            <a href="{{ route('admin.schedules.show', $class->id) }}" class="group block h-full">
+                <div
+                    class="bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden transform transition-all duration-300 hover:-translate-y-1 h-full flex flex-col relative">
+
+                    {{-- Decorative Top Bar --}}
+                    <div
+                        class="h-1.5 bg-gradient-to-r from-purple-500 to-indigo-600 w-full group-hover:h-2 transition-all duration-300">
+                    </div>
+
+                    <div class="p-6 flex-1 flex flex-col items-center text-center relative z-10">
+                        {{-- Grade Badge --}}
+                        <span
+                            class="mb-4 inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-600 border border-purple-100">
+                            Kelas {{ $class->grade }}
+                        </span>
+
+                        {{-- Class Name --}}
+                        <h3
+                            class="text-2xl font-extrabold text-gray-800 group-hover:text-indigo-600 transition-colors mb-2">
+                            {{ $class->name }}
+                        </h3>
+
+                        {{-- Major --}}
+                        <p class="text-sm text-gray-500 font-medium mb-4">
+                            {{ $class->major ?? '-' }}
+                        </p>
+
+                        {{-- Homeroom Teacher --}}
+                        <div
+                            class="mt-auto w-full pt-4 border-t border-gray-50 flex items-center justify-center text-xs text-gray-400 group-hover:text-gray-600 transition-colors">
+                            <i class="fas fa-user-tie mr-1.5"></i>
+                            <span
+                                class="truncate max-w-[150px]">{{ $class->homeroomTeacher->user->name ?? 'Belum ada Wali Kelas' }}</span>
+                        </div>
+                    </div>
+
+                    {{-- Hover Icon --}}
+                    <div
+                        class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-10 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                        <i class="fas fa-calendar-day text-5xl text-indigo-600"></i>
+                    </div>
+                </div>
+            </a>
+        @endforeach
+    </div>
+
+    @if($classes->isEmpty())
+        <div class="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-200">
+            <div class="bg-gray-50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-layer-group text-gray-300 text-3xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800">Belum Ada Kelas</h3>
+            <p class="text-gray-500 text-sm mt-1">Tambahkan data kelas terlebih dahulu di menu Manajemen Data > Data Kelas.
+            </p>
+        </div>
+    @endif
 </div>
 @stop

@@ -24,167 +24,175 @@
 @stop
 
 @section('content')
-    <div class="grid grid-cols-1 lg:grid-cols-3 lg:gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 lg:gap-8">
         
-        {{-- KOLOM KIRI: FORM UTAMA (2/3) --}}
-        <div class="lg:col-span-2">
-            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden"> 
-                <div class="p-6 border-b border-gray-100 bg-purple-50/30">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                        <i class="fas fa-edit mr-2 text-purple-500"></i> Informasi Akun
-                    </h3>
-                </div>
-                <div class="p-6">
-                    
-                    {{-- Validasi Error Global --}}
-                    @if($errors->any())
-                        <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-xl relative mb-6 shadow-sm">
-                            <div class="flex items-start">
-                                <i class="fas fa-exclamation-triangle mt-1 mr-3"></i>
-                                <div>
-                                    <span class="font-bold">Terjadi Kesalahan!</span>
-                                    <ul class="mt-1 list-disc list-inside text-sm">
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                    
-                    <form action="{{ route('admin.users.update', $user->id) }}" method="POST" id="userForm" class="space-y-6">
-                        @csrf
-                        @method('PUT')
-                        
+        {{-- KOLOM KIRI: FORM (2/3) --}}
+        <div class="lg:col-span-2 space-y-6">
+            <form action="{{ route('admin.users.update', $user->id) }}" method="POST" id="userForm">
+                @csrf
+                @method('PUT')
+                
+                {{-- CARD 1: INFORMASI AKUN --}}
+                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden mb-6"> 
+                    <div class="p-6 border-b border-gray-100 bg-indigo-50/50">
+                        <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-id-badge mr-3 text-indigo-500 bg-white p-2 rounded-lg shadow-sm"></i> 
+                            Informasi Login
+                        </h3>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 gap-6">
                         @php
                             $labelClass = 'block text-sm font-bold text-gray-700 mb-2';
-                            $inputClass = 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition duration-200 bg-gray-50 focus:bg-white text-gray-800';
+                            $inputClass = 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition duration-200 bg-gray-50 focus:bg-white text-gray-800 font-medium';
                             $inputErrorClass = 'w-full px-4 py-3 rounded-xl border border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition duration-200 bg-red-50 text-red-900';
                         @endphp
-
+                        
+                        {{-- Nama & Email --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            
-                            {{-- Nama Lengkap --}}
-                            <div class="md:col-span-2">
+                            <div>
                                 <label for="name" class="{{ $labelClass }}">Nama Lengkap <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <i class="fas fa-user text-gray-400"></i>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500 text-gray-400">
+                                        <i class="fas fa-user"></i>
                                     </div>
                                     <input type="text" name="name" id="name" 
-                                            class="pl-10 @error('name') {{ $inputErrorClass }} @else {{ $inputClass }} @enderror" 
-                                            value="{{ old('name', $user->name) }}" 
-                                            required>
+                                            class="pl-11 @error('name') {{ $inputErrorClass }} @else {{ $inputClass }} @enderror" 
+                                            value="{{ old('name', $user->name) }}" required>
                                 </div>
-                                @error('name') <p class="mt-2 text-sm text-red-600 font-medium"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
+                                @error('name') <p class="mt-2 text-xs text-red-600 font-bold"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
                             </div>
 
-                            {{-- Email --}}
-                            <div class="md:col-span-2">
-                                <label for="email" class="{{ $labelClass }}">Email (Login) <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <i class="fas fa-envelope text-gray-400"></i>
+                            <div>
+                                <label for="email" class="{{ $labelClass }}">Email <span class="text-red-500">*</span></label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500 text-gray-400">
+                                        <i class="fas fa-envelope"></i>
                                     </div>
                                     <input type="email" name="email" id="email" 
-                                            class="pl-10 @error('email') {{ $inputErrorClass }} @else {{ $inputClass }} @enderror" 
-                                            value="{{ old('email', $user->email) }}" 
-                                            required>
+                                            class="pl-11 @error('email') {{ $inputErrorClass }} @else {{ $inputClass }} @enderror" 
+                                            value="{{ old('email', $user->email) }}" required>
                                 </div>
-                                @error('email') <p class="mt-2 text-sm text-red-600 font-medium"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                            </div>
-
-                            {{-- Password Baru (Opsional) --}}
-                            <div class="md:col-span-2">
-                                <label for="password" class="{{ $labelClass }}">Password Baru (Opsional)</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <i class="fas fa-lock text-gray-400"></i>
-                                    </div>
-                                    <input type="password" name="password" id="password" 
-                                            class="pl-10 @error('password') {{ $inputErrorClass }} @else {{ $inputClass }} @enderror" 
-                                            placeholder="Kosongkan jika tidak ingin mengubah">
-                                </div>
-                                <p class="text-xs text-gray-500 mt-1 ml-1">Minimal 8 karakter jika diisi.</p>
-                                @error('password') <p class="mt-2 text-sm text-red-600 font-medium"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                            </div>
-
-                            {{-- Peran (Role) --}}
-                            <div>
-                                <label for="role" class="{{ $labelClass }}">Peran (Role) <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <i class="fas fa-user-tag text-gray-400"></i>
-                                    </div>
-                                    <select name="role" id="role" class="pl-10 {{ $inputClass }}" required>
-                                        <option value="">-- Pilih Peran --</option>
-                                        @foreach($roles as $key => $label)
-                                            <option value="{{ $key }}" {{ old('role', $user->role) == $key ? 'selected' : '' }}>{{ $label }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                @error('role') <p class="mt-2 text-sm text-red-600 font-medium"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
-                            </div>
-
-                            {{-- Status Akun --}}
-                            <div>
-                                <label for="is_approved" class="{{ $labelClass }}">Status Akun</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <i class="fas fa-toggle-on text-gray-400"></i>
-                                    </div>
-                                    <select name="is_approved" id="is_approved" class="pl-10 {{ $inputClass }}" required>
-                                        <option value="1" {{ old('is_approved', $user->is_approved) == 1 ? 'selected' : '' }}>Disetujui (Aktif)</option>
-                                        <option value="0" {{ old('is_approved', $user->is_approved) == 0 ? 'selected' : '' }}>Menunggu/Ditolak</option>
-                                    </select>
-                                </div>
+                                @error('email') <p class="mt-2 text-xs text-red-600 font-bold"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
                             </div>
                         </div>
 
-                        {{-- Tombol Aksi --}}
-                        <div class="pt-6 mt-6 border-t border-gray-100 flex items-center justify-end space-x-3">
-                            <a href="{{ route('admin.users.index') }}" 
-                               class="inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-bold rounded-xl shadow-sm
-                                      text-gray-700 bg-white hover:bg-gray-50 transition duration-150">
-                                Batal
-                            </a>
-                            <button type="submit" 
-                                    class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl shadow-lg 
-                                           text-white bg-amber-500 hover:bg-amber-600 focus:ring-4 focus:ring-amber-500/50 transition duration-150 transform hover:-translate-y-0.5" 
-                                    id="submitBtn">
-                                <i class="fas fa-save mr-2"></i> Perbarui Data
-                            </button>
+                         {{-- Password Change --}}
+                         <div>
+                            <label for="password" class="{{ $labelClass }}">Password Baru (Opsional)</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500 text-gray-400">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <input type="password" name="password" id="password" 
+                                        class="pl-11 @error('password') {{ $inputErrorClass }} @else {{ $inputClass }} @enderror" 
+                                        placeholder="Kosongkan jika tidak ingin mengubah">
+                            </div>
+                            <p class="text-[10px] text-gray-400 mt-1 ml-1">Min. 8 karakter jika diisi.</p>
+                            @error('password') <p class="mt-2 text-xs text-red-600 font-bold"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+
+                {{-- CARD 2: PILIH PERAN & STATUS --}}
+                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden mb-6">
+                    <div class="p-6 border-b border-gray-100 bg-purple-50/50">
+                        <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-user-cog mr-3 text-purple-500 bg-white p-2 rounded-lg shadow-sm"></i> 
+                            Konfigurasi Peran & Akses
+                        </h3>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        
+                        {{-- Role Selection --}}
+                        <div>
+                            <label class="{{ $labelClass }}">Peran Pengguna</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                @foreach($roles as $key => $label)
+                                    @php
+                                        $icon = match($key) {
+                                            'super_admin' => 'fa-crown',
+                                            'guru' => 'fa-chalkboard-teacher',
+                                            'wali_kelas' => 'fa-user-graduate',
+                                            'orang_tua' => 'fa-users',
+                                            default => 'fa-user'
+                                        };
+                                        $color = match($key) {
+                                            'super_admin' => 'indigo',
+                                            'guru' => 'emerald',
+                                            'wali_kelas' => 'purple',
+                                            'orang_tua' => 'amber',
+                                            default => 'gray'
+                                        };
+                                        $isChecked = old('role', $user->role) == $key;
+                                    @endphp
+                                    <label class="relative flex flex-col p-4 bg-white border-2 border-gray-100 rounded-2xl cursor-pointer hover:border-{{ $color }}-500 hover:bg-{{ $color }}-50/30 transition-all duration-200 group">
+                                        <input type="radio" name="role" value="{{ $key }}" class="peer sr-only" {{ $isChecked ? 'checked' : '' }} required>
+                                        
+                                        <div class="absolute top-3 right-3 opacity-0 peer-checked:opacity-100 text-{{ $color }}-600 transition-opacity">
+                                            <i class="fas fa-check-circle text-xl"></i>
+                                        </div>
+                                        <div class="absolute inset-0 border-2 border-transparent peer-checked:border-{{ $color }}-500 rounded-2xl pointer-events-none transition-all"></div>
+
+                                        <div class="flex items-center mb-1">
+                                            <div class="w-8 h-8 rounded-full bg-{{ $color }}-100 text-{{ $color }}-600 flex items-center justify-center text-sm mr-3">
+                                                <i class="fas {{ $icon }}"></i>
+                                            </div>
+                                            <span class="font-bold text-gray-700 peer-checked:text-{{ $color }}-800 text-sm">{{ $label }}</span>
+                                        </div>
+                                    </label>
+                                @endforeach
+                            </div>
+                            @error('role') <p class="mt-2 text-xs text-red-600 font-bold"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p> @enderror
+                        </div>
+
+                        <hr class="border-gray-100">
+
+                        {{-- Status Selection --}}
+                        <div>
+                            <label for="is_approved" class="{{ $labelClass }}">Status Akun</label>
+                            <div class="flex items-center space-x-4 bg-gray-50 p-3 rounded-xl border border-gray-200">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="is_approved" value="1" class="text-indigo-600 focus:ring-indigo-500" {{ old('is_approved', $user->is_approved) == 1 ? 'checked' : '' }}>
+                                    <span class="text-sm font-bold text-emerald-600 bg-emerald-100 px-3 py-1 rounded-lg border border-emerald-200">
+                                        <i class="fas fa-check-circle mr-1"></i> Aktif (Disetujui)
+                                    </span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="is_approved" value="0" class="text-indigo-600 focus:ring-indigo-500" {{ old('is_approved', $user->is_approved) == 0 ? 'checked' : '' }}>
+                                    <span class="text-sm font-bold text-red-600 bg-red-100 px-3 py-1 rounded-lg border border-red-200">
+                                        <i class="fas fa-ban mr-1"></i> Nonaktif / Pending
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                {{-- ACTION BUTTONS --}}
+                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-100">
+                    <a href="{{ route('admin.users.index') }}" 
+                    class="px-6 py-3 rounded-xl border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 hover:text-gray-800 transition-colors">
+                        Batal
+                    </a>
+                    <button type="submit" id="submitBtn"
+                            class="px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-lg hover:shadow-indigo-500/30 hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center">
+                        <i class="fas fa-save mr-2"></i> Simpan Perubahan
+                    </button>
+                </div>
+            </form>
         </div>
         
         {{-- KOLOM KANAN: INFO (1/3) --}}
-        <div class="lg:col-span-1 mt-6 lg:mt-0">
-            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-                <div class="p-6 border-b border-gray-100 bg-gray-50/50">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center"><i class="fas fa-shield-alt mr-2 text-blue-500"></i> Keamanan Akun</h3>
-                </div>
-                <div class="p-6 text-sm space-y-4 text-gray-600">
-                    
-                    <div class="bg-amber-50 rounded-xl p-4 border border-amber-100">
-                        <p class="text-amber-800 font-semibold mb-1">Perubahan Peran</p>
-                        <p class="text-xs text-amber-700 text-justify">
-                            Jika Anda mengubah peran dari <strong>Wali Kelas</strong> atau <strong>Orang Tua</strong> menjadi peran lain, data relasi (seperti kelas yang diampu atau siswa yang ditautkan) mungkin akan <strong>dihapus atau direset</strong> oleh sistem. Harap berhati-hati.
-                        </p>
-                    </div>
-
-                    <div class="space-y-3">
-                        <div class="flex items-start">
-                            <i class="fas fa-key text-gray-400 mt-1 mr-2"></i>
-                            <div>
-                                <strong class="block text-gray-800">Password</strong>
-                                <span class="text-xs">Kosongkan jika pengguna tidak meminta reset password.</span>
-                            </div>
-                        </div>
-                    </div>
+        <div class="lg:col-span-1">
+             <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl shadow-xl text-white p-6 overflow-hidden relative mb-6">
+                <i class="fas fa-exclamation-triangle absolute top-4 right-4 text-white/20 text-6xl transform rotate-12"></i>
+                <h3 class="text-lg font-bold mb-3 relative z-10">Perhatian Penting</h3>
+                <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/20 relative z-10">
+                    <p class="text-sm font-semibold mb-2 text-white">⚠️ Mengubah Peran</p>
+                    <p class="text-xs text-white/90 leading-relaxed text-justify">
+                        Mengubah peran pengguna (misal: dari Wali Kelas ke Orang Tua) akan menyebabkan <strong>penghapusan data relasi lama</strong> (seperti data kelas yang diampu atau siswa yang ditautkan). Pastikan ini tindakan yang disengaja.
+                    </p>
                 </div>
             </div>
         </div>
@@ -192,30 +200,31 @@
 @stop
 
 @section('js')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    $(document).ready(function() {
-        // Form submission loading state
-        $('#userForm').on('submit', function() {
-            if (this.checkValidity() === false) return; 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function() {
+            // Form submission loading state
+            $('#userForm').on('submit', function() {
+                if (this.checkValidity() === false) return; 
+                
+                const submitBtn = $('#submitBtn');
+                submitBtn.prop('disabled', true)
+                         .html('<i class="fas fa-spinner fa-spin mr-2"></i> Memperbarui...');
+            });
             
-            const submitBtn = $('#submitBtn');
-            submitBtn.prop('disabled', true)
-                     .html('<i class="fas fa-spinner fa-spin mr-2"></i> Memperbarui...');
+            // Alert Error Toast 
+            @if($errors->any())
+                 Swal.fire({ 
+                     icon: 'error', 
+                     title: 'Kesalahan Validasi', 
+                     text: 'Mohon periksa inputan yang bertanda merah.', 
+                     toast: true, 
+                     position: 'top-end', 
+                     showConfirmButton: false, 
+                     timer: 5000,
+                     timerProgressBar: true
+                 });
+            @endif
         });
-        
-        // Alert Error Toast 
-        @if($errors->any())
-             Swal.fire({ 
-                 icon: 'error', 
-                 title: 'Gagal Memperbarui', 
-                 text: 'Periksa kembali isian formulir Anda.', 
-                 toast: true, 
-                 position: 'top-end', 
-                 showConfirmButton: false, 
-                 timer: 5000 
-             });
-        @endif
-    });
-</script>
+    </script>
 @stop

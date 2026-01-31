@@ -8,7 +8,7 @@ use App\Models\Subject;
 
 class Schedule extends Model
 {
-    protected $fillable = ['class_id', 'subject_id', 'day', 'start_time', 'end_time'];
+    protected $fillable = ['class_id', 'subject_id', 'teacher_id', 'day', 'start_time', 'end_time'];
 
     public function class()
     {
@@ -18,5 +18,11 @@ class Schedule extends Model
     public function subject()
     {
         return $this->belongsTo(Subject::class);
+    }
+
+    public function teacher()
+    {
+        // Asumsi guru adalah User dengan role 'guru' (atau user_id di schedule)
+        return $this->belongsTo(User::class, 'teacher_id');
     }
 }
