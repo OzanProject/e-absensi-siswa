@@ -27,32 +27,35 @@ class UserController extends Controller
 
         $roles = [
             'super_admin' => 'Super Admin',
+            'kepala_sekolah' => 'Kepala Sekolah',
+            'guru' => 'Guru',
             'wali_kelas' => 'Wali Kelas',
             'orang_tua' => 'Orang Tua'
         ];
 
         $query = User::query();
 
-        // LOGIC BARU: Sorting Custom (Super Admin -> Guru -> Wali Kelas -> Orang Tua -> Others)
+        // LOGIC BARU: Sorting Custom (Super Admin -> Kepala Sekolah -> Guru -> Wali Kelas -> Orang Tua -> Others)
         // Dan urutan sekunder berdasarkan waktu dibuat (terbaru diatas per grup)
         $query->orderByRaw("
             CASE role 
                 WHEN 'super_admin' THEN 1 
-                WHEN 'guru' THEN 2 
-                WHEN 'wali_kelas' THEN 3 
-                WHEN 'orang_tua' THEN 4
-                ELSE 5 
+                WHEN 'kepala_sekolah' THEN 2
+                WHEN 'guru' THEN 3 
+                WHEN 'wali_kelas' THEN 4 
+                WHEN 'orang_tua' THEN 5
+                ELSE 6 
             END ASC
         ");
 
         if ($tab === 'all') {
             // Tampilkan SEMUA user termasuk super admin agar sesuai request "nomor 1 super admin"
-            // Kecuali ID sendiri agar tidak terhapus tidak sengaja (opsional, tapi biasanya aman ditampilkan)
             $query->where('id', '!=', $authId);
         } elseif ($tab === 'pending') {
             $query->where('role', '!=', 'super_admin')->where('is_approved', false);
+        } elseif ($tab === 'kepala_sekolah') {
+            $query->where('role', 'kepala_sekolah');
         } elseif ($tab === 'super_admin_list') {
-            // Tab ini mungkin jadi redundant, tapi kita biarkan saja sebagai filter cepat
             $query->where('role', 'super_admin');
         } else {
             // Default Fallback
@@ -80,6 +83,7 @@ class UserController extends Controller
     public function create()
     {
         $roles = [
+            'kepala_sekolah' => 'Kepala Sekolah',
             'guru' => 'Guru',
             'wali_kelas' => 'Wali Kelas',
             'orang_tua' => 'Orang Tua',
@@ -97,7 +101,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
-            'role' => ['required', Rule::in(['guru', 'wali_kelas', 'orang_tua', 'super_admin'])],
+            'role' => ['required', Rule::in(['kepala_sekolah', 'guru', 'wali_kelas', 'orang_tua', 'super_admin'])],
         ]);
 
         DB::beginTransaction();
@@ -159,6 +163,7 @@ class UserController extends Controller
             return redirect()->route('admin.users.index')->with('error', 'Anda tidak dapat mengedit akun Super Admin.');
         }
         $roles = [
+            'kepala_sekolah' => 'Kepala Sekolah',
             'guru' => 'Guru',
             'wali_kelas' => 'Wali Kelas',
             'orang_tua' => 'Orang Tua',
@@ -176,7 +181,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
             'password' => 'nullable|string|min:8',
-            'role' => ['required', Rule::in(['guru', 'wali_kelas', 'orang_tua', 'super_admin'])],
+            'role' => ['required', Rule::in(['kepala_sekolah', 'guru', 'wali_kelas', 'orang_tua', 'super_admin'])],
             'is_approved' => 'required|boolean',
         ]);
 

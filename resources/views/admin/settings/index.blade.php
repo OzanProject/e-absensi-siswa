@@ -92,14 +92,30 @@
                     </div>
 
                     <div class="grid grid-cols-1 gap-6">
-                        {{-- Nama Sekolah --}}
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Nama Sekolah / Instansi <span
-                                    class="text-red-500">*</span></label>
-                            <input type="text" name="school_name" id="school_name"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-800 focus:border-indigo-500 focus:ring-0 form-input-custom"
-                                value="{{ old('school_name', $settings['school_name'] ?? '') }}"
-                                placeholder="Contoh: SMA Negeri 1 Maju Jaya" required>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {{-- Nama Sekolah --}}
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Nama Sekolah / Instansi <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" name="school_name" id="school_name"
+                                    class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-800 focus:border-indigo-500 focus:ring-0 form-input-custom"
+                                    value="{{ old('school_name', $settings['school_name'] ?? '') }}"
+                                    placeholder="Contoh: SMA Negeri 1 Maju Jaya" required>
+                            </div>
+
+                            {{-- Versi Aplikasi --}}
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Versi Website</label>
+                                <div class="relative">
+                                    <input type="text" name="app_version"
+                                        class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-800 focus:border-indigo-500 focus:ring-0 form-input-custom pl-10"
+                                        value="{{ old('app_version', $settings['app_version'] ?? 'v1.0.0') }}"
+                                        placeholder="v1.0.0">
+                                    <div class="absolute left-3 top-3.5 text-gray-400">
+                                        <i class="fas fa-code-branch"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {{-- Logo Upload --}}
@@ -312,8 +328,8 @@
         {{-- KOLOM KANAN: ACTIONS & TOGGLES (4/12) --}}
         <div class="lg:col-span-4 space-y-6">
 
-            {{-- TOMBOL SIMPAN (STICKY-ISH) --}}
-            <div class="bg-white rounded-2xl shadow-lg border border-indigo-100 p-6 sticky top-24 z-10">
+            {{-- TOMBOL SIMPAN (STATIC) --}}
+            <div class="bg-white rounded-2xl shadow-lg border border-indigo-100 p-6">
                 <button type="submit" id="save-btn"
                     class="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg shadow-xl shadow-indigo-200 hover:shadow-indigo-300 hover:scale-[1.02] transition-all transform flex justify-center items-center">
                     <i class="fas fa-save mr-2"></i> Simpan Pengaturan
@@ -386,9 +402,11 @@
                     <img src="{{ $logoPath }}" id="preview-kop-logo-side"
                         class="h-12 w-auto mx-auto mb-2 object-contain">
                     <h5 class="text-gray-900 font-bold text-sm leading-tight" id="preview-kop-text-side">
-                        {{ $settings['school_name'] ?? 'Nama Instansi' }}</h5>
+                        {{ $settings['school_name'] ?? 'Nama Instansi' }}
+                    </h5>
                     <p class="text-[10px] text-gray-500 mt-1 truncate">
-                        {{ $settings['school_address'] ?? 'Alamat instansi...' }}</p>
+                        {{ $settings['school_address'] ?? 'Alamat instansi...' }}
+                    </p>
                 </div>
             </div>
 

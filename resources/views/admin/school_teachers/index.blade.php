@@ -15,10 +15,16 @@
                 <span class="text-gray-600">Data Guru</span>
             </nav>
         </div>
-        <a href="{{ route('admin.school-teachers.create') }}"
-            class="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5">
-            <i class="fas fa-plus mr-2"></i> Tambah Guru Baru
-        </a>
+        <div class="flex space-x-3">
+            <button onclick="document.getElementById('importModal').classList.remove('hidden')"
+                class="inline-flex items-center justify-center px-5 py-2.5 border border-gray-200 text-sm font-bold rounded-xl text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-all duration-200 hover:-translate-y-0.5">
+                <i class="fas fa-file-excel text-green-600 mr-2"></i> Import Excel
+            </button>
+            <a href="{{ route('admin.school-teachers.create') }}"
+                class="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5">
+                <i class="fas fa-plus mr-2"></i> Tambah Guru Baru
+            </a>
+        </div>
     </div>
 
     {{-- MAIN CONTENT CARD --}}
@@ -136,6 +142,80 @@
             class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center text-xs text-gray-500">
             <span>Menampilkan {{ $teachers->count() }} guru terdaftar</span>
             <span>Terakhir diperbarui: {{ date('d M Y H:i') }}</span>
+        </div>
+    </div>
+</div>
+
+
+{{-- IMPORT MODAL --}}
+<div id="importModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        {{-- Background Overlay --}}
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
+            onclick="document.getElementById('importModal').classList.add('hidden')"></div>
+
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        {{-- Modal Panel --}}
+        <div
+            class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div
+                        class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <i class="fas fa-file-excel text-green-600"></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">
+                            Import Data Guru
+                        </h3>
+                        <div class="mt-2">
+                            <div class="text-sm text-gray-500 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-100 text-left">
+                                <p class="font-bold text-gray-700 mb-2">Panduan Pengisian:</p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Gunakan template yang disediakan.</li>
+                                    <li>Kolom <strong>Nama Lengkap</strong> dan <strong>Email</strong> wajib diisi.</li>
+                                    <li>Pastikan <strong>Email</strong> belum terdaftar sebelumnya.</li>
+                                    <li>Password akun guru akan diset otomatis: <code>guru123</code>.</li>
+                                </ul>
+                            </div>
+
+                            {{-- Template Download Link --}}
+                            <div
+                                class="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-4 flex items-center justify-between">
+                                <div class="text-sm text-blue-700">
+                                    <i class="fas fa-info-circle mr-1"></i> Belum punya format?
+                                </div>
+                                <a href="{{ route('admin.school-teachers.template') }}"
+                                    class="text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg transition shadow-sm">
+                                    <i class="fas fa-download mr-1"></i> Download Template
+                                </a>
+                            </div>
+
+                            <form action="{{ route('admin.school-teachers.import') }}" method="POST"
+                                enctype="multipart/form-data" id="importForm">
+                                @csrf
+                                <div class="mt-4">
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Pilih File Excel</label>
+                                    <input type="file" name="file" accept=".xlsx, .xls, .csv" required
+                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-gray-300 rounded-lg bg-gray-50 focus:ring-indigo-500 focus:border-indigo-500 p-1">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="submit" form="importForm"
+                    class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-bold text-white hover:bg-green-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                    Upload & Import
+                </button>
+                <button type="button" onclick="document.getElementById('importModal').classList.add('hidden')"
+                    class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-bold text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Batal
+                </button>
+            </div>
         </div>
     </div>
 </div>

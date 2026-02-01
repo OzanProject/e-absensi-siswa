@@ -188,6 +188,46 @@
                                 </a>
                             </li>
 
+                        {{-- AREA KEPALA SEKOLAH --}}
+                    @elseif($user->isKepalaSekolah())
+                        <li class="px-2 pt-3 pb-1 text-xs font-semibold text-indigo-400 uppercase border-t border-gray-700 mt-2 flex justify-between items-center">
+                            <span>AREA KEPALA SEKOLAH</span>
+                            <i class="fas fa-user-graduate text-indigo-500/70"></i>
+                        </li>
+
+                        {{-- Dashboard --}}
+                        <li>
+                            <a href="{{ route('headmaster.dashboard') }}"
+                               class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('headmaster/dashboard') ? $activeClass : $defaultClass }}">
+                                <i class="fas fa-tachometer-alt w-5 h-5 mr-3"></i>
+                                <span class="text-sm">Dashboard Eksekutif</span>
+                            </a>
+                        </li>
+
+                        {{-- Laporan Absensi Group --}}
+                        <li>
+                            <a href="{{ route('headmaster.report.recap') }}"
+                               class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('headmaster/report/recap') ? $activeClass : 'text-gray-300 hover:bg-gray-700/70 hover:text-white' }}">
+                                <i class="fas fa-chart-pie w-5 h-5 mr-3"></i>
+                                <span class="text-sm">Ringkasan Kelas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('headmaster.report.index') }}"
+                               class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('headmaster/report') && !isActive('headmaster/report/recap') ? $activeClass : 'text-gray-300 hover:bg-gray-700/70 hover:text-white' }}">
+                                <i class="fas fa-file-alt w-5 h-5 mr-3"></i>
+                                <span class="text-sm">Laporan Detail</span>
+                            </a>
+                        </li>
+                        
+                        <li class="border-t border-gray-700 pt-2 mt-2">
+                            <a href="{{ route('profile.edit') }}"
+                                class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('profile') ? $activeClass : $defaultClass }}">
+                                <i class="fas fa-user w-5 h-5 mr-3"></i>
+                                <span class="text-sm">Edit Profil</span>
+                            </a>
+                        </li>
+
                         {{-- AREA WALI KELAS --}}
                     @elseif($user->isWaliKelas())
                         <li class="px-2 pt-3 pb-1 text-xs font-semibold text-indigo-400 uppercase border-t border-gray-700 mt-2 flex justify-between items-center">

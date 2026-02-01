@@ -33,6 +33,47 @@
         href="{{ asset('template/adminlte/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}" />
 
     {{-- Scripts Tailwind (Wajib menggunakan @vite) --}}
+    {{-- FALLBACK: Menggunakan CDN karena build process bermasalah di environment user --}}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: {
+                preflight: false, // PENTING: Matikan reset bawaan Tailwind agar tidak merusak style AdminLTE/Bootstrap
+            },
+            theme: {
+                extend: {
+                    colors: {
+                        indigo: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        },
+                        purple: {
+                            50: '#faf5ff',
+                            100: '#f3e8ff',
+                            600: '#9333ea',
+                            700: '#7e22ce',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* PENTING: Paksa box-sizing agar Layout Tailwind & Bootstrap akur */
+        *,
+        ::before,
+        ::after {
+            box-sizing: border-box;
+            border-width: 0;
+            border-style: solid;
+            border-color: #e5e7eb;
+        }
+
+        /* Restore border width for specific bootstrap elements if needed, but Tailwind usually needs 0 default */
+    </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     {{-- AOS ANIMATION --}}

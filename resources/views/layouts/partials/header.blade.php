@@ -1,10 +1,28 @@
-{{-- resources/views/layouts/partials/header.blade.php (UPDATED UI) --}}
-
 @php
-    // --- Logika PHP (TIDAK BERUBAH) ---
     $user = Auth::user();
     $userName = $user->name ?? 'User';
-    $userRole = Str::upper($user->role ?? 'USER');
+    // Gunakan Accessor role_label dari Model User
+    $userRole = $user->role_label ?? ucfirst(str_replace('_', ' ', $user->role));
+
+    // Tentukan Rute Dashboard Berdasarkan Role
+    $dashboardRoute = match ($user->role) {
+        'super_admin' => route('admin.dashboard'),
+        'wali_kelas' => route('walikelas.dashboard'),
+        'guru' => route('teacher.dashboard'),
+        'kepala_sekolah' => route('headmaster.dashboard'),
+        'orang_tua' => route('orangtua.dashboard'),
+        default => route('dashboard')
+    };
+
+    // Tentukan Rute Report (Untuk Notifikasi)
+    $reportRoute = match ($user->role) {
+        'super_admin' => route('report.index'),
+        'wali_kelas' => route('walikelas.report.index'),
+        'guru' => route('teacher.report.index'),
+        'kepala_sekolah' => route('headmaster.report.index'),
+        'orang_tua' => route('orangtua.report.index'),
+        default => '#'
+    };
 @endphp
 
 <header class="fixed top-0 left-0 md:left-64 right-0 z-40 
@@ -25,7 +43,7 @@
 
             {{-- Navigasi Dasar (Dashboard) --}}
             {{-- Menggunakan indigo-100/30 dan indigo-700 untuk active state --}}
-            <a href="{{ route('dashboard') }}" class="hidden sm:inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg transition duration-150 
+            <a href="{{ $dashboardRoute }}" class="hidden sm:inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg transition duration-150 
                {{-- Class default/konstan --}}
                text-gray-600 hover:bg-gray-100/50 
                
@@ -78,10 +96,12 @@
                     </div>
 
                     {{-- Link Lihat Semua --}}
-                    <a href="{{ route('report.index') }}"
-                        class="block w-full text-center px-4 py-2 text-sm text-indigo-600 font-semibold hover:bg-indigo-50/50 border-t border-gray-100 rounded-b-xl">
-                        Lihat Semua Laporan <i class="fas fa-arrow-right ml-1 text-xs"></i>
-                    </a>
+                    @if($reportRoute != '#')
+                        <a href="{{ $reportRoute }}"
+                            class="block w-full text-center px-4 py-2 text-sm text-indigo-600 font-semibold hover:bg-indigo-50/50 border-t border-gray-100 rounded-b-xl">
+                            Lihat Semua Laporan <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                        </a>
+                    @endif
                 </div>
             </div>
 

@@ -4,6 +4,8 @@
 
 ## 🚀 Fitur Unggulan
 
+-   **✨ Landing Page Modern (SaaS Style)**: Tampilan depan profesional, responsif, dan elegan dengan tema Dark/Gradient serta animasi halus. Informasi sekolah (Footer/Hero) dinamis mengikuti pengaturan aplikasi.
+-   **📥 Import Data Guru via Excel**: Fitur import masal data guru kini mendukung file **Excel (.xlsx)** yang lebih mudah diedit dibanding CSV. Dilengkapi panduan pengisian dan validasi data otomatis.
 -   **📱 Scan QR Code Cepat**: Absensi siswa dilakukan hanya dalam hitungan detik dengan memindai Kartu Pelajar ber-QR Code menggunakan kamera laptop/PC sekolah.
 -   **💬 Notifikasi WhatsApp Gateway**: Orang tua otomatis menerima pesan WhatsApp saat anak melakukan absensi Masuk dan Pulang (Real-time).
 -   **📄 Laporan PDF Otomatis**: Guru/Admin dapat mengunduh rekap absensi harian, bulanan, hingga semester dalam format PDF siap cetak.
@@ -12,8 +14,8 @@
     -   **Wali Kelas**: Memantau kehadiran siswa di kelasnya, mencetak laporan, dan mengelola izin/sakit.
     -   **Operator/Guru Piket**: Khusus untuk melakukan scanning absensi harian.
 -   **📊 Dashboard Informatif**: Statistik kehadiran harian ditampilkan dalam grafik dan angka yang mudah dipahami.
--   **🎨 UI/UX Modern & Responsif**: Dibangun dengan Tailwind CSS dan Alpine.js untuk pengalaman pengguna yang mulus di perangkat desktop maupun mobile. Ada fitur **Dark Mode** (opsional/future) dan animasi interaktif.
--   **🔧 Pengaturan Sekolah Dinamis**: Logo sekolah, nama sekolah, kepala sekolah, dan tahun ajaran dapat diatur langsung dari menu Settings tanpa menyentuh kodingan.
+-   **🎨 UI/UX Responsif**: Dibangun dengan Tailwind CSS dan Alpine.js untuk pengalaman pengguna yang mulus di perangkat desktop maupun mobile.
+-   **🔧 Pengaturan Sekolah Dinamis**: Logo sekolah, nama sekolah, kepala sekolah, alamat, dan sosial media dapat diatur langsung dari menu Settings tanpa menyentuh kodingan.
 
 ## 🛠️ Teknologi yang Digunakan
 
@@ -27,10 +29,11 @@ Aplikasi ini dibangun menggunakan stack teknologi modern untuk performa dan kemu
 -   **Database**: MySQL
 -   **Authentication**: Laravel Breeze
 -   **Library Pendukung**:
+    -   `maatwebsite/excel`: Untuk export/import data Excel.
     -   `barryvdh/laravel-dompdf`: Untuk generate laporan PDF.
     -   `simplesoftwareio/simple-qrcode`: Untuk generate QR Code siswa.
     -   `aos`: Animate On Scroll untuk efek visual landing page.
-    -   `chart.js` / `apexcharts`: Untuk grafik statistik di dashboard.
+    -   `chart.js`: Untuk grafik statistik di dashboard.
 
 ## ⚙️ Persyaratan Sistem
 
@@ -98,10 +101,6 @@ Jika menggunakan `db:seed`, Anda bisa login dengan akun berikut:
 -   **Admin**
     -   Email: `admin@admin.com`
     -   Password: `password`
-
-## 📸 Tangkapan Layar (Screenshots)
-
-*(Tambahkan screenshot aplikasi di sini nanti)*
 
 ## 🤝 Kontribusi
 

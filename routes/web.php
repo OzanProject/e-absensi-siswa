@@ -51,6 +51,11 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->group(function
     // --- MANAJEMEN DATA (Resource Routes) ---
     Route::resource('classes', ClassController::class)->names('classes');
     Route::resource('teachers', TeacherController::class)->names('teachers');
+
+    // Import Data Guru
+    Route::post('school-teachers/import', [\App\Http\Controllers\Admin\SchoolTeacherController::class, 'import'])->name('admin.school-teachers.import');
+    Route::get('school-teachers/template', [\App\Http\Controllers\Admin\SchoolTeacherController::class, 'downloadTemplate'])->name('admin.school-teachers.template');
+
     Route::resource('school-teachers', \App\Http\Controllers\Admin\SchoolTeacherController::class)->names('admin.school-teachers'); // Data Guru
     Route::resource('parents', AdminParentController::class)->names('parents');
     Route::resource('subjects', SubjectController::class)->names('admin.subjects');
@@ -228,6 +233,8 @@ Route::middleware('auth')->get('/dashboard', function () {
         return redirect()->route('admin.dashboard');
     } elseif ($user->isWaliKelas()) {
         return redirect()->route('walikelas.dashboard');
+    } elseif ($user->isKepalaSekolah()) {
+        return redirect()->route('headmaster.dashboard');
     } elseif ($user->isGuru()) {
         return redirect()->route('teacher.dashboard');
     } else {
@@ -262,5 +269,24 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->group(function () {
     // Laporan Absensi
     Route::prefix('report')->group(function () {
         Route::get('/', [App\Http\Controllers\Teacher\ReportController::class, 'index'])->name('teacher.report.index');
+    });
+});
+
+// =======================================================
+// 7. RUTE KEPALA SEKOLAH (headmaster/)
+// =======================================================
+Route::middleware(['auth', 'role:kepala_sekolah'])->prefix('headmaster')->group(function () {
+    Route::get('dashboard', [App\Http\Controllers\Headmaster\DashboardController::class, 'index'])->name('headmaster.dashboard');
+
+    // Laporan Absensi (Rekap Semua Kelas & Log Detail)
+    Route::prefix('report')->group(function () {
+        // 1. Rekapitulasi Kelas (Yang lama/Chart/Summary)
+        Route::get('/recap', [App\Http\Controllers\Headmaster\DashboardController::class, 'report'])->name('headmaster.report.recap');
+
+        // 2. Laporan Detail (Seperti Admin)
+        Route::get('/', [App\Http\Controllers\Headmaster\ReportController::class, 'index'])->name('headmaster.report.index');
+        Route::get('generate', [App\Http\Controllers\Headmaster\ReportController::class, 'generate'])->name('headmaster.report.generate');
+        Route::get('export/excel', [App\Http\Controllers\Headmaster\ReportController::class, 'exportExcel'])->name('headmaster.report.export.excel');
+        Route::get('export/pdf', [App\Http\Controllers\Headmaster\ReportController::class, 'exportPdf'])->name('headmaster.report.export.pdf');
     });
 });

@@ -55,6 +55,7 @@ class User extends Authenticatable // implements MustVerifyEmail dihapus
             'orang_tua' => 'Orang Tua',
             'guru' => 'Guru',
             'siswa' => 'Siswa',
+            'kepala_sekolah' => 'Kepala Sekolah',
         ][$this->role] ?? 'Unknown Role';
     }
 
@@ -69,6 +70,8 @@ class User extends Authenticatable // implements MustVerifyEmail dihapus
             return 'badge-primary';
         if ($this->role === 'super_admin')
             return 'badge-danger';
+        if ($this->role === 'kepala_sekolah')
+            return 'badge-success';
         return 'badge-secondary';
     }
 
@@ -99,6 +102,11 @@ class User extends Authenticatable // implements MustVerifyEmail dihapus
     public function isSiswa(): bool
     {
         return $this->role === 'siswa';
+    }
+
+    public function isKepalaSekolah(): bool
+    {
+        return $this->role === 'kepala_sekolah';
     }
 
     // =======================================================

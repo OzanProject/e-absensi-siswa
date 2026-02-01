@@ -32,6 +32,7 @@ class SettingController extends Controller
             'school_email' => 'Email Resmi',
             'school_phone' => 'Nomor Telepon',
             'school_address' => 'Alamat Sekolah',
+            'app_version' => 'Versi Aplikasi', // 💡 BARU
             'social_facebook' => 'URL Facebook',
             'social_instagram' => 'URL Instagram',
             // 💡 BARU: Geolocation & Security
@@ -54,6 +55,7 @@ class SettingController extends Controller
         // 1. Validasi Input
         $request->validate([
             'school_name' => 'required|string|max:255',
+            'app_version' => 'nullable|string|max:20', // 💡 BARU
             'attendance_start_time' => 'required|date_format:H:i',
             'attendance_end_time' => 'required|date_format:H:i',
             'late_tolerance_minutes' => 'required|integer|min:0',

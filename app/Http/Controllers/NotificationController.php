@@ -21,11 +21,21 @@ class NotificationController extends Controller
 
         // Implementasi sederhana: Menampilkan 5 aktivitas absensi terbaru di sistem
         // Untuk sistem notifikasi yang sebenarnya (perlu tabel notifikasi khusus), logic-nya lebih kompleks.
-        
+
         $absences = Absence::with('student.class')
-                            ->orderBy('created_at', 'desc')
-                            ->take($limit)
-                            ->get();
+            ->orderBy('created_at', 'desc')
+            ->take($limit)
+            ->get();
+
+        // Tentukan Base URL berdasarkan Role
+        $baseUrl = match ($user->role) {
+            'super_admin' => route('report.index'),
+            'kepala_sekolah' => route('headmaster.report.index'),
+            'wali_kelas' => route('walikelas.report.index'),
+            'guru' => route('teacher.report.index'),
+            // Tambahkan role lain jika perlu
+            default => '#'
+        };
 
         foreach ($absences as $absence) {
             $notifications[] = [
@@ -33,6 +43,8 @@ class NotificationController extends Controller
                 'title' => $absence->student->name . ' - ' . $absence->status,
                 'time' => $absence->created_at->diffForHumans(),
                 'status' => $absence->status,
+                // Tambahkan URL spesifik
+                'url' => $baseUrl,
             ];
         }
 

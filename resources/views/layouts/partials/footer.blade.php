@@ -4,6 +4,7 @@
     // --- LOGIKA PHP (Tidak Diubah) ---
     $settings = $settings ?? \App\Models\Setting::pluck('value', 'key')->toArray();
     $schoolName = $settings['school_name'] ?? 'E-Absensi Sekolah';
+    $appVersion = $settings['app_version'] ?? 'v1.1.0';
 @endphp
 
 {{-- Menghapus 'fixed bottom-0 right-0 left-0 md:left-64 z-20' --}}
@@ -15,22 +16,22 @@
 
     {{-- Container Footer --}}
     <div class="flex flex-col sm:flex-row justify-between items-start w-full max-w-7xl mx-auto">
-        
+
         {{-- Sisi Kanan: Versi Aplikasi (Tambahan opsional) --}}
         <div class="order-1 sm:order-2 mb-2 sm:mb-0 text-xs text-right w-full sm:w-auto">
-             <span class="text-gray-400">Versi: </span>
-             <strong class="font-medium text-gray-500">v1.1.0</strong>
+            <span class="text-gray-400">Versi: </span>
+            <strong class="font-medium text-gray-500">{{ $appVersion }}</strong>
         </div>
-        
+
         {{-- Sisi Kiri: Copyright Info --}}
         <div class="order-2 sm:order-1 text-left w-full sm:w-auto">
             <strong class="font-semibold text-gray-700">
-                Copyright &copy; {{ date('Y') }} 
+                Copyright &copy; {{ date('Y') }}
                 {{-- Mengganti text-blue-600 menjadi text-indigo-600 --}}
                 <a href="{{ route('admin.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 font-bold">
                     {{ $schoolName }}
                 </a>.
-            </strong> 
+            </strong>
             <span class="block sm:inline text-xs text-gray-500 font-light mt-1 sm:mt-0">
                 All rights reserved. Dibuat dengan <i class="fas fa-heart text-red-500"></i>
             </span>

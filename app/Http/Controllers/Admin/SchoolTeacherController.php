@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\TeachersImport;
+use App\Exports\TeacherTemplateExport;
+use Illuminate\Support\Str;
 
 class SchoolTeacherController extends Controller
 {
@@ -144,5 +148,42 @@ class SchoolTeacherController extends Controller
 
         return redirect()->route('admin.school-teachers.index')
             ->with('success', 'Guru berhasil dihapus.');
+    }
+
+    /**
+     * Import data guru dari file Excel.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:2048',
+        ]);
+
+        try {
+            Excel::import(new TeachersImport, $request->file('file'));
+
+            return redirect()->route('admin.school-teachers.index')
+                ->with('success', 'Data guru berhasil diimport.');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $messages = [];
+            foreach ($failures as $failure) {
+                $messages[] = 'Baris ' . $failure->row() . ': ' . implode(', ', $failure->errors());
+            }
+
+            return redirect()->back()
+                ->with('error', 'Gagal Import: ' . implode('<br>', $messages));
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download template Excel untuk import guru.
+     */
+    public function downloadTemplate()
+    {
+        return Excel::download(new TeacherTemplateExport, 'template_import_guru.xlsx');
     }
 }
