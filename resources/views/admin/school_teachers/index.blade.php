@@ -15,13 +15,13 @@
                 <span class="text-gray-600">Data Guru</span>
             </nav>
         </div>
-        <div class="flex space-x-3">
+        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <button onclick="document.getElementById('importModal').classList.remove('hidden')"
-                class="inline-flex items-center justify-center px-5 py-2.5 border border-gray-200 text-sm font-bold rounded-xl text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-all duration-200 hover:-translate-y-0.5">
+                class="inline-flex items-center justify-center px-5 py-2.5 border border-gray-200 text-sm font-bold rounded-xl text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-all duration-200 hover:-translate-y-0.5 w-full sm:w-auto">
                 <i class="fas fa-file-excel text-green-600 mr-2"></i> Import Excel
             </button>
             <a href="{{ route('admin.school-teachers.create') }}"
-                class="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5">
+                class="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5 w-full sm:w-auto">
                 <i class="fas fa-plus mr-2"></i> Tambah Guru Baru
             </a>
         </div>
@@ -37,8 +37,8 @@
             </h3>
         </div>
 
-        {{-- TABLE CONTENT --}}
-        <div class="overflow-x-auto">
+        {{-- TABLE CONTENT (Desktop View) --}}
+        <div class="hidden sm:block overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr
@@ -65,8 +65,7 @@
                                     </div>
                                     <div>
                                         <div class="text-sm font-bold text-gray-900">{{ $teacher->name }}</div>
-                                        <div class="text-xs text-gray-400">NIP: -</div> {{-- Placeholder jika ada NIP nanti
-                                        --}}
+                                        <div class="text-xs text-gray-400">NIP: -</div>
                                     </div>
                                 </div>
                             </td>
@@ -137,6 +136,72 @@
             </table>
         </div>
 
+        {{-- MOBILE CARD VIEW (Phone View) --}}
+        <div class="sm:hidden flex flex-col divide-y divide-gray-100">
+            @forelse($teachers as $index => $teacher)
+                <div class="p-4 bg-white hover:bg-gray-50 transition-colors">
+                    {{-- Header: Nama & Status --}}
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-700 font-bold text-sm shadow-sm ring-1 ring-indigo-50">
+                                {{ substr($teacher->name, 0, 1) }}
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900 leading-tight">{{ $teacher->name }}</h4>
+                                <span class="text-xs text-gray-500">Joined:
+                                    {{ $teacher->created_at->format('d M Y') }}</span>
+                            </div>
+                        </div>
+                        @if($teacher->is_approved)
+                            <span class="inline-flex px-2 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
+                                Aktif
+                            </span>
+                        @else
+                            <span class="inline-flex px-2 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700">
+                                Non-Aktif
+                            </span>
+                        @endif
+                    </div>
+
+                    {{-- Body: Email --}}
+                    <div class="mb-4 pl-[52px]">
+                        <div class="flex items-center text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded border border-gray-100 w-fit">
+                            <i class="fas fa-envelope mr-2 text-gray-400"></i>
+                            {{ $teacher->email }}
+                        </div>
+                    </div>
+
+                    {{-- Footer: Actions --}}
+                    <div class="flex justify-end items-center gap-3 pt-2 border-t border-gray-50">
+                        <a href="{{ route('admin.school-teachers.edit', $teacher->id) }}"
+                            class="flex-1 inline-flex justify-center items-center px-3 py-1.5 bg-amber-50 text-amber-700 text-xs font-bold rounded-lg border border-amber-200 hover:bg-amber-100">
+                            <i class="fas fa-edit mr-2"></i> Edit
+                        </a>
+                        <button onclick="confirmDelete('{{ $teacher->id }}', '{{ $teacher->name }}')"
+                            class="flex-1 inline-flex justify-center items-center px-3 py-1.5 bg-red-50 text-red-700 text-xs font-bold rounded-lg border border-red-200 hover:bg-red-100">
+                            <i class="fas fa-trash-alt mr-2"></i> Hapus
+                        </button>
+                        {{-- Hidden form for delete --}}
+                        <form id="delete-form-mobile-{{ $teacher->id }}"
+                             action="{{ route('admin.school-teachers.destroy', $teacher->id) }}" method="POST"
+                             class="hidden">
+                             @csrf
+                             @method('DELETE')
+                         </form>
+                    </div>
+                </div>
+            @empty
+                <div class="flex flex-col items-center justify-center p-8 text-center text-gray-500">
+                    <div class="bg-gray-50 rounded-full p-4 mb-3">
+                        <i class="fas fa-chalkboard-teacher text-gray-300 text-3xl"></i>
+                    </div>
+                    <p class="font-medium">Belum ada data guru</p>
+                </div>
+            @endforelse
+            {{-- Duplicate Delete Script for Mobile ID handling if needed, but existing script uses ID params so it's fine --}}
+        </div>
+
         {{-- FOOTER INFO --}}
         <div
             class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center text-xs text-gray-500">
@@ -171,7 +236,8 @@
                             Import Data Guru
                         </h3>
                         <div class="mt-2">
-                            <div class="text-sm text-gray-500 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-100 text-left">
+                            <div
+                                class="text-sm text-gray-500 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-100 text-left">
                                 <p class="font-bold text-gray-700 mb-2">Panduan Pengisian:</p>
                                 <ul class="list-disc pl-5 space-y-1">
                                     <li>Gunakan template yang disediakan.</li>
