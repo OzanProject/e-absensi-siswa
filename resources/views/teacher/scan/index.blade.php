@@ -89,10 +89,17 @@
                         </p>
 
                         {{-- Action Button --}}
-                        <div class="mt-auto">
+                        <div class="mt-auto grid grid-cols-2 gap-3">
+                            {{-- Scan Button --}}
                             <a href="{{ route('teacher.scan.scanner', $schedule->id) }}"
-                                class="flex items-center justify-center w-full py-3.5 bg-indigo-50 text-indigo-700 font-bold rounded-xl group-hover:bg-white group-hover:text-indigo-600 transition-colors shadow-sm transform group-hover:-translate-y-1">
-                                <i class="fas fa-qrcode mr-2"></i> Mulai Scan
+                                class="flex items-center justify-center py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-md hover:bg-indigo-700 group-hover:bg-white group-hover:text-indigo-600 transition-colors duration-300">
+                                <i class="fas fa-qrcode mr-2"></i> Scan
+                            </a>
+
+                            {{-- Manual Button --}}
+                            <a href="{{ route('teacher.scan.manual', $schedule->id) }}"
+                                class="flex items-center justify-center py-3 bg-indigo-50 text-indigo-700 font-bold rounded-xl border border-indigo-100 hover:bg-indigo-100 group-hover:bg-white/20 group-hover:text-white group-hover:border-white/50 backdrop-blur-sm transition-colors duration-300">
+                                <i class="fas fa-edit mr-2"></i> Manual
                             </a>
                         </div>
                     </div>

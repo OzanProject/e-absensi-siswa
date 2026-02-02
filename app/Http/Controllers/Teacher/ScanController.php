@@ -120,4 +120,75 @@ class ScanController extends Controller
             'time' => Carbon::now()->format('H:i:s')
         ]);
     }
+
+    /**
+     * Show Manual Attendance Form
+     */
+    public function manual(Schedule $schedule)
+    {
+        if ($schedule->teacher_id !== Auth::id()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        // 1. Get or Create Journal for Today (Auto-created if accessing manual)
+        $journal = TeachingJournal::firstOrCreate(
+            [
+                'schedule_id' => $schedule->id,
+                'date' => Carbon::now()->format('Y-m-d'),
+            ],
+            [
+                'teacher_id' => Auth::id(),
+                'title' => 'Pertemuan ' . ($schedule->subject->name ?? 'Mapel'),
+                'description' => 'Absensi Manual by Guru',
+                'status' => 'pending'
+            ]
+        );
+
+        // 2. Fetch Students
+        $students = Student::where('class_id', $schedule->class_id)
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get();
+
+        // 3. Fetch Existing Attendance
+        $attendances = SubjectAttendance::where('teaching_journal_id', $journal->id)
+            ->pluck('status', 'student_id')
+            ->toArray();
+
+        return view('teacher.scan.manual', compact('schedule', 'students', 'attendances', 'journal'));
+    }
+
+    /**
+     * Store Manual Attendance
+     */
+    public function manualStore(Request $request, Schedule $schedule)
+    {
+        if ($schedule->teacher_id !== Auth::id()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $request->validate([
+            'attendances' => 'required|array',
+            'attendances.*' => 'required|in:hadir,izin,sakit,alpha,terlambat', // Lowercase to match DB enum usually, check logic
+        ]);
+
+        // Find Journal (Should exist from view)
+        $journal = TeachingJournal::where('schedule_id', $schedule->id)
+            ->where('date', Carbon::now()->format('Y-m-d'))
+            ->firstOrFail();
+
+        foreach ($request->attendances as $studentId => $status) {
+            SubjectAttendance::updateOrCreate(
+                [
+                    'teaching_journal_id' => $journal->id,
+                    'student_id' => $studentId,
+                ],
+                [
+                    'status' => strtolower($status) // Ensure lowercase for DB
+                ]
+            );
+        }
+
+        return redirect()->route('teacher.scan.index')->with('success', 'Absensi manual berhasil disimpan!');
+    }
 }

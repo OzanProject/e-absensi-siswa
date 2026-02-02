@@ -264,6 +264,10 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->group(function () {
         Route::get('/', [App\Http\Controllers\Teacher\ScanController::class, 'index'])->name('teacher.scan.index');
         Route::get('{schedule}', [App\Http\Controllers\Teacher\ScanController::class, 'scanner'])->name('teacher.scan.scanner');
         Route::post('{schedule}', [App\Http\Controllers\Teacher\ScanController::class, 'store'])->name('teacher.scan.store');
+        
+        // Manual Attendance
+        Route::get('{schedule}/manual', [App\Http\Controllers\Teacher\ScanController::class, 'manual'])->name('teacher.scan.manual');
+        Route::post('{schedule}/manual', [App\Http\Controllers\Teacher\ScanController::class, 'manualStore'])->name('teacher.scan.manualStore');
     });
 
     // Laporan Absensi
