@@ -33,7 +33,7 @@ class TeachingJournalController extends Controller
     public function create(Schedule $schedule)
     {
         // Check if teacher owns this schedule
-        if ($schedule->teacher_id !== Auth::id()) {
+        if ($schedule->teacher_id != Auth::id()) {
             abort(403, 'Akses ditolak. Jadwal ini bukan milik Anda.');
         }
 
@@ -108,7 +108,7 @@ class TeachingJournalController extends Controller
     public function edit(TeachingJournal $journal)
     {
         // Authorization
-        if ($journal->teacher_id !== Auth::id()) {
+        if ($journal->teacher_id != Auth::id()) {
             abort(403);
         }
 
@@ -129,7 +129,7 @@ class TeachingJournalController extends Controller
      */
     public function update(Request $request, TeachingJournal $journal)
     {
-        if ($journal->teacher_id !== Auth::id()) {
+        if ($journal->teacher_id != Auth::id()) {
             abort(403);
         }
 

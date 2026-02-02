@@ -37,7 +37,7 @@ class ScanController extends Controller
 
     public function scanner(Schedule $schedule)
     {
-        if ($schedule->teacher_id !== Auth::id()) {
+        if ($schedule->teacher_id != Auth::id()) {
             abort(403, 'Anda tidak memiliki akses ke jadwal ini.');
         }
 
@@ -126,7 +126,7 @@ class ScanController extends Controller
      */
     public function manual(Schedule $schedule)
     {
-        if ($schedule->teacher_id !== Auth::id()) {
+        if ($schedule->teacher_id != Auth::id()) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -163,7 +163,7 @@ class ScanController extends Controller
      */
     public function manualStore(Request $request, Schedule $schedule)
     {
-        if ($schedule->teacher_id !== Auth::id()) {
+        if ($schedule->teacher_id != Auth::id()) {
             abort(403, 'Akses ditolak.');
         }
 
