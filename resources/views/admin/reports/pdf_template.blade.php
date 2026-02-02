@@ -91,31 +91,39 @@
             <thead>
                 <tr>
                     <th>#</th>
+                    <th>Jenis</th>
                     <th>Tanggal</th>
                     <th>Waktu</th>
-                    <th>NISN</th>
                     <th>Nama Siswa</th>
                     <th>Kelas</th>
                     <th>Status</th>
-                    <th>Terlambat (Menit)</th>
+                    <th>Detail</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($absences as $absence)
                 @php
                     $status = $absence->status ?? 'N/A';
+                    $type = $absence->type ?? '-';
                     // Menghapus spasi dan mengubah ke lowercase untuk kelas CSS
-                    $statusClass = 'status-' . strtolower(str_replace([' ', '-'], '', $status)); 
+                    $statusClass = 'status-' . strtolower(str_replace([' ', '-'], '', $status));
+                    
+                    $detail = '-';
+                    if ($type == 'Harian') {
+                        $detail = ($status == 'Terlambat') ? 'Telat ' . ($absence->raw_data->late_duration ?? 0) . ' m' : '-';
+                    } elseif ($type == 'Mapel') {
+                         $detail = $absence->raw_data->journal->schedule->subject->name ?? '-';
+                    }
                 @endphp
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ $absence->attendance_time->format('d/m/Y') }}</td>
-                    <td>{{ $absence->attendance_time->format('H:i:s') }}</td>
-                    <td>{{ $absence->student->nisn ?? 'N/A' }}</td>
+                    <td>{{ $type }}</td>
+                    <td>{{ $absence->date->format('d/m/Y') }}</td>
+                    <td>{{ $absence->date->format('H:i') }}</td>
                     <td>{{ $absence->student->name ?? 'N/A' }}</td>
-                    <td>{{ $absence->student->class->name ?? 'N/A' }}</td>
+                    <td>{{ $absence->class_name ?? 'N/A' }}</td>
                     <td class="{{ $statusClass }}">{{ $status }}</td>
-                    <td>{{ ($status == 'Terlambat' && $absence->late_duration) ? $absence->late_duration . ' min' : '-' }}</td>
+                    <td>{{ $detail }}</td>
                 </tr>
                 @empty
                 <tr>

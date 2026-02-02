@@ -74,13 +74,12 @@
                             class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-bold border-b border-gray-100">
                             <tr>
                                 <th class="px-6 py-4 text-center w-12">#</th>
+                                <th class="px-6 py-4">Jenis</th>
                                 <th class="px-6 py-4">Nama Siswa</th>
                                 <th class="px-6 py-4">Tanggal</th>
-                                <th class="px-6 py-4">Jam Masuk</th>
-                                <th class="px-6 py-4">Jam Pulang</th>
+                                <th class="px-6 py-4">Waktu</th>
                                 <th class="px-6 py-4">Status</th>
-                                <th class="px-6 py-4">Lokasi / IP</th>
-                                <th class="px-6 py-4 text-center">Ket.</th>
+                                <th class="px-6 py-4">Detail</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
@@ -96,56 +95,41 @@
                                     };
                                 @endphp
                                 <tr class="hover:bg-gray-50 transition duration-150 group">
-                                    <td
-                                        class="px-6 py-4 text-center text-sm font-bold text-gray-400 group-hover:text-indigo-500">
-                                        {{ $loop->iteration }}</td>
-                                    <td class="px-6 py-4 text-sm font-bold text-gray-900">{{ $absence->student->name }}</td>
-                                    <td class="px-6 py-4 text-sm font-medium text-gray-600">
-                                        {{ $absence->attendance_time->translatedFormat('d F Y') }}
+                                    <td class="px-6 py-4 text-center text-sm font-bold text-gray-400 group-hover:text-indigo-500">
+                                        {{ $loop->iteration }}
                                     </td>
-                                    <td class="px-6 py-4 text-sm font-mono text-gray-700">
-                                        {{ $absence->attendance_time->format('H:i') }}
-                                    </td>
-                                    <td class="px-6 py-4 text-sm font-mono text-gray-700">
-                                        @if($absence->checkout_time)
-                                            {{ $absence->checkout_time->format('H:i') }}
+                                    
+                                    {{-- JENIS --}}
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($absence->type == 'Harian')
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                                <i class="fas fa-school mr-1.5"></i> Sc.Harian
+                                            </span>
                                         @else
-                                            <span class="text-gray-400 text-xs italic">Belum</span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-100">
+                                                <i class="fas fa-book-open mr-1.5"></i> Ab.Mapel
+                                            </span>
                                         @endif
                                     </td>
+
+                                    <td class="px-6 py-4 text-sm font-bold text-gray-900">{{ $absence->student->name }}</td>
+                                    
+                                    <td class="px-6 py-4 text-sm font-medium text-gray-600">
+                                        {{ $absence->date->translatedFormat('d F Y') }}
+                                    </td>
+                                    
+                                    <td class="px-6 py-4 text-sm font-mono text-gray-700">
+                                        {{ $absence->date->format('H:i') }}
+                                    </td>
+
                                     <td class="px-6 py-4">
-                                        <span
-                                            class="px-3 py-1 inline-flex text-xs font-bold rounded-lg border {{ $statusBadge }}">
+                                        <span class="px-3 py-1 inline-flex text-xs font-bold rounded-lg border {{ $statusBadge }}">
                                             {{ $absence->status }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4">
-                                        @if($absence->latitude && $absence->longitude)
-                                            <a href="https://www.google.com/maps?q={{ $absence->latitude }},{{ $absence->longitude }}" target="_blank" 
-                                               class="text-xs text-indigo-600 hover:text-indigo-800 hover:underline flex items-center mb-1">
-                                                <i class="fas fa-map-marker-alt text-red-500 mr-1.5"></i> Maps
-                                            </a>
-                                        @endif
-                                        
-                                        @if($absence->ip_address)
-                                            <div class="text-[10px] text-gray-500 font-mono bg-gray-50 px-1.5 py-0.5 rounded inline-block border border-gray-100">
-                                                IP: {{ $absence->ip_address }}
-                                            </div>
-                                        @endif
-                                        
-                                        @if(!$absence->latitude && !$absence->ip_address)
-                                         <span class="text-xs text-gray-400">-</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 text-center text-sm text-gray-500">
-                                        @if ($absence->status == 'Terlambat')
-                                            <span class="text-amber-600 font-bold text-xs">+{{ $absence->late_duration }}m</span>
-                                        @elseif($absence->notes)
-                                            <span class="text-xs truncate max-w-[100px] inline-block"
-                                                title="{{ $absence->notes }}">{{ $absence->notes }}</span>
-                                        @else
-                                            -
-                                        @endif
+                                    
+                                    <td class="px-6 py-4 text-sm text-gray-500">
+                                        {!! $absence->detail_html !!}
                                     </td>
                                 </tr>
                             @endforeach

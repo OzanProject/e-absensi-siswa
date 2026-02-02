@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill; // Import Fill Class
-use Illuminate\Database\Eloquent\Collection; // 💡 Diperlukan untuk type hint Collection
+use Illuminate\Support\Collection; // 💡 Diperlukan untuk type hint Collection
 
 class AbsenceReportExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithTitle
 {
@@ -51,16 +51,15 @@ class AbsenceReportExport implements FromCollection, WithHeadings, WithMapping, 
     {
         return [
             'No',
+            'Jenis',
             'Tanggal',
-            'Waktu Absen',
+            'Waktu',
             'NISN',
             'Nama Siswa',
             'Kelas',
             'Status',
-            'Keterlambatan (Menit)',
-            'Latitude',
-            'Longitude',
-            'IP Address',
+            'Detail',
+            'Lokasi/Mapel',
         ];
     }
 
@@ -71,19 +70,30 @@ class AbsenceReportExport implements FromCollection, WithHeadings, WithMapping, 
     {
         $this->rowNumber++;
         $status = $absence->status ?? 'N/A';
+        $type = $absence->type ?? '-';
+        
+        $detail = '-';
+        $location = '-';
+
+        if ($type == 'Harian') {
+            $detail = ($status == 'Terlambat') ? ($absence->raw_data->late_duration ?? 0) . ' min' : '-';
+            $location = ($absence->raw_data->latitude ?? '-') . ', ' . ($absence->raw_data->longitude ?? '-');
+        } elseif ($type == 'Mapel') {
+             $detail = $absence->raw_data->journal->schedule->subject->name ?? '-';
+             $location = $absence->raw_data->journal->teacher->name ?? '-';
+        }
 
         return [
             $this->rowNumber,
-            $absence->attendance_time->format('d/m/Y'),
-            $absence->attendance_time->format('H:i:s'),
+            $type,
+            $absence->date->format('d/m/Y'),
+            $absence->date->format('H:i:s'),
             $absence->student->nisn ?? 'N/A',
             $absence->student->name ?? 'Siswa Dihapus',
-            $absence->student->class->name ?? 'N/A',
+            $absence->class_name ?? 'N/A',
             $status,
-            ($status == 'Terlambat') ? $absence->late_duration . ' min' : '-',
-            $absence->latitude ?? '-',
-            $absence->longitude ?? '-',
-            $absence->ip_address ?? '-',
+            $detail,
+            $location,
         ];
     }
 

@@ -97,18 +97,12 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">#</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Siswa
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kelas
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Waktu
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Lokasi
-                                / IP</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Detail
-                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Jenis</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Siswa</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kelas</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Waktu</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Detail</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-100">
@@ -116,6 +110,20 @@
                             <tr class="hover:bg-gray-50/50 transition duration-150">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-medium">{{ $loop->iteration }}
                                 </td>
+                                
+                                {{-- JENIS --}}
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($absence->type == 'Harian')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                            <i class="fas fa-school mr-1.5"></i> Sc.Harian
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-100">
+                                            <i class="fas fa-book-open mr-1.5"></i> Ab.Mapel
+                                        </span>
+                                    @endif
+                                </td>
+
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-bold text-gray-800">
                                         {{ $absence->student->name ?? 'Siswa Dihapus' }}</div>
@@ -124,13 +132,13 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-800">
-                                        {{ $absence->student->class->name ?? 'N/A' }}
+                                        {{ $absence->class_name }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900 font-medium">
-                                        {{ $absence->attendance_time->format('d/m/Y') }}</div>
-                                    <div class="text-xs text-gray-500">{{ $absence->attendance_time->format('H:i') }} WIB</div>
+                                        {{ $absence->date->format('d/m/Y') }}</div>
+                                    <div class="text-xs text-gray-500">{{ $absence->date->format('H:i') }} WIB</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
@@ -140,39 +148,18 @@
                                             'Absen' => 'bg-red-100 text-red-700',
                                             'Izin' => 'bg-blue-100 text-blue-700',
                                             'Sakit' => 'bg-purple-100 text-purple-700',
+                                            'Alpha' => 'bg-red-100 text-red-700',
                                         ];
-                                        $style = $statusStyles[$absence->status] ?? 'bg-gray-100 text-gray-600';
+                                        // Normalize case just in case
+                                        $st = ucfirst(strtolower($absence->status));
+                                        $style = $statusStyles[$st] ?? 'bg-gray-100 text-gray-600';
                                     @endphp
                                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full {{ $style }}">
                                         {{ $absence->status }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {{-- LOKASI & IP --}}
-                                    @if($absence->latitude && $absence->longitude)
-                                        <a href="https://www.google.com/maps?q={{ $absence->latitude }},{{ $absence->longitude }}"
-                                            target="_blank"
-                                            class="text-xs text-indigo-600 hover:text-indigo-800 hover:underline flex items-center mb-1">
-                                            <i class="fas fa-map-marker-alt text-red-500 mr-1.5"></i> Maps
-                                        </a>
-                                    @else
-                                        <span class="text-xs text-gray-400 block mb-1">-</span>
-                                    @endif
-
-                                    @if($absence->ip_address)
-                                        <div
-                                            class="text-[10px] text-gray-500 font-mono bg-gray-50 px-1.5 py-0.5 rounded inline-block border border-gray-100">
-                                            IP: {{ $absence->ip_address }}
-                                        </div>
-                                    @endif
-                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    @if ($absence->status == 'Terlambat')
-                                        <span class="text-amber-600 font-medium"><i class="fas fa-clock mr-1"></i>
-                                            {{ $absence->late_duration }} menit</span>
-                                    @else
-                                        -
-                                    @endif
+                                    {!! $absence->detail_html !!}
                                 </td>
                             </tr>
                         @endforeach
