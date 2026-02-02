@@ -79,7 +79,7 @@ class ScanController extends Controller
             ],
             [
                 'teacher_id' => Auth::id(),
-                'title' => 'Pertemuan ' . ($schedule->subject->name ?? 'Mapel'),
+                'topic' => 'Pertemuan ' . ($schedule->subject->name ?? 'Mapel'),
                 'description' => 'Absensi via QR Scan',
                 'status' => 'pending' // Bisa diubah statusnya
             ]
@@ -138,7 +138,7 @@ class ScanController extends Controller
             ],
             [
                 'teacher_id' => Auth::id(),
-                'title' => 'Pertemuan ' . ($schedule->subject->name ?? 'Mapel'),
+                'topic' => 'Pertemuan ' . ($schedule->subject->name ?? 'Mapel'),
                 'description' => 'Absensi Manual by Guru',
                 'status' => 'pending'
             ]

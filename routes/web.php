@@ -273,6 +273,8 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->group(function () {
     // Laporan Absensi
     Route::prefix('report')->group(function () {
         Route::get('/', [App\Http\Controllers\Teacher\ReportController::class, 'index'])->name('teacher.report.index');
+        Route::get('export/excel', [App\Http\Controllers\Teacher\ReportController::class, 'exportExcel'])->name('teacher.report.export.excel');
+        Route::get('export/pdf', [App\Http\Controllers\Teacher\ReportController::class, 'exportPdf'])->name('teacher.report.export.pdf');
     });
 });
 

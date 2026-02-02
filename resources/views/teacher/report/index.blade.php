@@ -1,195 +1,208 @@
 @extends('layouts.adminlte')
 
-@section('title', 'Laporan Absensi')
+@section('title', 'Laporan Absensi Siswa')
 
 @section('content_header')
-<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-    <div>
-        <h1 class="m-0 text-gray-800 font-bold text-2xl tracking-tight flex items-center">
-            <i class="fas fa-chart-pie text-indigo-500 mr-2"></i> Laporan Absensi
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+    <div class="mb-3 sm:mb-0">
+        <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center">
+            <i class="fas fa-chart-line text-purple-600 mr-3"></i>
+            Laporan Absensi
         </h1>
-        <p class="text-sm text-gray-500 mt-1">Rekap kehadiran siswa berdasarkan jurnal mengajar Anda.</p>
+        <p class="text-sm text-gray-500 mt-1">Laporan kehadiran siswa pada mata pelajaran Anda.</p>
     </div>
-    <div class="hidden sm:block">
-        <a href="{{ route('teacher.dashboard') }}" class="group flex items-center px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 hover:text-indigo-600 transition-all duration-200 shadow-sm">
-            <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Kembali
-        </a>
-    </div>
+    <nav class="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
+        <ol class="flex space-x-2">
+            <li><a href="{{ route('teacher.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 transition duration-150"><i class="fas fa-home"></i></a></li>
+            <li class="text-gray-300">/</li>
+            <li class="text-gray-800 font-bold">Laporan</li>
+        </ol>
+    </nav>
 </div>
 @stop
 
 @section('content')
 <div class="space-y-6">
-    
-    {{-- Filter Card --}}
-    <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+
+    {{-- FILTER SECTION --}}
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden transform transition hover:shadow-2xl duration-300">
         <div class="p-6">
-            <form action="{{ route('teacher.report.index') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
-                <div class="w-full md:w-1/3">
-                     <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Kelas</label>
-                     <div class="relative">
-                         <i class="fas fa-school absolute left-3 top-3.5 text-gray-400"></i>
-                         <select name="class_id" class="w-full pl-10 rounded-xl border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition p-2.5">
-                             <option value="">-- Semua Kelas --</option>
-                             @foreach($classes as $c)
-                                 <option value="{{ $c->id }}" {{ request('class_id') == $c->id ? 'selected' : '' }}>
-                                     {{ $c->name }}
-                                 </option>
-                             @endforeach
-                         </select>
-                     </div>
-                </div>
-                
-                <div class="w-full md:w-1/3">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Rentang Tanggal</label>
-                    <div class="relative">
-                        <i class="fas fa-calendar absolute left-3 top-3.5 text-gray-400"></i>
-                         <input type="date" name="date" value="{{ request('date') }}" class="w-full pl-10 rounded-xl border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition p-2.5">
+            <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+                <span class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-filter"></i>
+                </span>
+                Filter Laporan
+            </h3>
+            
+            <form action="{{ route('teacher.report.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {{-- KELAS --}}
+                <div class="col-span-1 md:col-span-1">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Pilih Kelas</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-chalkboard-teacher text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
+                        </div>
+                        <select name="class_id" class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all shadow-sm">
+                            <option value="">Semua Kelas</option>
+                            @foreach($classes as $c)
+                                <option value="{{ $c->id }}" {{ request('class_id') == $c->id ? 'selected' : '' }}>
+                                    {{ $c->name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
-                <div class="w-full md:w-auto">
-                    <button type="submit" class="w-full px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center">
-                        <i class="fas fa-filter mr-2"></i> Filter
-                    </button>
-                </div>
-                 @if(request()->has('class_id') || request()->has('date'))
-                    <div class="w-full md:w-auto">
-                        <a href="{{ route('teacher.report.index') }}" class="w-full px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-xl transition-all flex items-center justify-center">
-                            Reset
-                        </a>
+                {{-- TANGGAL MULAI --}}
+                <div class="col-span-1 md:col-span-1">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Dari Tanggal</label>
+                    <div class="relative group">
+                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-calendar-alt text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
+                        </div>
+                        <input type="date" name="start_date" value="{{ $startDate->format('Y-m-d') }}"
+                            class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all shadow-sm">
                     </div>
-                @endif
+                </div>
+
+                {{-- TANGGAL SELESAI --}}
+                <div class="col-span-1 md:col-span-1">
+                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Sampai Tanggal</label>
+                    <div class="relative group">
+                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-calendar-check text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
+                        </div>
+                        <input type="date" name="end_date" value="{{ $endDate->format('Y-m-d') }}"
+                             class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all shadow-sm">
+                    </div>
+                </div>
+
+                {{-- BUTTONS --}}
+                <div class="col-span-1 flex items-end space-x-2">
+                    <button type="submit" class="flex-1 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-bold py-2.5 px-4 rounded-xl focus:outline-none focus:shadow-outline transform hover:-translate-y-0.5 transition-all shadow-md">
+                        <i class="fas fa-search mr-2"></i> Tampilkan
+                    </button>
+                    @if(request('class_id') || request('start_date'))
+                         <a href="{{ route('teacher.report.index') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2.5 px-4 rounded-xl focus:outline-none focus:shadow-outline transform hover:-translate-y-0.5 transition-all shadow-sm" title="Reset Filter">
+                            <i class="fas fa-undo"></i>
+                        </a>
+                    @endif
+                </div>
             </form>
         </div>
     </div>
 
-    {{-- Results --}}
+    {{-- RESULT CARD --}}
     <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-        <div class="p-6 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
-             <div class="flex items-center space-x-2">
-                 <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold border border-indigo-100">
-                    Menampilkan {{ $journals->count() }} Data
-                 </span>
-             </div>
-        </div>
-
-        @if($journals->isEmpty())
-             <div class="flex flex-col items-center justify-center py-16 text-center">
-                <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
-                     <i class="fas fa-search text-3xl text-gray-300"></i>
-                </div>
-                <h4 class="text-gray-900 font-bold text-base">Tidak Ada Data Laporan</h4>
-                <p class="text-gray-500 text-sm mt-1 max-w-xs mx-auto">
-                    Coba sesuaikan filter pencarian Anda.
+        {{-- CARD HEADER --}}
+        <div class="p-6 border-b border-gray-100 bg-purple-50/30 flex flex-col lg:flex-row justify-between items-start lg:items-center">
+            <div class="mb-4 lg:mb-0">
+                <h3 class="text-lg font-bold text-gray-800">
+                    Hasil Laporan
+                    @if(request('class_id'))
+                        <span class="text-purple-600">Kelas {{ $classes->find(request('class_id'))->name ?? '' }}</span>
+                    @endif
+                </h3>
+                 <p class="text-sm text-gray-500 mt-1">
+                    <i class="far fa-calendar-alt mr-1"></i> Periode:
+                    <span class="font-medium text-gray-700">{{ $startDate->format('d/m/Y') }}</span> s/d <span class="font-medium text-gray-700">{{ $endDate->format('d/m/Y') }}</span>
                 </p>
             </div>
-        @else
-            <div class="overflow-x-auto">
-                {{-- Desktop Table --}}
-                <table class="w-full text-left border-collapse hidden md:table">
-                    <thead class="bg-gray-50/50 text-xs uppercase tracking-wider text-gray-500 font-bold border-b border-gray-100">
-                        <tr>
-                            <th class="px-6 py-4">Waktu</th>
-                            <th class="px-6 py-4">Kelas</th>
-                            <th class="px-6 py-4">Materi</th>
-                            <th class="px-6 py-4 text-center">Kehadiran</th>
-                            <th class="px-6 py-4 w-48">Progress Absen</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @foreach($journals as $journal)
-                            @php
-                                $totalSiswa = $journal->schedule->class->students->count();
-                                $hadirCount = \App\Models\SubjectAttendance::where('teaching_journal_id', $journal->id)->where('status', 'Hadir')->count();
-                                $persentase = $totalSiswa > 0 ? ($hadirCount / $totalSiswa) * 100 : 0;
-                                $color = $persentase >= 90 ? 'bg-emerald-500' : ($persentase >= 70 ? 'bg-indigo-500' : 'bg-amber-500');
-                            @endphp
-                            <tr class="hover:bg-indigo-50/10 transition duration-150 group">
-                                <td class="px-6 py-4">
-                                    <div class="text-sm font-bold text-gray-800">{{ $journal->date->translatedFormat('d M Y') }}</div>
-                                    <div class="text-xs text-gray-400 font-mono mt-0.5">
-                                        {{ \Carbon\Carbon::parse($journal->start_time)->format('H:i') }}
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                     <span class="px-2.5 py-1 rounded-lg bg-gray-100 text-gray-700 text-xs font-bold border border-gray-200">
-                                         {{ $journal->schedule->class->name }}
-                                     </span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="text-sm text-gray-700 font-medium truncate max-w-xs" title="{{ $journal->topic }}">
-                                        {{ $journal->topic }}
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <div class="text-lg font-bold text-gray-800">
-                                        {{ $hadirCount }}<span class="text-gray-400 text-sm font-normal">/{{ $totalSiswa }}</span>
-                                    </div>
-                                    <div class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">Hadir</div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center">
-                                        <div class="flex-1 w-full bg-gray-100 rounded-full h-2.5 mr-2">
-                                            <div class="{{ $color }} h-2.5 rounded-full" style="width: {{ $persentase }}%"></div>
-                                        </div>
-                                        <span class="text-xs font-bold text-gray-600 w-8 text-right">{{ round($persentase) }}%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+
+            {{-- EXPORT BUTTONS --}}
+            <div class="flex space-x-3">
+                 <form action="{{ route('teacher.report.export.excel') }}" method="GET" class="inline-flex">
+                    <input type="hidden" name="class_id" value="{{ request('class_id') }}">
+                    <input type="hidden" name="start_date" value="{{ $startDate->format('Y-m-d') }}">
+                    <input type="hidden" name="end_date" value="{{ $endDate->format('Y-m-d') }}">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-bold rounded-xl shadow-sm text-white bg-green-500 hover:bg-green-600 transition duration-150 transform hover:-translate-y-0.5">
+                        <i class="fas fa-file-excel mr-2"></i> Excel
+                    </button>
+                </form>
+
+                <form action="{{ route('teacher.report.export.pdf') }}" method="GET" class="inline-flex" target="_blank">
+                    <input type="hidden" name="class_id" value="{{ request('class_id') }}">
+                    <input type="hidden" name="start_date" value="{{ $startDate->format('Y-m-d') }}">
+                    <input type="hidden" name="end_date" value="{{ $endDate->format('Y-m-d') }}">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-bold rounded-xl shadow-sm text-white bg-red-500 hover:bg-red-600 transition duration-150 transform hover:-translate-y-0.5">
+                        <i class="fas fa-file-pdf mr-2"></i> PDF
+                    </button>
+                </form>
             </div>
+        </div>
 
-            {{-- Mobile Card List --}}
-            <div class="md:hidden space-y-4 p-4 bg-gray-50">
-                @foreach($journals as $journal)
-                    @php
-                        $totalSiswa = $journal->schedule->class->students->count();
-                        $hadirCount = \App\Models\SubjectAttendance::where('teaching_journal_id', $journal->id)->where('status', 'Hadir')->count();
-                        $persentase = $totalSiswa > 0 ? ($hadirCount / $totalSiswa) * 100 : 0;
-                        $color = $persentase >= 90 ? 'bg-emerald-500' : ($persentase >= 70 ? 'bg-indigo-500' : 'bg-amber-500');
-                    @endphp
-                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                        <div class="flex justify-between items-start mb-2">
-                             <div>
-                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-100 mb-1 inline-block">
-                                     {{ $journal->schedule->class->name }}
-                                 </span>
-                                 <h4 class="font-bold text-gray-800 text-sm">{{ $journal->topic }}</h4>
-                             </div>
-                             <div class="text-right">
-                                 <div class="text-xs font-bold text-gray-800">{{ $journal->date->translatedFormat('d M') }}</div>
-                             </div>
-                        </div>
-
-                        <div class="flex items-center mt-3 bg-gray-50 p-3 rounded-xl">
-                            <div class="flex-1">
-                                <div class="flex justify-between text-xs mb-1">
-                                    <span class="font-bold text-gray-500">Kehadiran</span>
-                                    <span class="font-bold text-gray-800">{{ $hadirCount }} / {{ $totalSiswa }} Siswa</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="{{ $color }} h-2 rounded-full" style="width: {{ $persentase }}%"></div>
-                                </div>
-                            </div>
-                            <div class="ml-3 pl-3 border-l border-gray-200">
-                                <span class="text-sm font-bold text-gray-700">{{ round($persentase) }}%</span>
-                            </div>
-                        </div>
+        <div class="p-0">
+            @if($absences->isEmpty())
+                <div class="p-12 text-center">
+                    <div class="inline-block p-4 rounded-full bg-indigo-50 text-indigo-500 mb-4">
+                        <i class="fas fa-search fa-3x"></i>
                     </div>
-                @endforeach
-            </div>
-
-        @endif
-        
-        {{-- Pagination --}}
-        @if($journals->hasPages())
-            <div class="p-6 border-t border-gray-100 bg-white">
-                {{ $journals->links() }}
-            </div>
-        @endif
+                    <h3 class="text-xl font-bold text-gray-800">Tidak Ada Data</h3>
+                    <p class="text-gray-500 mt-2">Belum ada data absensi pada periode dan kelas yang dipilih.</p>
+                </div>
+            @else
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-100">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">#</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Siswa</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kelas</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Waktu</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Mapel</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            @foreach($absences as $absence)
+                                <tr class="hover:bg-gray-50/50 transition duration-150">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-medium">{{ $loop->iteration }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-bold text-gray-800">{{ $absence->student->name ?? 'Siswa Dihapus' }}</div>
+                                        <div class="text-xs text-gray-500">NIS: {{ $absence->student->nis ?? '-' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-800">
+                                            {{ $absence->class_name }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 font-medium">{{ $absence->date->format('d/m/Y') }}</div>
+                                        <div class="text-xs text-gray-500">{{ $absence->date->format('H:i') }} WIB</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @php
+                                            $statusStyles = [
+                                                'Hadir' => 'bg-green-100 text-green-700',
+                                                'Terlambat' => 'bg-amber-100 text-amber-700',
+                                                'Absen' => 'bg-red-100 text-red-700', // Usually system uses Alpha?
+                                                'Alpha' => 'bg-red-100 text-red-700',
+                                                'Izin' => 'bg-blue-100 text-blue-700',
+                                                'Sakit' => 'bg-purple-100 text-purple-700',
+                                            ];
+                                            $st = ucfirst(strtolower($absence->status));
+                                            $style = $statusStyles[$st] ?? 'bg-gray-100 text-gray-600';
+                                        @endphp
+                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full {{ $style }}">
+                                            {{ $absence->status }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {!! $absence->detail_html !!}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
     </div>
 </div>
+@stop
+
+@section('js')
+<script>
+    // Optional: Add client-side logic if needed
+</script>
 @stop

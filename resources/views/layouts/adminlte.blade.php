@@ -34,8 +34,7 @@
 
     {{-- Scripts Tailwind (Wajib menggunakan @vite) --}}
     {{-- FALLBACK: Menggunakan CDN karena build process bermasalah di environment user --}}
-    {{--
-    <script src="https://cdn.tailwindcss.com"></script> --}}
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             corePlugins: {
