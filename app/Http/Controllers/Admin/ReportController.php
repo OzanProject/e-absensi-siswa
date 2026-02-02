@@ -70,7 +70,13 @@ class ReportController extends Controller
             $obj->student = $item->student;
             $obj->class_name = $item->student->class->name ?? 'N/A';
             $obj->class_grade = $item->student->class->grade ?? 0;
-            $obj->date = Carbon::parse($item->journal->date . ' ' . ($item->journal->start_time ?? '00:00:00'));
+            // Fix Carbon formatting issue - ensure date is string 'Y-m-d'
+            $dateStr = $item->journal->date instanceof \DateTimeInterface 
+                ? $item->journal->date->format('Y-m-d') 
+                : substr($item->journal->date, 0, 10);
+                
+            $timeStr = $item->journal->start_time ?? '00:00:00';
+            $obj->date = Carbon::parse($dateStr . ' ' . $timeStr);
             $obj->status = ucfirst($item->status); // Ensure Capitalized
             $obj->detail_html = $this->formatSubjectDetail($item);
             $obj->raw_data = $item;
