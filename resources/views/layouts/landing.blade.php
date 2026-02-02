@@ -8,6 +8,19 @@
 
     <title>@yield('title', 'E-Absensi Siswa')</title>
 
+    {{-- Favicon Logic --}}
+    @php
+        // Ambil pengaturan dari DB
+        $siteSettings = \App\Models\Setting::pluck('value', 'key')->toArray();
+        $logoPath = $siteSettings['school_logo'] ?? null;
+        
+        // Cek apakah file fisik logo ada, jika tidak pakai file favicon standar di folder public
+        $finalFavicon = ($logoPath && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPath)) 
+                        ? asset('storage/' . $logoPath) 
+                        : asset('favicon.ico'); 
+    @endphp
+    <link rel="icon" type="image/png" href="{{ $finalFavicon }}">
+
     {{-- Fonts & Icons --}}
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap"
