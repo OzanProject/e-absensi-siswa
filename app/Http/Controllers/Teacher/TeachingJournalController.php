@@ -40,9 +40,9 @@ class TeachingJournalController extends Controller
         // Prevent creating journal for incorrect day (optional, but good practice)
         Carbon::setLocale('id');
         $todayDay = Carbon::now()->isoFormat('dddd');
+        // Simple check, loose comparison
         if (strtolower($schedule->day) !== strtolower($todayDay)) {
-            // Allow backfilling? Maybe. For now, warn but allow if strictly needed, or block.
-            // Let's just flash a warning but allow for demo purposes
+             // Just flash warning
             session()->flash('warning', 'Peringatan: Anda mengisi jurnal di luar jadwal hari ini (' . $schedule->day . ').');
         }
 
@@ -115,7 +115,7 @@ class TeachingJournalController extends Controller
         $schedule = $journal->schedule;
         $attendances = $journal->attendances->pluck('status', 'student_id')->toArray();
 
-        // Get all students again in case new students joined or to ensure complete list
+        // Get all students again
         $students = Student::where('class_id', $schedule->class_id)
             ->where('status', 'active')
             ->orderBy('name')
@@ -145,7 +145,6 @@ class TeachingJournalController extends Controller
             $journal->update([
                 'topic' => $request->topic,
                 'notes' => $request->notes,
-                // Optional: update end_time if marking complete
             ]);
 
             // Update Details
@@ -157,6 +156,38 @@ class TeachingJournalController extends Controller
             }
         });
 
-        return redirect()->route('teacher.dashboard')->with('success', 'Jurnal berhasil diperbarui.');
+        return redirect()->route('teacher.journals.index')->with('success', 'Jurnal berhasil diperbarui.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(TeachingJournal $journal)
+    {
+        if ($journal->teacher_id != Auth::id()) {
+            abort(403);
+        }
+
+        // Delete dependencies first if no cascade (safe approach)
+        SubjectAttendance::where('teaching_journal_id', $journal->id)->delete();
+        $journal->delete();
+
+        return redirect()->route('teacher.journals.index')->with('success', 'Jurnal berhasil dihapus.');
+    }
+
+    /**
+     * Reset/Bulk set attendance for a journal
+     */
+    public function resetAttendance(TeachingJournal $journal)
+    {
+        if ($journal->teacher_id != Auth::id()) {
+            abort(403);
+        }
+
+        // Reset all to 'Hadir'
+        SubjectAttendance::where('teaching_journal_id', $journal->id)
+            ->update(['status' => 'Hadir']);
+
+        return redirect()->back()->with('success', 'Semua kehadiran berhasil di-reset ke Hadir.');
     }
 }

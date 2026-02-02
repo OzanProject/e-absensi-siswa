@@ -101,11 +101,23 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <a href="{{ route('teacher.journals.edit', $journal->id) }}"
-                                        class="inline-flex w-8 h-8 items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-indigo-600 hover:border-indigo-200 transition-colors shadow-sm"
-                                        title="Edit Jurnal">
-                                        <i class="fas fa-pen text-xs"></i>
-                                    </a>
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <a href="{{ route('teacher.journals.edit', $journal->id) }}"
+                                            class="inline-flex w-8 h-8 items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-indigo-600 hover:border-indigo-200 transition-colors shadow-sm"
+                                            title="Edit Jurnal">
+                                            <i class="fas fa-pen text-xs"></i>
+                                        </a>
+                                        <form action="{{ route('teacher.journals.destroy', $journal->id) }}" method="POST"
+                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus jurnal ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="inline-flex w-8 h-8 items-center justify-center rounded-lg bg-white border border-red-200 text-red-400 hover:text-red-600 hover:border-red-300 transition-colors shadow-sm"
+                                                title="Hapus Jurnal">
+                                                <i class="fas fa-trash text-xs"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -145,8 +157,17 @@
                             </span>
                             <a href="{{ route('teacher.journals.edit', $journal->id) }}"
                                 class="px-3 py-1.5 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-lg shadow-sm hover:bg-gray-50">
-                                Edit Jurnal
+                                Edit
                             </a>
+                            <form action="{{ route('teacher.journals.destroy', $journal->id) }}" method="POST"
+                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus jurnal ini? Data absensi siswa juga akan terhapus.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    class="px-3 py-1.5 bg-white border border-red-200 text-red-600 text-xs font-bold rounded-lg shadow-sm hover:bg-red-50 ml-2">
+                                    Hapus
+                                </button>
+                            </form>
                         </div>
                     </div>
                 @endforeach

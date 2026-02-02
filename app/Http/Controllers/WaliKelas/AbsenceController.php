@@ -331,10 +331,10 @@ class AbsenceController extends Controller
     {
         $earthRadius = 6371000; // Radius bumi dalam meter
 
-        $lat1 = deg2rad($lat1);
-        $lon1 = deg2rad($lon1);
-        $lat2 = deg2rad($lat2);
-        $lon2 = deg2rad($lon2);
+        $lat1 = deg2rad((float) $lat1);
+        $lon1 = deg2rad((float) $lon1);
+        $lat2 = deg2rad((float) $lat2);
+        $lon2 = deg2rad((float) $lon2);
 
         $latDelta = $lat2 - $lat1;
         $lonDelta = $lon2 - $lon1;

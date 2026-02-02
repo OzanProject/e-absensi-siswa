@@ -9,6 +9,8 @@ use App\Models\Schedule;
 use App\Models\Student;
 use App\Models\TeachingJournal;
 use App\Models\SubjectAttendance;
+use App\Models\Setting;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class ScanController extends Controller
@@ -47,9 +49,53 @@ class ScanController extends Controller
     public function store(Request $request, Schedule $schedule)
     {
         $request->validate([
-            'barcode' => 'required|string'
+            'barcode' => 'required|string',
+            'latitude' => 'nullable',
+            'longitude' => 'nullable',
         ]);
 
+        // --- 1. SETTINGS & LOCATION CHECK ---
+        $settings = Cache::remember('attendance_settings', 3600, function () {
+            return Setting::whereIn('key', [
+                'school_latitude', 'school_longitude', 'school_radius_meters', 'enable_location_check'
+            ])->pluck('value', 'key');
+        });
+
+        $latitude = $request->input('latitude');
+        $longitude = $request->input('longitude');
+        $distance = 0;
+
+        if (($settings['enable_location_check'] ?? 'false') === 'true') {
+            if (!$latitude || !$longitude) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Gagal mendapatkan lokasi. Pastikan GPS aktif.'
+                ], 400);
+            }
+
+            $schoolLat = $settings['school_latitude'] ?? 0;
+            $schoolLng = $settings['school_longitude'] ?? 0;
+            $radiusMax = $settings['school_radius_meters'] ?? 100;
+
+            $distance = $this->calculateDistance($latitude, $longitude, $schoolLat, $schoolLng);
+
+            if ($distance > $radiusMax) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Diluar jangkauan. Jarak: " . round($distance) . "m (Max: $radiusMax m)."
+                ], 403);
+            }
+        } else {
+             // Calculate distance anyway if coords provided for info
+             if ($latitude && $longitude) {
+                 $schoolLat = $settings['school_latitude'] ?? 0;
+                 $schoolLng = $settings['school_longitude'] ?? 0;
+                 $distance = $this->calculateDistance($latitude, $longitude, $schoolLat, $schoolLng);
+             }
+        }
+
+        // --- 2. STUDENT VALIDATION ---
+        
         // Cari siswa by NIS atau NISN
         $student = Student::where('nis', $request->barcode)
             ->orWhere('nisn', $request->barcode)
@@ -70,18 +116,19 @@ class ScanController extends Controller
             ], 400);
         }
 
+        // --- 3. JOURNAL & ATTENDANCE ---
+
         // Cari atau buat Jurnal untuk hari ini
-        // Kita gunakan lockForUpdate untuk mencegah race condition jika scan cepat
         $journal = TeachingJournal::firstOrCreate(
             [
                 'schedule_id' => $schedule->id,
-                'date' => Carbon::now()->format('Y-m-d'), // Pastikan format date string
+                'date' => Carbon::now()->format('Y-m-d'), 
             ],
             [
                 'teacher_id' => Auth::id(),
                 'topic' => 'Pertemuan ' . ($schedule->subject->name ?? 'Mapel'),
                 'description' => 'Absensi via QR Scan',
-                'status' => 'pending' // Bisa diubah statusnya
+                'status' => 'pending' 
             ]
         );
 
@@ -96,7 +143,7 @@ class ScanController extends Controller
                 'message' => 'Siswa sudah absen sebelumnya.',
                 'student' => ['name' => $student->name, 'class' => $student->class->name ?? 'N/A'],
                 'type' => 'IN',
-                'distance' => 0 // Dummy
+                'distance' => round($distance)
             ]);
         }
 
@@ -107,7 +154,7 @@ class ScanController extends Controller
                 'student_id' => $student->id,
             ],
             [
-                'status' => 'hadir' // Di mapel biasanya hadir/tidak hadir, terlambat jarang dihitung otomatis by system kecuali manual
+                'status' => 'hadir' 
             ]
         );
 
@@ -116,7 +163,7 @@ class ScanController extends Controller
             'message' => 'Berhasil absen!',
             'student' => ['name' => $student->name, 'class' => $student->class->name ?? 'N/A'],
             'type' => 'IN',
-            'distance' => 0, // Dummy
+            'distance' => round($distance),
             'time' => Carbon::now()->format('H:i:s')
         ]);
     }
@@ -169,7 +216,7 @@ class ScanController extends Controller
 
         $request->validate([
             'attendances' => 'required|array',
-            'attendances.*' => 'required|in:hadir,izin,sakit,alpha,terlambat', // Lowercase to match DB enum usually, check logic
+            'attendances.*' => 'required|in:hadir,izin,sakit,alpha,terlambat', 
         ]);
 
         // Find Journal (Should exist from view)
@@ -184,11 +231,36 @@ class ScanController extends Controller
                     'student_id' => $studentId,
                 ],
                 [
-                    'status' => strtolower($status) // Ensure lowercase for DB
+                    'status' => strtolower($status) 
                 ]
             );
         }
 
         return redirect()->route('teacher.scan.index')->with('success', 'Absensi manual berhasil disimpan!');
+    }
+
+    /**
+     * Hitung jarak (Haversine Formula) - Copied from CentralAbsenceController
+     */
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371000; // Radius bumi dalam meter
+
+        // Cast to float to avoid Type Error
+        $lat1 = deg2rad((float) $lat1);
+        $lon1 = deg2rad((float) $lon1);
+        $lat2 = deg2rad((float) $lat2);
+        $lon2 = deg2rad((float) $lon2);
+
+        $latDelta = $lat2 - $lat1;
+        $lonDelta = $lon2 - $lon1;
+
+        $a = sin($latDelta / 2) * sin($latDelta / 2) +
+            cos($lat1) * cos($lat2) *
+            sin($lonDelta / 2) * sin($lonDelta / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c;
     }
 }

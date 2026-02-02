@@ -101,7 +101,7 @@
                         <span class="ml-2 bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-lg">{{ $students->count() }} Siswa</span>
                     </h3>
                     
-                    <button type="button" class="w-full sm:w-auto px-4 py-2 bg-emerald-100 text-emerald-700 font-bold rounded-xl hover:bg-emerald-200 transition-colors text-sm shadow-sm" onclick="setAll('Hadir')">
+                    <button type="button" class="w-full sm:w-auto px-4 py-2 bg-emerald-100 text-emerald-700 font-bold rounded-xl hover:bg-emerald-200 transition-colors text-sm shadow-sm" onclick="confirmReset()">
                         <i class="fas fa-check-double mr-2"></i> Reset Semua Hadir
                     </button>
                 </div>
@@ -168,46 +168,49 @@
     </div>
 </form>
 
+<form id="resetForm" action="{{ route('teacher.journals.reset', $journal->id) }}" method="POST" style="display: none;">
+    @csrf
+</form>
+
 @section('js')
 <script>
-    function setAll(status) {
-        const radios = document.querySelectorAll(`input[type="radio"][value="${status}"]`);
-        radios.forEach(radio => {
-            radio.checked = true;
-        });
-        
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true
-        });
-
-        Toast.fire({
-            icon: 'success',
-            title: 'Semua siswa ditandai ' + status
-        });
+    function confirmReset() {
+        Swal.fire({
+            title: 'Reset Semua Hadir?',
+            text: "Status kehadiran semua siswa akan diubah menjadi 'Hadir'. Data yang belum disimpan akan hilang.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981', // Emerald
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Reset!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('resetForm').submit();
+            }
+        })
     }
-
+    
     // Submit Loading State
     const form = document.querySelector('#journalForm');
-    form.addEventListener('submit', function() {
-        const btnDesktop = document.querySelector('#submitBtnDesktop');
-        const btnMobile = document.querySelector('#submitBtnMobile');
-        
-        if(btnDesktop) {
-            btnDesktop.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Menyimpan...';
-            btnDesktop.disabled = true;
-            btnDesktop.classList.add('opacity-75');
-        }
-        
-        if(btnMobile) {
-            btnMobile.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Menyimpan...';
-            btnMobile.disabled = true;
-             btnMobile.classList.add('opacity-75');
-        }
-    });
+    if(form) {
+        form.addEventListener('submit', function() {
+            const btnDesktop = document.querySelector('#submitBtnDesktop');
+            const btnMobile = document.querySelector('#submitBtnMobile');
+            
+            if(btnDesktop) {
+                btnDesktop.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Menyimpan...';
+                btnDesktop.disabled = true;
+                btnDesktop.classList.add('opacity-75');
+            }
+            
+            if(btnMobile) {
+                btnMobile.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Menyimpan...';
+                btnMobile.disabled = true;
+                btnMobile.classList.add('opacity-75');
+            }
+        });
+    }
 </script>
 @stop
 @stop

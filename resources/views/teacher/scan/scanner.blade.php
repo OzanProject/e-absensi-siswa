@@ -187,6 +187,8 @@
         const csrfToken = '{{ csrf_token() }}';
         const RESCAN_DELAY = 2500;
         let isProcessing = false;
+        let currentLat = null;
+        let currentLng = null;
 
         // --- UI TEMPLATES ---
         const UI = {
@@ -265,8 +267,6 @@
             if (emptyLog.length) emptyLog.hide();
 
             let style = {};
-            // For Teacher, logic is simple 'Hadir' usually
-            // Mapel biasanya hanya Hadir
             if (data.status === 'success' || data.type === 'IN') {
                 style = { border: 'border-emerald-500', bg: 'bg-emerald-100', text: 'text-emerald-700', icon: 'fa-check', label: 'HADIR' };
             } else if (data.status === 'warning') { // Already Scanned
@@ -276,10 +276,11 @@
             }
 
             const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-
-            // Handle data.student object or string fallback
             const studentName = data.student.name || data.student;
             const studentClass = data.student.class || 'Siswa';
+            
+            // Show distance if available
+            const distanceInfo = data.distance ? `<p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-map-marker-alt mr-1"></i> ${data.distance}m</p>` : '';
 
             const html = `
                         <li class="bg-white p-3 rounded-xl border-l-4 ${style.border} shadow-sm animate__animated animate__fadeInLeft hover:shadow-md transition-shadow">
@@ -291,6 +292,7 @@
                                     <div>
                                         <p class="font-bold text-gray-800 text-sm">${studentName}</p>
                                         <p class="text-xs text-gray-500">${studentClass}</p>
+                                        ${distanceInfo}
                                     </div>
                                 </div>
                                 <div class="text-right">
@@ -315,8 +317,9 @@
                 method: 'POST',
                 data: {
                     _token: csrfToken,
-                    barcode: code
-                    // Teacher scan doesn't require geo/ip check currently
+                    barcode: code,
+                    latitude: currentLat, // Send GPS data
+                    longitude: currentLng
                 },
                 success: function (response) {
                     playBeep(true);
@@ -325,6 +328,8 @@
                     if (response.status === 'error') type = 'error';
 
                     let msg = response.message;
+                    if (response.distance) msg += ` (${response.distance}m)`;
+
                     showToast(type, msg);
 
                     // Add to log
@@ -362,6 +367,33 @@
                 const now = new Date();
                 $('#server-time-display').text(now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }));
             }, 1000);
+
+            // GPS (NEW: Added Geolocation)
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        currentLat = pos.coords.latitude;
+                        currentLng = pos.coords.longitude;
+                        $('#gps-indicator-area').html(`
+                                <div class="bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs flex items-center shadow-lg border border-white/10">
+                                    <span class="relative flex h-2 w-2 mr-2">
+                                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                    </span>
+                                    GPS Aktif
+                                </div>`);
+                    },
+                    (err) => {
+                        console.warn('GPS Error', err);
+                        $('#gps-indicator-area').html(`
+                                <div class="bg-red-600/80 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs flex items-center shadow-lg border border-white/10">
+                                    <i class="fas fa-exclamation-triangle mr-1.5"></i> GPS Off
+                                </div>`);
+                        Swal.fire({ icon: 'warning', title: 'GPS Mati', text: 'Lokasi tidak terdeteksi. Pastikan GPS aktif di pengaturan browser.', toast: true, position: 'top-end', timer: 5000 });
+                    },
+                    { enableHighAccuracy: true }
+                );
+            }
 
             // Scanner
             const html5QrCode = new Html5Qrcode("scanner");

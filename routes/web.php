@@ -257,6 +257,8 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->group(function () {
         Route::post('store/{schedule}', [App\Http\Controllers\Teacher\TeachingJournalController::class, 'store'])->name('teacher.journals.store');
         Route::get('edit/{journal}', [App\Http\Controllers\Teacher\TeachingJournalController::class, 'edit'])->name('teacher.journals.edit');
         Route::put('update/{journal}', [App\Http\Controllers\Teacher\TeachingJournalController::class, 'update'])->name('teacher.journals.update');
+        Route::delete('delete/{journal}', [App\Http\Controllers\Teacher\TeachingJournalController::class, 'destroy'])->name('teacher.journals.destroy');
+        Route::post('reset/{journal}', [App\Http\Controllers\Teacher\TeachingJournalController::class, 'resetAttendance'])->name('teacher.journals.reset');
     });
 
     // Scan Absensi (Mapel)
