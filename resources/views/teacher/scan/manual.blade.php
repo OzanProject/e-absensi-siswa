@@ -66,10 +66,8 @@
                     <tbody class="divide-y divide-gray-50">
                         @foreach($students as $index => $student)
                             @php
-                                // Get existing status or default to 'hadir' (or empty if you prefer unchecked)
-                                // Standard logic: first time load -> default hadir? or let user choose? 
-                                // Let's default to 'hadir' if not set, for quicker input
-                                $currentStatus = $attendances[$student->id] ?? 'hadir'; 
+                                // Ensure lowercase for comparison
+                                $currentStatus = strtolower($attendances[$student->id] ?? 'hadir'); 
                             @endphp
                             <tr class="hover:bg-indigo-50/20 transition-colors group">
                                 <td class="px-6 py-4 text-center text-gray-400 font-mono text-sm group-hover:text-indigo-400">{{ $index + 1 }}</td>
