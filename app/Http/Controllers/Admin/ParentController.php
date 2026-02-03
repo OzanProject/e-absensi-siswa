@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB; 
 use Exception; // Diperlukan untuk penanganan error umum
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ParentsImport;
+use App\Exports\ParentTemplateExport;
 
 class ParentController extends Controller
 {
@@ -191,5 +194,67 @@ class ParentController extends Controller
             DB::rollBack();
             return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
+    }
+    // -----------------------------------------------------------------
+    // IMPORT / EXPORT TEMPLATE
+    // -----------------------------------------------------------------
+
+    public function import(Request $request) 
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv',
+        ]);
+
+        try {
+            Excel::import(new ParentsImport, $request->file('file'));
+            return redirect()->route('parents.index')->with('success', 'Data Orang Tua berhasil diimport!');
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Gagal import data: ' . $e->getMessage());
+        }
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(new ParentTemplateExport, 'template_import_orang_tua.xlsx');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->input('selected_parents');
+        
+        if (is_string($ids)) {
+            $ids = explode(',', $ids);
+        }
+
+        if (empty($ids) || !is_array($ids)) {
+            return redirect()->back()->with('error', 'Tidak ada data yang dipilih untuk dihapus.');
+        }
+
+        $count = 0;
+        $parents = ParentModel::whereIn('id', $ids)->get();
+
+        foreach ($parents as $parent) {
+            DB::beginTransaction();
+            try {
+                // 1. Hapus relasi M:M ke siswa
+                $parent->students()->detach(); 
+
+                // 2. Hapus akun User
+                if ($parent->user) {
+                     $parent->user->delete(); 
+                }
+
+                // 3. Hapus ParentModel
+                $parent->delete(); 
+                
+                DB::commit();
+                $count++;
+            } catch (Exception $e) {
+                DB::rollBack();
+                // Lanjut ke item berikutnya meski satu gagal, atau bisa juga stop. Kita lanjut saja.
+            }
+        }
+
+        return redirect()->route('parents.index')->with('success', "{$count} data orang tua berhasil dihapus secara massal.");
     }
 }

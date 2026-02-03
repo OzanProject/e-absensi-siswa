@@ -61,6 +61,19 @@
         {{-- TOOLBAR --}}
         <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50/50">
             
+            {{-- SELECT & BULK ACTIONS --}}
+            <div id="bulk-action-container" class="hidden flex items-center space-x-2 w-full md:w-auto p-2 bg-red-50 rounded-xl border border-red-100">
+                <span id="selected-count" class="text-xs font-bold text-red-700">0 Dipilih</span>
+                <button type="button" onclick="confirmBulkDelete()" 
+                   class="inline-flex justify-center items-center px-3 py-1.5 border border-transparent text-xs font-bold rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors">
+                    <i class="fas fa-trash-alt mr-1"></i> Hapus Masal
+                </button>
+                <form id="bulk-delete-form" action="{{ route('parents.bulkDelete') }}" method="POST" class="hidden">
+                    @csrf @method('DELETE')
+                    <input type="hidden" name="selected_parents" id="selected-parents-input">
+                </form>
+            </div>
+
             {{-- SEARCH --}}
             <form action="{{ route('parents.index') }}" method="GET" class="relative w-full md:w-96 group">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -71,8 +84,21 @@
                        placeholder="Cari Nama, HP, atau Nama Anak..." value="{{ request('search') }}">
             </form>
 
-            {{-- ACTIONS --}}
-            <div class="flex items-center space-x-3 w-full md:w-auto">
+            {{-- ACTIONS (Normal) --}}
+            <div id="normal-actions" class="flex items-center space-x-3 w-full md:w-auto">
+                {{-- Template --}}
+                <a href="{{ route('parents.template') }}" 
+                   class="inline-flex justify-center items-center px-4 py-3 border border-gray-200 text-sm font-bold rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 shadow-sm transition-all duration-200">
+                    <i class="fas fa-file-excel text-green-600 mr-2"></i> Template
+                </a>
+                
+                {{-- Import Trigger --}}
+                <button type="button" onclick="openImportModal()" 
+                   class="inline-flex justify-center items-center px-4 py-3 border border-transparent text-sm font-bold rounded-xl text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-md transform hover:-translate-y-0.5 transition-all duration-200">
+                    <i class="fas fa-file-upload mr-2"></i> Import Excel
+                </button>
+
+                {{-- Create --}}
                 <a href="{{ route('parents.create') }}" 
                    class="flex-1 md:flex-none inline-flex justify-center items-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-md transform hover:-translate-y-0.5 transition-all duration-200">
                     <i class="fas fa-plus mr-2"></i> Tambah Orang Tua
@@ -84,6 +110,9 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50/80">
                     <tr>
+                        <th scope="col" class="px-6 py-4 text-center w-10">
+                             <input type="checkbox" id="check-all" class="rounded text-purple-600 border-gray-300 focus:ring-purple-500">
+                        </th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                             Orang Tua
                         </th>
@@ -102,6 +131,11 @@
                     @forelse($parents as $parent)
                     <tr class="hover:bg-purple-50/30 transition-colors duration-150 group">
                         
+                        {{-- Checkbox --}}
+                        <td class="px-6 py-4 text-center">
+                            <input type="checkbox" name="selected_parents[]" value="{{ $parent->id }}" class="bulk-checkbox rounded text-purple-600 border-gray-300 focus:ring-purple-500">
+                        </td>
+
                         {{-- Nama & Status --}}
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
@@ -199,19 +233,159 @@
         
     </div>
 </div>
+
+{{-- MODAL IMPORT --}}
+<div id="importModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        {{-- Background overlay --}}
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeImportModal()"></div>
+
+        {{-- Center trick --}}
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        {{-- Modal Panel --}}
+        <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+            <form action="{{ route('parents.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <i class="fas fa-file-excel text-green-600"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                Import Data Orang Tua
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500 mb-4">
+                                    Upload file Excel (.xlsx) sesuai template. Sistem akan otomatis membuat akun User dan menautkan ke Siswa berdasarkan NISN.
+                                </p>
+                                
+                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:bg-gray-50 transition-colors bg-gray-50">
+                                    <div class="space-y-1 text-center">
+                                        <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl mb-3"></i>
+                                        <div class="flex text-sm text-gray-600 justify-center">
+                                            <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                                <span>Upload a file</span>
+                                                <input id="file-upload" name="file" type="file" class="sr-only" accept=".xlsx, .xls, .csv" required>
+                                            </label>
+                                            <p class="pl-1">or drag and drop</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">
+                                            XLSX, XLS up to 10MB
+                                        </p>
+                                        <p id="filename-display" class="text-xs text-green-600 font-bold mt-2 hidden"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Import Data
+                    </button>
+                    <button type="button" onclick="closeImportModal()" class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @stop
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    // Modal Functions
+    function openImportModal() {
+        document.getElementById('importModal').classList.remove('hidden');
+    }
+    function closeImportModal() {
+        document.getElementById('importModal').classList.add('hidden');
+    }
+
+    // File Name Display
+    document.getElementById('file-upload').addEventListener('change', function(e) {
+        const fileName = e.target.files[0]?.name;
+        const display = document.getElementById('filename-display');
+        if (fileName) {
+            display.textContent = 'Selected: ' + fileName;
+            display.classList.remove('hidden');
+        } else {
+            display.classList.add('hidden');
+        }
+    });
+
     // Konstanta Warna SweetAlert (Sesuaikan dengan Tema)
     const SWAL_COLOR = {
         confirm: '#6366f1', // Indigo 500
         cancel: '#9ca3af',  // Gray 400
-        danger: '#ef4444'   // Red 500
+        danger: '#ef4444',   // Red 500
+        success: '#10b981'
     };
 
-    // Fungsi Hapus Global
+    // ---------- 1. CHECKBOX & BULK UI LOGIC ----------
+    document.addEventListener('DOMContentLoaded', () => {
+        const checkAll = document.getElementById('check-all');
+        const checkboxes = document.querySelectorAll('.bulk-checkbox');
+        const bulkContainer = document.getElementById('bulk-action-container');
+        const normalActions = document.getElementById('normal-actions');
+        const selectedCountLabel = document.getElementById('selected-count');
+        const selectedInput = document.getElementById('selected-parents-input');
+
+        function updateBulkUI() {
+            const selected = Array.from(document.querySelectorAll('.bulk-checkbox:checked')).map(cb => cb.value);
+            const count = selected.length;
+
+            if (count > 0) {
+                bulkContainer.classList.remove('hidden');
+                normalActions.classList.add('hidden'); // Sembunyikan aksi normal agar tidak penuh
+                selectedCountLabel.textContent = `${count} Dipilih`;
+                selectedInput.value = selected.join(',');
+            } else {
+                bulkContainer.classList.add('hidden');
+                normalActions.classList.remove('hidden');
+                selectedInput.value = '';
+            }
+        }
+
+        if (checkAll) {
+            checkAll.addEventListener('change', () => {
+                checkboxes.forEach(cb => cb.checked = checkAll.checked);
+                updateBulkUI();
+            });
+        }
+
+        checkboxes.forEach(cb => cb.addEventListener('change', updateBulkUI));
+    });
+
+    // ---------- 2. ACTIONS ----------
+
+    // Hapus Masal
+    function confirmBulkDelete() {
+        const count = document.querySelectorAll('.bulk-checkbox:checked').length;
+        if (count === 0) return;
+
+        Swal.fire({
+            title: `Hapus ${count} Data Orang Tua?`,
+            text: "Aksi ini akan menghapus akun login dan melepaskan relasi siswa secara permanen.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: SWAL_COLOR.danger,
+            cancelButtonColor: SWAL_COLOR.cancel,
+            confirmButtonText: 'Ya, Hapus Semua',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('bulk-delete-form').submit();
+            }
+        });
+    }
+
+    // Fungsi Hapus Global (Single)
     function confirmDelete(id, name) {
         Swal.fire({
             title: 'Hapus Akun Orang Tua?',

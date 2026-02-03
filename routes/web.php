@@ -57,6 +57,11 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->group(function
     Route::get('school-teachers/template', [\App\Http\Controllers\Admin\SchoolTeacherController::class, 'downloadTemplate'])->name('admin.school-teachers.template');
 
     Route::resource('school-teachers', \App\Http\Controllers\Admin\SchoolTeacherController::class)->names('admin.school-teachers'); // Data Guru
+    
+    // Parent Import
+    Route::get('parents/template', [AdminParentController::class, 'downloadTemplate'])->name('parents.template');
+    Route::post('parents/import', [AdminParentController::class, 'import'])->name('parents.import');
+    Route::delete('parents/bulk-delete', [AdminParentController::class, 'bulkDelete'])->name('parents.bulkDelete');
     Route::resource('parents', AdminParentController::class)->names('parents');
     Route::resource('subjects', SubjectController::class)->names('admin.subjects');
     Route::resource('schedules', ScheduleController::class)->names('admin.schedules');
