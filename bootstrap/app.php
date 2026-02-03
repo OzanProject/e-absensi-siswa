@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // ✅ Perbaikan: Menggunakan nama class yang diimport.
         $middleware->alias([
             'role' => RoleMiddleware::class, 
+            'restrict.demo' => \App\Http\Middleware\RestrictDemoAccess::class,
+        ]);
+
+        $middleware->web(append: [
+            \App\Http\Middleware\RestrictDemoAccess::class,
         ]);
         
         // Catatan: Jika ada middleware lain yang perlu didaftarkan (e.g., global web group), 

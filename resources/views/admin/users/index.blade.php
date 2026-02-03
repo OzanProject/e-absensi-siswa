@@ -218,24 +218,38 @@
                                         <span class="text-xs text-green-600 font-bold flex items-center"><i
                                                 class="fas fa-check-circle mr-1"></i> System Active</span>
                                     @else
-                                        @if($user->is_approved)
-                                            <span class="text-xs text-green-600 font-bold flex items-center"><i
-                                                    class="fas fa-check mr-1"></i> Disetujui</span>
-                                        @else
-                                            <span class="text-xs text-red-500 font-bold flex items-center"><i
-                                                    class="fas fa-clock mr-1"></i> Menunggu Audit</span>
-                                        @endif
+                                        <div class="flex flex-col space-y-1">
+                                            @if($user->is_approved)
+                                                <span class="text-xs text-green-600 font-bold flex items-center"><i
+                                                        class="fas fa-check mr-1"></i> Disetujui</span>
+                                            @else
+                                                <span class="text-xs text-red-500 font-bold flex items-center"><i
+                                                        class="fas fa-clock mr-1"></i> Menunggu Audit</span>
+                                            @endif
+                                            
+                                            @if($user->is_demo)
+                                                <span class="text-xs text-amber-600 font-bold flex items-center bg-amber-50 px-1 py-0.5 rounded border border-amber-200 w-fit"><i
+                                                        class="fas fa-flask mr-1"></i> Demo Mode</span>
+                                            @endif
+                                        </div>
                                     @endif
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 @if(!$user->isSuperAdmin())
                                     <div class="flex justify-center space-x-2">
+                                        {{-- Toggle Demo --}}
+                                        <button type="button" data-user-id="{{ $user->id }}" data-is-demo="{{ $user->is_demo }}"
+                                            class="js-toggle-demo p-2 rounded-lg transition-all duration-200 border group-hover:shadow-sm {{ $user->is_demo ? 'text-amber-600 hover:bg-amber-600 hover:text-white border-amber-300' : 'text-gray-400 hover:bg-amber-500 hover:text-white border-gray-200' }}"
+                                            title="{{ $user->is_demo ? 'Matikan Mode Demo' : 'Aktifkan Mode Demo' }}">
+                                            <i class="fas fa-flask"></i>
+                                        </button>
+
                                         {{-- Toggle Approval --}}
                                         <button type="button" data-user-id="{{ $user->id }}"
-                                            class="js-toggle-approval p-2 rounded-lg transition-all duration-200 border group-hover:shadow-sm {{ $user->is_approved ? 'text-amber-500 hover:bg-amber-500 hover:text-white border-amber-200' : 'text-green-500 hover:bg-green-500 hover:text-white border-green-200' }}"
+                                            class="js-toggle-approval p-2 rounded-lg transition-all duration-200 border group-hover:shadow-sm {{ $user->is_approved ? 'text-green-500 hover:bg-green-500 hover:text-white border-green-200' : 'text-gray-400 hover:bg-green-500 hover:text-white border-gray-200' }}"
                                             title="{{ $user->is_approved ? 'Tangguhkan Akun' : 'Setujui Akun' }}">
-                                            <i class="fas fa-{{ $user->is_approved ? 'ban' : 'check' }}"></i>
+                                            <i class="fas fa-{{ $user->is_approved ? 'check-circle' : 'check' }}"></i>
                                         </button>
 
                                         {{-- Edit --}}
@@ -359,6 +373,33 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 form.action = '{{ url('admin/users') }}/' + userId + '/toggle-approval';
+                form.submit();
+            }
+        });
+    });
+
+    // Toggle Demo Single (JQuery)
+    $(document).on('click', '.js-toggle-demo', function () {
+        const userId = $(this).data('userId');
+        const isDemo = $(this).data('isDemo'); // 1 or 0
+        const form = document.getElementById('individual-toggle-form');
+
+        const title = isDemo ? 'Matikan Mode Demo?' : 'Aktifkan Mode Demo?';
+        const text = isDemo 
+            ? "Akun ini akan kembali normal dan BISA melakukan perubahan data." 
+            : "Akun ini akan menjadi Read-Only. User TIDAK BISA menambah, mengedit, atau menghapus data.";
+        const color = isDemo ? '#10b981' : '#f59e0b'; // Green to turn off (safe), Amber to turn on (caution)
+
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: isDemo ? 'info' : 'warning',
+            showCancelButton: true,
+            confirmButtonColor: color,
+            confirmButtonText: 'Ya, Ubah Status'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.action = '{{ url('admin/users') }}/' + userId + '/toggle-demo';
                 form.submit();
             }
         });

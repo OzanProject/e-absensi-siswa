@@ -22,6 +22,7 @@ class User extends Authenticatable // implements MustVerifyEmail dihapus
         'password',
         'role',
         'is_approved',
+        'is_demo',
     ];
 
     protected $hidden = [
@@ -32,6 +33,7 @@ class User extends Authenticatable // implements MustVerifyEmail dihapus
     protected $casts = [
         'email_verified_at' => 'datetime',
         'is_approved' => 'boolean',
+        'is_demo' => 'boolean',
     ];
 
     // Accessor untuk ditampilkan di JSON/View

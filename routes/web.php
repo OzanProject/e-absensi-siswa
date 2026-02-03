@@ -90,6 +90,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->group(function
 
         // Custom Actions
         Route::put('/{user}/toggle-approval', [UserController::class, 'toggleApproval'])->name('admin.users.toggleApproval');
+        Route::put('/{user}/toggle-demo', [UserController::class, 'toggleDemo'])->name('admin.users.toggleDemo');
 
         // ✅ RUTE BULK ACTION (Workaround GET)
         Route::get('/bulk-approve', [UserController::class, 'bulkApprove'])->name('admin.users.bulkApprove');

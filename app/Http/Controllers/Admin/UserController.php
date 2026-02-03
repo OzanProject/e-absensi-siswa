@@ -298,6 +298,23 @@ class UserController extends Controller
         return redirect()->back()->with('success', "Status akun {$user->name} berhasil diubah menjadi: {$status}.");
     }
 
+    /**
+     * Set/Unset user as Demo Account.
+     */
+    public function toggleDemo(User $user)
+    {
+        if ($user->id === Auth::id()) {
+            return redirect()->back()->with('error', 'Anda tidak dapat mengubah status Demo akun Anda sendiri saat ini.');
+        }
+
+        $user->is_demo = !$user->is_demo;
+        $user->save();
+
+        $status = $user->is_demo ? 'Mode Demo Diaktifkan' : 'Mode Demo Dinonaktifkan';
+        // Note: Demo user cannot perform write actions, but View access works based on Role.
+        return redirect()->back()->with('success', "{$status} untuk akun {$user->name}. Akun ini sekarang " . ($user->is_demo ? 'Read-Only' : 'Normal') . ".");
+    }
+
     public function bulkDelete(Request $request)
     {
         $userIds = $request->input('selected_users');
