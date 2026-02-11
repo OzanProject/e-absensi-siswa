@@ -35,7 +35,18 @@ return new class extends Migration {
       ],
     ];
 
-    DB::table('settings')->insert($settings);
+
+    foreach ($settings as $setting) {
+      DB::table('settings')->updateOrInsert(
+        ['key' => $setting['key']],
+        [
+          'value' => $setting['value'],
+          'description' => $setting['description'],
+          'created_at' => $setting['created_at'],
+          'updated_at' => $setting['updated_at'],
+        ]
+      );
+    }
   }
 
   /**
