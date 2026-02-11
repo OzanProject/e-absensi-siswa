@@ -118,14 +118,14 @@
                                             'parents.index' => ['route' => 'parents.index', 'text' => 'Data Orang Tua'],
                                             'admin.users.index' => ['route' => 'admin.users.index', 'text' => 'Manajemen Pengguna'],
                                         ] as $routeKey => $item)
-                                            <li>
-                                                <a href="{{ route($routeKey) }}"
-                                                    class="flex items-center p-2 rounded-md transition duration-150 text-sm 
-                                                            {{ Request::is('admin/' . str_replace('.index', '*', Str::after($routeKey, 'admin.'))) ? $activeSubClass : $defaultSubClass }}">
-                                                    <i class="far fa-dot-circle text-xs w-3 h-3 mr-3 opacity-75"></i>
-                                                    <span class="ml-1">{{ $item['text'] }}</span>
-                                                </a>
-                                            </li>
+                                                    <li>
+                                                        <a href="{{ route($routeKey) }}"
+                                                            class="flex items-center p-2 rounded-md transition duration-150 text-sm 
+                                                                    {{ Request::is('admin/' . str_replace('.index', '*', Str::after($routeKey, 'admin.'))) ? $activeSubClass : $defaultSubClass }}">
+                                                            <i class="far fa-dot-circle text-xs w-3 h-3 mr-3 opacity-75"></i>
+                                                            <span class="ml-1">{{ $item['text'] }}</span>
+                                                        </a>
+                                                    </li>
                                     @endforeach
                                     {{-- MANAJEMEN PELAJARAN --}}
                                     <li>
@@ -158,13 +158,13 @@
                                     'report.index' => ['icon' => 'fas fa-chart-line', 'text' => 'Laporan Absensi', 'route_path' => 'admin/report*'],
                                     'settings.index' => ['icon' => 'fas fa-cog', 'text' => 'Pengaturan Umum', 'route_path' => 'admin/settings*'],
                                 ] as $routeKey => $item)
-                                    <li>
-                                        <a href="{{ route($routeKey) }}"
-                                            class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive($item['route_path']) ? $activeClass : $defaultClass }}">
-                                            <i class="{{ $item['icon'] }} w-5 h-5 mr-3"></i>
-                                            <span class="text-sm">{{ $item['text'] }}</span>
-                                        </a>
-                                    </li>
+                                            <li>
+                                                <a href="{{ route($routeKey) }}"
+                                                    class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive($item['route_path']) ? $activeClass : $defaultClass }}">
+                                                    <i class="{{ $item['icon'] }} w-5 h-5 mr-3"></i>
+                                                    <span class="text-sm">{{ $item['text'] }}</span>
+                                                </a>
+                                            </li>
                             @endforeach
 
                             <li>
@@ -184,7 +184,15 @@
                                 <a href="{{ route('admin.absensi.scan') }}"
                                     class="flex items-center p-2.5 rounded-md transition duration-150 {{ $isAbsensiAdminActive ? $activeClass : $defaultClass }}">
                                     <i class="fas fa-qrcode w-5 h-5 mr-3 {{ $scanIconColor }}"></i>
-                                    <span class="text-sm">Absensi QR Scan</span>
+                                    <span class="text-sm">Absensi QR Scan (Siswa)</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{{ route('admin.qrcode.index') }}"
+                                    class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('admin/params/qrcode') ? $activeClass : $defaultClass }}">
+                                    <i class="fas fa-tv w-5 h-5 mr-3 text-emerald-400"></i>
+                                    <span class="text-sm">Monitor QR (Guru)</span>
                                 </a>
                             </li>
 
@@ -219,7 +227,7 @@
                                 <span class="text-sm">Laporan Detail</span>
                             </a>
                         </li>
-                        
+
                         <li class="border-t border-gray-700 pt-2 mt-2">
                             <a href="{{ route('profile.edit') }}"
                                 class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('profile') ? $activeClass : $defaultClass }}">
@@ -333,7 +341,33 @@
                             <a href="{{ route('teacher.dashboard') }}"
                                class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('guru/dashboard') ? $activeClass : $defaultClass }}">
                                 <i class="fas fa-home w-5 h-5 mr-3"></i>
-                                <span class="text-sm">Dashboard Mengajar</span>
+                                <span class="text-sm">Dashboard</span>
+                            </a>
+                        </li>
+
+                        {{-- Menu Baru: Absen Guru --}}
+                        <li>
+                            <a href="{{ route('teacher.dashboard') }}"
+                               class="flex items-center p-2.5 rounded-md transition duration-150 text-indigo-400 hover:text-white hover:bg-gray-700/50">
+                                <i class="fas fa-camera w-5 h-5 mr-3"></i>
+                                <span class="text-sm font-bold">Absen Selfie</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{{ route('teacher.attendance.scan') }}"
+                               class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('guru/attendance/scan-qr') ? $activeClass : 'text-emerald-400 hover:text-white hover:bg-gray-700/50' }}">
+                                <i class="fas fa-qrcode w-5 h-5 mr-3"></i>
+                                <span class="text-sm font-bold">Scan QR Sekolah</span>
+                            </a>
+                        </li>
+
+                        {{-- Absensi Harian --}}
+                        <li>
+                            <a href="{{ route('teacher.attendance.index') }}"
+                               class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('guru/attendance') && !isActive('guru/attendance/scan-qr*') ? $activeClass : $defaultClass }}">
+                                <i class="fas fa-user-clock w-5 h-5 mr-3"></i>
+                                <span class="text-sm">Riwayat Absensi Saya</span>
                             </a>
                         </li>
 
@@ -350,7 +384,7 @@
                             <a href="{{ route('teacher.scan.index') }}"
                                class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('guru/scan*') ? $activeClass : $defaultClass }}">
                                 <i class="fas fa-qrcode w-5 h-5 mr-3"></i>
-                                <span class="text-sm">Scan Absensi Mapel</span>
+                                <span class="text-sm">Absensi Kelas (Scan)</span>
                             </a>
                         </li>
 
@@ -359,6 +393,14 @@
                                class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('guru/report*') ? $activeClass : $defaultClass }}">
                                 <i class="fas fa-chart-pie w-5 h-5 mr-3"></i>
                                 <span class="text-sm">Laporan Mapel</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{{ route('teacher.id_card.index') }}"
+                               class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('guru/id-card') ? $activeClass : $defaultClass }}">
+                                <i class="fas fa-id-card w-5 h-5 mr-3 text-amber-400"></i>
+                                <span class="text-sm">ID Card Digital</span>
                             </a>
                         </li>
 

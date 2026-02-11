@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Schedule;
+use App\Models\TeacherAttendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -76,9 +77,16 @@ class SchoolTeacherController extends Controller
             ->with(['class', 'subject'])
             ->orderBy('day')
             ->orderBy('start_time')
+            ->orderBy('start_time')
             ->get();
 
-        return view('admin.school_teachers.show', compact('teacher', 'schedules'));
+        // Get Attendance History
+        $attendances = TeacherAttendance::where('user_id', $teacher->id)
+            ->orderBy('date', 'desc')
+            ->limit(10) // Show last 10 records for preview
+            ->get();
+
+        return view('admin.school_teachers.show', compact('teacher', 'schedules', 'attendances'));
     }
 
     /**

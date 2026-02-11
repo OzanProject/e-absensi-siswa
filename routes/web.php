@@ -57,7 +57,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->group(function
     Route::get('school-teachers/template', [\App\Http\Controllers\Admin\SchoolTeacherController::class, 'downloadTemplate'])->name('admin.school-teachers.template');
 
     Route::resource('school-teachers', \App\Http\Controllers\Admin\SchoolTeacherController::class)->names('admin.school-teachers'); // Data Guru
-    
+
     // Parent Import
     Route::get('parents/template', [AdminParentController::class, 'downloadTemplate'])->name('parents.template');
     Route::post('parents/import', [AdminParentController::class, 'import'])->name('parents.import');
@@ -127,6 +127,12 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->group(function
         Route::get('scan-kelas', [CentralAbsenceController::class, 'index'])->name('admin.absensi.scan');
         Route::post('record', [CentralAbsenceController::class, 'record'])->name('admin.absensi.record');
     });
+
+    // =======================================================
+    // MODUL QR CODE ATTENDANCE (MONITOR)
+    // =======================================================
+    Route::get('params/qrcode', [App\Http\Controllers\Admin\QrCodeController::class, 'index'])->name('admin.qrcode.index');
+    Route::get('params/qrcode/generate', [App\Http\Controllers\Admin\QrCodeController::class, 'generate'])->name('admin.qrcode.generate');
 });
 
 
@@ -272,7 +278,7 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->group(function () {
         Route::get('/', [App\Http\Controllers\Teacher\ScanController::class, 'index'])->name('teacher.scan.index');
         Route::get('{schedule}', [App\Http\Controllers\Teacher\ScanController::class, 'scanner'])->name('teacher.scan.scanner');
         Route::post('{schedule}', [App\Http\Controllers\Teacher\ScanController::class, 'store'])->name('teacher.scan.store');
-        
+
         // Manual Attendance
         Route::get('{schedule}/manual', [App\Http\Controllers\Teacher\ScanController::class, 'manual'])->name('teacher.scan.manual');
         Route::post('{schedule}/manual', [App\Http\Controllers\Teacher\ScanController::class, 'manualStore'])->name('teacher.scan.manualStore');
@@ -284,6 +290,19 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->group(function () {
         Route::get('export/excel', [App\Http\Controllers\Teacher\ReportController::class, 'exportExcel'])->name('teacher.report.export.excel');
         Route::get('export/pdf', [App\Http\Controllers\Teacher\ReportController::class, 'exportPdf'])->name('teacher.report.export.pdf');
     });
+
+    // Absensi Harian Guru
+    Route::prefix('attendance')->group(function () {
+        Route::get('/', [App\Http\Controllers\Teacher\AttendanceController::class, 'index'])->name('teacher.attendance.index');
+        Route::post('store', [App\Http\Controllers\Teacher\AttendanceController::class, 'store'])->name('teacher.attendance.store');
+
+        // QR Scan
+        Route::get('scan-qr', [App\Http\Controllers\Teacher\AttendanceController::class, 'scan'])->name('teacher.attendance.scan');
+        Route::post('scan-qr/store', [App\Http\Controllers\Teacher\AttendanceController::class, 'storeQr'])->name('teacher.attendance.store_qr');
+    });
+
+    // ID Card
+    Route::get('id-card', [App\Http\Controllers\Teacher\IdCardController::class, 'index'])->name('teacher.id_card.index');
 });
 
 // =======================================================

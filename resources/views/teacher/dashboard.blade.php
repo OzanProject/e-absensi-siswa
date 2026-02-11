@@ -245,6 +245,65 @@
     {{-- RIGHT COLUMN: PROFILE & QUICK MENU (1/3) --}}
     <div class="lg:col-span-1 space-y-8">
 
+        {{-- Attendance Card (Moved to Top) --}}
+        <div
+            class="bg-white rounded-[2.5rem] p-6 shadow-xl shadow-gray-100/50 border border-gray-100 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10">
+                <i class="fas fa-clock text-6xl text-gray-800"></i>
+            </div>
+
+            <h4 class="font-bold text-gray-800 text-lg mb-4 flex items-center">
+                <i class="fas fa-user-clock text-indigo-600 mr-2"></i> Presensi Hari Ini
+            </h4>
+
+            @if(!$attendance)
+                {{-- Belum Absen Masuk --}}
+                <div class="text-center py-4">
+                    <p class="text-sm text-gray-500 mb-4">Anda belum melakukan absen masuk hari ini.</p>
+
+                    {{-- Tombol Buka Kamera (Trigger Modal) --}}
+                    <button type="button" onclick="openCamera('in')"
+                        class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold shadow-lg shadow-emerald-200 transform hover:-translate-y-1 transition-all">
+                        <i class="fas fa-camera mr-2"></i> Absen Masuk (Selfie)
+                    </button>
+                </div>
+            @elseif(is_null($attendance->clock_out))
+                {{-- Sudah Masuk, Belum Pulang --}}
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                        <span class="text-xs font-bold text-emerald-700 uppercase">Jam Masuk</span>
+                        <span
+                            class="font-mono font-bold text-emerald-800">{{ \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') }}</span>
+                    </div>
+
+                    <button type="button" onclick="openCamera('out')"
+                        class="w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 text-white font-bold shadow-lg shadow-rose-200 transform hover:-translate-y-1 transition-all">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Absen Pulang (Selfie)
+                    </button>
+                </div>
+            @else
+                {{-- Selesai --}}
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                        <span class="text-xs font-bold text-emerald-700 uppercase">Jam Masuk</span>
+                        <span
+                            class="font-mono font-bold text-emerald-800">{{ \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') }}</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-rose-50 p-3 rounded-xl border border-rose-100">
+                        <span class="text-xs font-bold text-rose-700 uppercase">Jam Pulang</span>
+                        <span
+                            class="font-mono font-bold text-rose-800">{{ \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') }}</span>
+                    </div>
+                    <div class="text-center mt-4">
+                        <span
+                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600">
+                            <i class="fas fa-check-circle mr-1 text-emerald-500"></i> Selesai
+                        </span>
+                    </div>
+                </div>
+            @endif
+        </div>
+
         {{-- Profile Widget --}}
         <div
             class="bg-white rounded-[2.5rem] shadow-xl shadow-gray-100/50 border border-gray-100 p-8 text-center relative overflow-hidden group">
@@ -283,7 +342,7 @@
                         class="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-2xl mb-3 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300 shadow-sm">
                         <i class="fas fa-qrcode"></i>
                     </div>
-                    <span class="font-bold text-gray-700 text-sm group-hover:text-indigo-700">Scan QR</span>
+                    <span class="font-bold text-gray-700 text-sm group-hover:text-indigo-700">Scan Siswa</span>
                 </a>
 
                 <a href="{{ route('teacher.journals.index') }}"
@@ -327,4 +386,250 @@
 
     </div>
 </div>
+
+{{-- MODAL KAMERA --}}
+<div id="cameraModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div
+            class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            Ambil Foto Selfie
+                        </h3>
+                        <div class="mt-2 relative">
+                            <video id="video" class="w-full rounded-lg shadow-inner bg-black" autoplay
+                                playsinline></video>
+                            <canvas id="canvas" class="hidden"></canvas>
+                            <img id="photo-preview" class="w-full rounded-lg shadow-inner hidden" src="">
+
+                            {{-- Loading & Error Message --}}
+                            <div id="location-status" class="mt-2 text-sm text-gray-500">
+                                <i class="fas fa-spinner fa-spin mr-1"></i> Mendeteksi Lokasi...
+                            </div>
+                            <div id="location-error"
+                                class="hidden mt-2 p-2 bg-red-100 text-red-700 text-sm rounded border border-red-200">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <form action="{{ route('teacher.attendance.store') }}" method="POST" id="attendance-form-modal">
+                    @csrf
+                    <input type="hidden" name="latitude" id="lat">
+                    <input type="hidden" name="longitude" id="long">
+                    <input type="hidden" name="photo" id="photo-data">
+
+                    <button type="button" id="capture-btn" onclick="takeSnapshot()" disabled
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                        Ambil Foto & Absen
+                    </button>
+                    <button type="button" id="retake-btn" onclick="retakePhoto()"
+                        class="hidden w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-600 text-base font-medium text-white hover:bg-gray-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                        Ambil Ulang
+                    </button>
+                </form>
+                <button type="button" onclick="closeCamera()"
+                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@stop
+
+@section('js')
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const photoPreview = document.getElementById('photo-preview');
+    const captureBtn = document.getElementById('capture-btn');
+    const retakeBtn = document.getElementById('retake-btn');
+    const modal = document.getElementById('cameraModal');
+    const formModal = document.getElementById('attendance-form-modal');
+    const locationStatus = document.getElementById('location-status');
+    const locationError = document.getElementById('location-error');
+
+    let stream = null;
+    let allowedToSubmit = false; // Flag untuk status lokasi
+
+    // Setting Lokasi Sekolah dari Controller
+    const schoolLat = {{ $schoolLocation['latitude'] ?? 0 }};
+    const schoolLng = {{ $schoolLocation['longitude'] ?? 0 }};
+    const schoolRadius = {{ $schoolLocation['radius'] ?? 100 }}; // Meter
+
+    function openCamera(type) { // type: 'in' or 'out'
+        modal.classList.remove('hidden');
+        startCamera();
+        checkLocation();
+    }
+
+    function closeCamera() {
+        modal.classList.add('hidden');
+        stopCamera();
+        resetUI();
+    }
+
+    async function startCamera() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+            video.srcObject = stream;
+        } catch (err) {
+            console.error("Error accessing camera: ", err);
+            alert("Gagal mengakses kamera. Pastikan izin kamera diberikan.");
+        }
+    }
+
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+    }
+
+    function takeSnapshot() {
+        if (!allowedToSubmit) {
+            alert("Anda berada di luar jangkauan lokasi sekolah!");
+            return;
+        }
+
+        // Gambar ke canvas
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+
+        // Convert to Base64
+        const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+
+        // Set ke input hidden
+        document.getElementById('photo-data').value = dataURL;
+
+        // Preview
+        video.classList.add('hidden');
+        photoPreview.src = dataURL;
+        photoPreview.classList.remove('hidden');
+
+        // Tombol logic
+        captureBtn.innerHTML = 'Kirim Absensi';
+        captureBtn.onclick = submitForm; // Ganti action
+        retakeBtn.classList.remove('hidden');
+    }
+
+    function submitForm() {
+        const btn = document.getElementById('capture-btn');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Mengirim...';
+        btn.disabled = true;
+        formModal.submit();
+    }
+
+    function retakePhoto() {
+        video.classList.remove('hidden');
+        photoPreview.classList.add('hidden');
+        captureBtn.innerHTML = 'Ambil Foto & Absen';
+        captureBtn.onclick = takeSnapshot;
+        retakeBtn.classList.add('hidden');
+    }
+
+    // Haversine Formula untuk Hitung Jarak (Meter)
+    function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
+        var R = 6371; // Radius bumi dalam km
+        var dLat = deg2rad(lat2 - lat1);
+        var dLon = deg2rad(lon2 - lon1);
+        var a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2)
+            ;
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        var d = R * c; // Jarak dalam km
+        return d * 1000; // Jarak dalam meter
+    }
+
+    function deg2rad(deg) {
+        return deg * (Math.PI / 180)
+    }
+
+    function checkLocation() {
+        if (navigator.geolocation) {
+            locationStatus.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Mendeteksi Lokasi...';
+            locationError.classList.add('hidden');
+            captureBtn.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    document.getElementById('lat').value = lat;
+                    document.getElementById('long').value = lng;
+
+                    // Cek jika Admin belum set lokasi (Lat/Lng 0 atau null)
+                    if (schoolLat === 0 || schoolLng === 0) {
+                        allowedToSubmit = true;
+                        locationStatus.innerHTML = `<span class="text-amber-600 font-bold"><i class="fas fa-exclamation-circle"></i> Lokasi Sekolah Belum Diatur Admin</span>`;
+                        locationError.innerHTML = `Sistem mengizinkan absensi sementara karena koordinat sekolah belum disetting oleh Admin.`;
+                        locationError.classList.remove('hidden');
+                        locationError.classList.replace('bg-red-100', 'bg-amber-100');
+                        locationError.classList.replace('text-red-700', 'text-amber-800');
+                        locationError.classList.replace('border-red-200', 'border-amber-200');
+
+                        captureBtn.disabled = false;
+                        captureBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        return;
+                    }
+
+                    // Hitung Jarak
+                    const distance = getDistanceFromLatLonInM(lat, lng, schoolLat, schoolLng);
+
+                    // Logic Peringatan
+                    if (distance <= schoolRadius) {
+                        allowedToSubmit = true;
+                        locationStatus.innerHTML = `<span class="text-emerald-600 font-bold"><i class="fas fa-check-circle"></i> Dalam Jangkauan (${Math.round(distance)}m)</span>`;
+                        captureBtn.disabled = false;
+                        captureBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        allowedToSubmit = false; // Ubah ke true jika ingin bypass testing
+                        locationStatus.innerHTML = `<span class="text-red-600 font-bold"><i class="fas fa-exclamation-triangle"></i> Di Luar Jangkauan</span>`;
+                        locationError.innerHTML = `Jarak Anda: <b>${Math.round(distance)}m</b> dari sekolah. <br> Radius Maksimal: <b>${schoolRadius}m</b>. <br> Silakan mendekat ke sekolah.`;
+
+                        // Reset style error ke merah
+                        locationError.classList.remove('hidden');
+                        locationError.classList.add('bg-red-100', 'text-red-700', 'border-red-200');
+                        locationError.classList.remove('bg-amber-100', 'text-amber-800', 'border-amber-200');
+
+                        captureBtn.disabled = true;
+                    }
+                },
+                function (error) {
+                    console.warn("Geolocation error:", error);
+                    locationStatus.innerHTML = '<span class="text-red-500">Gagal mendeteksi lokasi atau GPS mati.</span>';
+                    captureBtn.disabled = true;
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        } else {
+            locationStatus.innerHTML = "Browser tidak mendukung Geolocation.";
+        }
+    }
+
+    function resetUI() {
+        video.classList.remove('hidden');
+        photoPreview.classList.add('hidden');
+        photoPreview.src = '';
+        locationError.classList.add('hidden');
+        locationStatus.innerHTML = '';
+        retakeBtn.classList.add('hidden');
+        captureBtn.innerHTML = 'Ambil Foto & Absen';
+        captureBtn.onclick = takeSnapshot;
+
+        // Reset Error Style
+        locationError.classList.add('bg-red-100', 'text-red-700', 'border-red-200');
+        locationError.classList.remove('bg-amber-100', 'text-amber-800', 'border-amber-200');
+    }
+</script>
 @stop

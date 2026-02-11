@@ -26,6 +26,12 @@ class SettingController extends Controller
             // 💡 BARU: Jam Pulang
             'attendance_end_time' => 'Jam Mulai Pulang (HH:MM)',
             'late_tolerance_minutes' => 'Toleransi Keterlambatan (menit)',
+
+            // 💡 BARU: Jam Khusus Guru
+            'attendance_teacher_enter_start' => 'Jam Buka Absen Guru',
+            'attendance_teacher_late_limit' => 'Batas Telat Guru',
+            'attendance_teacher_exit_start' => 'Jam Buka Pulang Guru',
+
             'wa_api_endpoint' => 'Endpoint API WhatsApp',
             'wa_api_key' => 'Kunci API WhatsApp',
             'school_logo' => 'Logo Sekolah (URL/Path)',
@@ -38,7 +44,7 @@ class SettingController extends Controller
             // 💡 BARU: Geolocation & Security
             'school_latitude' => 'Latitude Sekolah',
             'school_longitude' => 'Longitude Sekolah',
-            'school_radius_meters' => 'Radius (meter)',
+            'school_radius' => 'Radius (meter)',
             'allowed_ip_addresses' => 'Allowed IP (Pisahkan koma)',
             'enable_location_check' => 'Aktifkan Cek Lokasi (true/false)',
             'enable_ip_check' => 'Aktifkan Cek IP (true/false)',
@@ -59,6 +65,11 @@ class SettingController extends Controller
             'attendance_start_time' => 'required|date_format:H:i',
             'attendance_end_time' => 'required|date_format:H:i',
             'late_tolerance_minutes' => 'required|integer|min:0',
+
+            // Guru
+            'attendance_teacher_enter_start' => 'nullable|date_format:H:i',
+            'attendance_teacher_late_limit' => 'nullable|date_format:H:i',
+            'attendance_teacher_exit_start' => 'nullable|date_format:H:i',
             'school_logo_file' => 'nullable|mimes:jpeg,png,jpg|max:2048',
             'wa_api_endpoint' => 'nullable|url|max:255',
             'wa_api_key' => 'nullable|string|max:255',
@@ -72,7 +83,7 @@ class SettingController extends Controller
             // Geo & IP
             'school_latitude' => 'nullable|numeric',
             'school_longitude' => 'nullable|numeric',
-            'school_radius_meters' => 'nullable|integer',
+            'school_radius' => 'nullable|integer',
             'allowed_ip_addresses' => 'nullable|string',
             'enable_location_check' => 'nullable|string|in:true,false',
             'enable_ip_check' => 'nullable|string|in:true,false',

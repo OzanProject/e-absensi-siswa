@@ -165,6 +165,77 @@
                 @endif
             </div>
         </div>
+
+        {{-- Attendance History Section (NEW) --}}
+        <div class="mt-8 bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden flex flex-col">
+            <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/30 flex justify-between items-center">
+                <h3 class="font-bold text-gray-800 text-lg flex items-center">
+                    <i class="fas fa-history text-indigo-500 mr-2"></i> Riwayat Absensi Terakhir
+                </h3>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead
+                        class="bg-gray-50/50 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500 font-bold">
+                        <tr>
+                            <th class="px-8 py-4">Tanggal</th>
+                            <th class="px-6 py-4">Metode</th>
+                            <th class="px-6 py-4">Jam Masuk</th>
+                            <th class="px-6 py-4">Jam Pulang</th>
+                            <th class="px-6 py-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        @forelse($attendances as $attendance)
+                            <tr class="hover:bg-gray-50/30 transition-colors">
+                                <td class="px-8 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {{ \Carbon\Carbon::parse($attendance->date)->translatedFormat('l, d F Y') }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if($attendance->photo === 'qr_code')
+                                        <span
+                                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-purple-100 text-purple-800">
+                                            <i class="fas fa-qrcode mr-1"></i> QR
+                                        </span>
+                                    @elseif($attendance->photo)
+                                        <span
+                                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-800">
+                                            <i class="fas fa-camera mr-1"></i> Selfie
+                                        </span>
+                                        <a href="#"
+                                            onclick="window.open('{{ asset('storage/' . $attendance->photo) }}', '_blank')"
+                                            class="text-xs text-blue-500 hover:underline ml-1">(Foto)</a>
+                                    @else
+                                        <span
+                                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-gray-100 text-gray-800">
+                                            <i class="fas fa-edit mr-1"></i> Manual
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-500 font-mono">
+                                    {{ $attendance->clock_in ?? '-' }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-500 font-mono">
+                                    {{ $attendance->clock_out ?? '-' }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span
+                                        class="px-2 py-1 font-bold text-xs leading-tight rounded-full bg-{{ $attendance->status_color }}-100 text-{{ $attendance->status_color }}-700">
+                                        {{ $attendance->status_label }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-8 py-4 text-center text-sm text-gray-500">Belum ada data absensi.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 @stop

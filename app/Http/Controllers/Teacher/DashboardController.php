@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Schedule;
 use App\Models\TeachingJournal;
+use App\Models\TeacherAttendance; // 💡 Import Model
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -17,7 +18,7 @@ class DashboardController extends Controller
 
         // Ensure locale is ID for day matching
         Carbon::setLocale('id');
-        $todayDay = Carbon::now()->isoFormat('dddd'); // Senin, Selasa...
+        $todayDay = Carbon::now()->isoFormat('dddd');
 
         // Get schedules for today where the logged in user is the teacher
         $schedules = Schedule::where('teacher_id', $user->id)
@@ -43,6 +44,22 @@ class DashboardController extends Controller
             'pending' => $schedules->where('journal_status', 'pending')->count(),
         ];
 
-        return view('teacher.dashboard', compact('schedules', 'stats', 'todayDay'));
+        // 💡 1. Ambil Absensi Harian Hari Ini
+        $attendance = TeacherAttendance::where('user_id', $user->id)
+            ->where('date', Carbon::now()->toDateString())
+            ->first();
+
+        // 💡 2. Ambil Setting Lokasi Sekolah
+        $settings = \App\Models\Setting::whereIn('key', ['school_latitude', 'school_longitude', 'school_radius'])
+            ->pluck('value', 'key');
+
+        $schoolLocation = [
+            'latitude' => $settings['school_latitude'] ?? null,
+            'longitude' => $settings['school_longitude'] ?? null,
+            'radius' => $settings['school_radius'] ?? 0,
+        ];
+
+        // 💡 3. Pass data ke view
+        return view('teacher.dashboard', compact('schedules', 'stats', 'todayDay', 'attendance', 'schoolLocation'));
     }
 }

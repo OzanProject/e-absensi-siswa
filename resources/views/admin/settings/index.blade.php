@@ -193,7 +193,7 @@
 
                         {{-- Toleransi --}}
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Toleransi Keterlambatan
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Toleransi Keterlambatan Siswa
                                 (Menit)</label>
                             <div class="relative">
                                 <input type="number" name="late_tolerance_minutes"
@@ -202,6 +202,46 @@
                                 <div class="absolute left-4 top-3.5 text-gray-400 font-bold">
                                     <i class="fas fa-stopwatch"></i>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2 border-t border-gray-100 my-2">
+                            <span
+                                class="text-xs font-bold text-gray-400 uppercase tracking-widest bg-white pr-2 relative -top-3">Khusus
+                                Guru</span>
+                        </div>
+
+                        {{-- JAM GURU --}}
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:col-span-2">
+                            {{-- Buka Absen --}}
+                            <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                                <label class="block text-xs font-bold text-indigo-500 uppercase tracking-wide mb-2">Buka
+                                    Absen (Start)</label>
+                                <input type="time" name="attendance_teacher_enter_start"
+                                    class="w-full text-xl font-bold text-gray-800 bg-transparent border-none p-0 focus:ring-0"
+                                    value="{{ substr($settings['attendance_teacher_enter_start'] ?? '06:00', 0, 5) }}">
+                                <p class="text-[10px] text-gray-400 mt-1">Awal waktu Guru bisa mulai absen masuk.</p>
+                            </div>
+
+                            {{-- Batas Telat --}}
+                            <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                                <label
+                                    class="block text-xs font-bold text-indigo-500 uppercase tracking-wide mb-2">Batas
+                                    Telat</label>
+                                <input type="time" name="attendance_teacher_late_limit"
+                                    class="w-full text-xl font-bold text-gray-800 bg-transparent border-none p-0 focus:ring-0"
+                                    value="{{ substr($settings['attendance_teacher_late_limit'] ?? '07:15', 0, 5) }}">
+                                <p class="text-[10px] text-gray-400 mt-1">Lewat jam ini dianggap terlambat.</p>
+                            </div>
+
+                            {{-- Buka Pulang --}}
+                            <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                                <label class="block text-xs font-bold text-indigo-500 uppercase tracking-wide mb-2">Buka
+                                    Pulang</label>
+                                <input type="time" name="attendance_teacher_exit_start"
+                                    class="w-full text-xl font-bold text-gray-800 bg-transparent border-none p-0 focus:ring-0"
+                                    value="{{ substr($settings['attendance_teacher_exit_start'] ?? '14:00', 0, 5) }}">
+                                <p class="text-[10px] text-gray-400 mt-1">Awal waktu Guru bisa mulai absen pulang.</p>
                             </div>
                         </div>
 
@@ -243,9 +283,9 @@
 
                             <div class="mt-4">
                                 <label class="block text-sm font-bold text-gray-700 mb-1">Radius Jarak (Meter)</label>
-                                <input type="number" name="school_radius_meters"
+                                <input type="number" name="school_radius"
                                     class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-0"
-                                    value="{{ $settings['school_radius_meters'] ?? 100 }}">
+                                    value="{{ $settings['school_radius'] ?? 100 }}">
                                 <p class="text-xs text-gray-400 mt-1">Siswa diluar radius scan akan ditolak.</p>
                             </div>
                         </div>
