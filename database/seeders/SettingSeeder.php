@@ -21,7 +21,7 @@ class SettingSeeder extends Seeder
                 'description' => 'Longitude lokasi sekolah (SMPN 4 KADUPANDAK)'
             ],
             [
-                'key' => 'school_radius_meters',
+                'key' => 'school_radius',
                 'value' => '500', // 500 meter untuk testing mudah
                 'description' => 'Radius toleransi absensi dalam meter'
             ],

@@ -140,6 +140,10 @@ class SettingController extends Controller
             }
 
             DB::commit();
+
+            // Clear Cache agar perubahan langsung ngefek di halaman Scan
+            \Illuminate\Support\Facades\Cache::forget('attendance_settings');
+
             return redirect()->route('settings.index')->with('success', 'Pengaturan berhasil disimpan dan logo diperbarui.');
 
         } catch (\Exception $e) {

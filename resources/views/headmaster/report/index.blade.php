@@ -46,8 +46,22 @@
         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             
-                            {{-- Filter Kelas --}}
+                            {{-- Tipe Laporan --}}
                             <div>
+                                <label for="type" class="block text-sm font-bold text-gray-700 mb-2">Jenis Laporan</label>
+                                <div class="relative">
+                                    <select name="type" id="type" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition duration-200 bg-gray-50 focus:bg-white text-gray-800 appearance-none">
+                                        <option value="student" {{ request('type') == 'student' ? 'selected' : '' }}>Laporan Siswa</option>
+                                        <option value="teacher" {{ request('type') == 'teacher' ? 'selected' : '' }}>Laporan Guru</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                        <i class="fas fa-chevron-down text-xs"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Filter Kelas --}}
+                            <div id="class_container">
                                 <label for="class_id" class="block text-sm font-bold text-gray-700 mb-2">Pilih Kelas</label>
                                 <div class="relative">
                                     <select name="class_id" id="class_id" class="w-full select2-form-control">
@@ -210,6 +224,18 @@
                  $('#submitFilterBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Memuat...');
             }
         });
+
+        // Toggle Class Dropdown
+        function toggleClassDropdown() {
+            if ($('#type').val() === 'teacher') {
+                $('#class_container').slideUp();
+            } else {
+                $('#class_container').slideDown();
+            }
+        }
+
+        $('#type').on('change', toggleClassDropdown);
+        toggleClassDropdown(); // Run on init
     });
 </script>
 @stop

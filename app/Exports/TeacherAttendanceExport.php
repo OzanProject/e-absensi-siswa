@@ -16,16 +16,18 @@ use Illuminate\Support\Collection;
 class TeacherAttendanceExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithTitle
 {
   private $attendances;
+  private $isAdmin;
   private $rowNumber = 0;
 
-  public function __construct(Collection $attendances)
+  public function __construct(Collection $attendances, bool $isAdmin = false)
   {
     $this->attendances = $attendances;
+    $this->isAdmin = $isAdmin;
   }
 
   public function title(): string
   {
-    return 'Laporan Absensi Saya';
+    return $this->isAdmin ? 'Laporan Absensi Guru' : 'Laporan Absensi Saya';
   }
 
   public function collection()
@@ -35,7 +37,7 @@ class TeacherAttendanceExport implements FromCollection, WithHeadings, WithMappi
 
   public function headings(): array
   {
-    return [
+    $headers = [
       'No',
       'Tanggal',
       'Metode',
@@ -44,6 +46,13 @@ class TeacherAttendanceExport implements FromCollection, WithHeadings, WithMappi
       'Status',
       'Lokasi Masuk (Lat, Long)',
     ];
+
+    if ($this->isAdmin) {
+      array_splice($headers, 1, 0, 'Nama Guru');
+      array_splice($headers, 2, 0, 'NIP');
+    }
+
+    return $headers;
   }
 
   public function map($attendance): array
@@ -54,9 +63,11 @@ class TeacherAttendanceExport implements FromCollection, WithHeadings, WithMappi
       ? "{$attendance->latitude}, {$attendance->longitude}"
       : '-';
 
-    $method = ($attendance->photo === 'qr_code') ? 'QR Code' : (($attendance->photo) ? 'Selfie' : 'Manual');
+    $method = ($attendance->photo === 'qr_code') ? 'QR Code' :
+      (($attendance->photo === 'admin_scan') ? 'Scan Kartu' :
+        (($attendance->photo) ? 'Selfie' : 'Manual'));
 
-    return [
+    $data = [
       $this->rowNumber,
       \Carbon\Carbon::parse($attendance->date)->format('d/m/Y'),
       $method,
@@ -65,6 +76,15 @@ class TeacherAttendanceExport implements FromCollection, WithHeadings, WithMappi
       $status,
       $location,
     ];
+
+    if ($this->isAdmin) {
+      $teacherName = $attendance->user->name ?? '-';
+      $teacherNip = $attendance->user->nip ?? '-';
+      array_splice($data, 1, 0, $teacherName);
+      array_splice($data, 2, 0, $teacherNip);
+    }
+
+    return $data;
   }
 
   public function styles(Worksheet $sheet)

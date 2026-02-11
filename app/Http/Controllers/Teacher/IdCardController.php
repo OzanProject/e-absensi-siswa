@@ -16,11 +16,35 @@ class IdCardController extends Controller
 
     // QR Content: Simple NIP or User ID for now. 
     // In a real scenario, this could be an encrypted string.
-    $qrContent = $user->nip ?? $user->id;
+    // QR Content: Prioritize NIP, but fallback to ID if NIP is invalid ("-", empty)
+    $nip = $user->nip;
+    if (!$nip || trim($nip) === '' || trim($nip) === '-') {
+      $qrContent = (string) $user->id;
+    } else {
+      $qrContent = $nip;
+    }
 
     // Generate QR Code
     $qrCode = QrCode::size(200)->generate($qrContent);
 
     return view('teacher.id_card.index', compact('user', 'qrCode'));
+  }
+
+  public function print()
+  {
+    $user = Auth::user();
+
+    // QR Content: Prioritize NIP
+    $nip = $user->nip;
+    if (!$nip || trim($nip) === '' || trim($nip) === '-') {
+      $qrContent = (string) $user->id;
+    } else {
+      $qrContent = $nip;
+    }
+
+    // Generate QR Code
+    $qrCode = QrCode::size(200)->generate($qrContent);
+
+    return view('teacher.id_card.print', compact('user', 'qrCode'));
   }
 }

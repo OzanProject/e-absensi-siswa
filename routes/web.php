@@ -133,6 +133,12 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->group(function
     // =======================================================
     Route::get('params/qrcode', [App\Http\Controllers\Admin\QrCodeController::class, 'index'])->name('admin.qrcode.index');
     Route::get('params/qrcode/generate', [App\Http\Controllers\Admin\QrCodeController::class, 'generate'])->name('admin.qrcode.generate');
+
+    // =======================================================
+    // MODUL SCAN KARTU GURU (ADMIN)
+    // =======================================================
+    Route::get('scan-teacher', [\App\Http\Controllers\Admin\TeacherScanController::class, 'index'])->name('admin.scan.teacher.index');
+    Route::post('scan-teacher', [\App\Http\Controllers\Admin\TeacherScanController::class, 'store'])->name('admin.scan.teacher.store');
 });
 
 
@@ -302,6 +308,7 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->group(function () {
     });
 
     // ID Card
+    Route::get('id-card/print', [App\Http\Controllers\Teacher\IdCardController::class, 'print'])->name('teacher.id_card.print');
     Route::get('id-card', [App\Http\Controllers\Teacher\IdCardController::class, 'index'])->name('teacher.id_card.index');
 });
 

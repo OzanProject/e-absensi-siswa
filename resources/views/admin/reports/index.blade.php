@@ -46,8 +46,19 @@
         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             
-                            {{-- Filter Kelas --}}
+                            {{-- Jenis Laporan --}}
                             <div>
+                                <label for="report_type" class="block text-sm font-bold text-gray-700 mb-2">Jenis Laporan</label>
+                                <div class="relative">
+                                    <select name="type" id="report_type" class="w-full select2-form-control">
+                                        <option value="student" {{ request('type') == 'student' ? 'selected' : '' }}>Absensi Siswa</option>
+                                        <option value="teacher" {{ request('type') == 'teacher' ? 'selected' : '' }}>Absensi Guru</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Filter Kelas (Only for Student) --}}
+                            <div id="class_filter_container">
                                 <label for="class_id" class="block text-sm font-bold text-gray-700 mb-2">Pilih Kelas</label>
                                 <div class="relative">
                                     <select name="class_id" id="class_id" class="w-full select2-form-control">
@@ -114,6 +125,7 @@
                     
                     {{-- Form Tersembunyi untuk Export --}}
                     <form action="{{ route('report.export.excel') }}" method="GET" id="exportForm" class="hidden">
+                        <input type="hidden" name="type" id="export_type">
                         <input type="hidden" name="class_id" id="export_class_id">
                         <input type="hidden" name="start_date" id="export_start_date">
                         <input type="hidden" name="end_date" id="export_end_date">
@@ -170,8 +182,22 @@
             'padding-left': '1rem' 
         });
 
+        // Toggle Class Filter based on Report Type
+        $('#report_type').on('change', function() {
+            if ($(this).val() === 'teacher') {
+                $('#class_filter_container').hide();
+                $('#class_id').val('').trigger('change'); // Reset class selection
+            } else {
+                $('#class_filter_container').show();
+            }
+        });
+
+        // Trigger on load
+        $('#report_type').trigger('change');
+
         // Function: Sync values & Submit Export
         function syncAndSubmitExport() {
+            const type = $('#report_type').val();
             const classId = $('#class_id').val() || '';
             const startDate = $('#start_date').val(); 
             const endDate = $('#end_date').val(); 
@@ -186,6 +212,7 @@
                 return false;
             }
 
+            $('#export_type').val(type);
             $('#export_class_id').val(classId);
             $('#export_start_date').val(startDate);
             $('#export_end_date').val(endDate);

@@ -136,93 +136,111 @@ class ReportController extends Controller
     /**
      * Menampilkan hasil laporan absensi berdasarkan filter.
      */
+    // ...
+
+    /**
+     * Helper to get Teacher Report Data
+     */
+    private function getTeacherReportData(Carbon $startDate, Carbon $endDate)
+    {
+        // Fetch all teacher attendance within range, ordered by Date DESC, then Teacher Name ASC
+        return \App\Models\TeacherAttendance::with('user')
+            ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->orderBy('date', 'desc')
+            ->get()
+            ->sortBy(function($attendance) {
+                return $attendance->user->name ?? '';
+            });
+    }
+
     public function generate(Request $request)
     {
         $request->validate([
-            'class_id' => 'nullable|exists:classes,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-        ], [
-            'start_date.required' => 'Tanggal awal wajib diisi.',
-            'start_date.date' => 'Format tanggal awal tidak valid.',
-            'end_date.required' => 'Tanggal akhir wajib diisi.',
-            'end_date.date' => 'Format tanggal akhir tidak valid.',
-            'end_date.after_or_equal' => 'Tanggal akhir harus sama atau setelah tanggal awal.',
+            // class_id required only if type is student (default)
+            'class_id' => 'nullable|exists:classes,id', 
         ]);
 
         $startDate = Carbon::parse($request->start_date)->startOfDay();
         $endDate = Carbon::parse($request->end_date)->endOfDay();
-        $classId = $request->class_id;
+        $type = $request->input('type', 'student');
 
-        $absences = $this->getReportData($startDate, $endDate, $classId);
-        $class = $classId ? ClassModel::find($classId) : null;
-        
-        return view('admin.reports.result', compact('absences', 'startDate', 'endDate', 'class'));
+        if ($type === 'teacher') {
+            $absences = $this->getTeacherReportData($startDate, $endDate);
+            $class = null; // No class context for teachers
+            return view('admin.reports.result', compact('absences', 'startDate', 'endDate', 'class', 'type'));
+        } else {
+            // Student Report
+            $classId = $request->class_id;
+            $absences = $this->getReportData($startDate, $endDate, $classId);
+            $class = $classId ? ClassModel::find($classId) : null;
+            return view('admin.reports.result', compact('absences', 'startDate', 'endDate', 'class', 'type'));
+        }
     }
 
-    /**
-     * Export laporan ke Excel.
-     */
     public function exportExcel(Request $request)
     {
         $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'class_id' => 'nullable|exists:classes,id',
-        ], [
-            'start_date.required' => 'Tanggal awal wajib diisi.',
-            'end_date.required' => 'Tanggal akhir wajib diisi.',
-            'end_date.after_or_equal' => 'Tanggal akhir tidak valid.',
         ]);
         
         $startDate = Carbon::parse($request->start_date)->startOfDay();
         $endDate = Carbon::parse($request->end_date)->endOfDay();
-        $classId = $request->class_id;
-        
-        // Data absensi diambil menggunakan helper
-        $absences = $this->getReportData($startDate, $endDate, $classId);
-        
-        $className = $classId ? ClassModel::find($classId)->name : 'Semua-Kelas';
+        $type = $request->input('type', 'student');
 
-        $fileName = "Laporan_Absensi_{$className}_{$startDate->format('Ymd')}_to_{$endDate->format('Ymd')}.xlsx";
-
-        return Excel::download(new AbsenceReportExport($absences), $fileName);
+        if ($type === 'teacher') {
+            $absences = $this->getTeacherReportData($startDate, $endDate);
+            $fileName = "Laporan_Absensi_Guru_{$startDate->format('Ymd')}_to_{$endDate->format('Ymd')}.xlsx";
+            // Pass true for $isAdmin
+            return Excel::download(new \App\Exports\TeacherAttendanceExport($absences, true), $fileName);
+        } else {
+            $classId = $request->class_id;
+            $absences = $this->getReportData($startDate, $endDate, $classId);
+            $className = $classId ? ClassModel::find($classId)->name : 'Semua-Kelas';
+            $fileName = "Laporan_Absensi_{$className}_{$startDate->format('Ymd')}_to_{$endDate->format('Ymd')}.xlsx";
+            return Excel::download(new AbsenceReportExport($absences), $fileName);
+        }
     }
 
-    /**
-     * Export laporan ke PDF.
-     */
     public function exportPdf(Request $request)
     {
         $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'class_id' => 'nullable|exists:classes,id',
-        ], [
-            'start_date.required' => 'Tanggal awal wajib diisi.',
-            'end_date.required' => 'Tanggal akhir wajib diisi.',
-            'end_date.after_or_equal' => 'Tanggal akhir tidak valid.',
         ]);
 
         $startDate = Carbon::parse($request->start_date)->startOfDay();
         $endDate = Carbon::parse($request->end_date)->endOfDay();
-        $classId = $request->class_id;
-        
-        $absences = $this->getReportData($startDate, $endDate, $classId);
-        $class = $classId ? ClassModel::find($classId) : null;
+        $type = $request->input('type', 'student');
 
-        $data = [
-            'absences' => $absences,
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'class' => $class,
-        ];
-        
-        $pdf = Pdf::loadView('admin.reports.pdf_template', $data); 
-        
-        $fileName = "Laporan_Absensi_" . ($class ? $class->name . "_" : "Semua_Kelas_") . $startDate->format('Ymd') . "-" . $endDate->format('Ymd') . ".pdf";
-        
-        return $pdf->stream($fileName);
+        if ($type === 'teacher') {
+            $absences = $this->getTeacherReportData($startDate, $endDate);
+            $data = [
+                'absences' => $absences,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ];
+            $pdf = Pdf::loadView('admin.reports.pdf_teacher', $data);
+            $fileName = "Laporan_Absensi_Guru_{$startDate->format('Ymd')}-{$endDate->format('Ymd')}.pdf";
+            return $pdf->stream($fileName);
+        } else {
+            $classId = $request->class_id;
+            $absences = $this->getReportData($startDate, $endDate, $classId);
+            $class = $classId ? ClassModel::find($classId) : null;
+
+            $data = [
+                'absences' => $absences,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'class' => $class,
+            ];
+            
+            $pdf = Pdf::loadView('admin.reports.pdf_template', $data); 
+            $fileName = "Laporan_Absensi_" . ($class ? $class->name . "_" : "Semua_Kelas_") . $startDate->format('Ymd') . "-" . $endDate->format('Ymd') . ".pdf";
+            return $pdf->stream($fileName);
+        }
     }
 
     // -----------------------------------------------------------------

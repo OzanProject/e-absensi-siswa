@@ -53,7 +53,15 @@ class AbsenceController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('walikelas.absensi.scan', compact('class', 'students', 'recentAbsences'));
+        // Ambil Setting Lokasi untuk JS Validation
+        $settings = Setting::whereIn('key', [
+            'school_latitude',
+            'school_longitude',
+            'school_radius',
+            'enable_location_check'
+        ])->pluck('value', 'key');
+
+        return view('walikelas.absensi.scan', compact('class', 'students', 'recentAbsences', 'settings'));
     }
 
     // -----------------------------------------------------------------
@@ -139,10 +147,6 @@ class AbsenceController extends Controller
      * Proses pencatatan absensi dari scan barcode (IN/OUT Logic).
      * @param WhatsAppService $waService Service WA (di-inject oleh Laravel)
      */
-    /**
-     * Proses pencatatan absensi dari scan barcode (IN/OUT Logic).
-     * @param WhatsAppService $waService Service WA (di-inject oleh Laravel)
-     */
     public function record(Request $request, WhatsAppService $waService)
     {
         $request->validate([
@@ -168,14 +172,15 @@ class AbsenceController extends Controller
         $parentPhone = $student->phone_number;
 
         // 1. Muat Semua Pengaturan Absensi (termasuk Geo & IP)
-        $settings = Cache::remember('attendance_settings', 3600, function () {
+        // CACHE DURATION REDUCED TO 10 SECONDS FOR DYNAMIC UPDATES
+        $settings = Cache::remember('attendance_settings', 10, function () {
             return Setting::whereIn('key', [
                 'attendance_start_time',
                 'late_tolerance_minutes',
                 'attendance_end_time',
                 'school_latitude',
                 'school_longitude',
-                'school_radius_meters',
+                'school_radius',
                 'enable_location_check',
                 'enable_ip_check',
                 'allowed_ip_addresses'
@@ -210,7 +215,7 @@ class AbsenceController extends Controller
 
             $schoolLat = $settings['school_latitude'] ?? 0;
             $schoolLng = $settings['school_longitude'] ?? 0;
-            $radiusMax = $settings['school_radius_meters'] ?? 100;
+            $radiusMax = $settings['school_radius'] ?? 100;
 
             $distance = $this->calculateDistance($latitude, $longitude, $schoolLat, $schoolLng);
 

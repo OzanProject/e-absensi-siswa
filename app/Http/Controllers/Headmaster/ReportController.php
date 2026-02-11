@@ -66,15 +66,15 @@ class ReportController extends Controller
             $obj->student = $item->student;
             $obj->class_name = $item->student->class->name ?? 'N/A';
             $obj->class_grade = $item->student->class->grade ?? 0;
-            
-             // Fix Carbon formatting issue - ensure date is string 'Y-m-d'
-            $dateStr = $item->journal->date instanceof \DateTimeInterface 
-                ? $item->journal->date->format('Y-m-d') 
+
+            // Fix Carbon formatting issue - ensure date is string 'Y-m-d'
+            $dateStr = $item->journal->date instanceof \DateTimeInterface
+                ? $item->journal->date->format('Y-m-d')
                 : substr($item->journal->date, 0, 10);
-                
+
             $timeStr = $item->journal->start_time ?? '00:00:00';
             $obj->date = Carbon::parse($dateStr . ' ' . $timeStr);
-            
+
             $obj->status = ucfirst($item->status); // Ensure Capitalized
             $obj->detail_html = $this->formatSubjectDetail($item);
             $obj->raw_data = $item;
@@ -84,13 +84,16 @@ class ReportController extends Controller
         // 4. SORTING (Grade -> Class Name -> Student Name -> Date)
         return $merged->sort(function ($a, $b) {
             // Sort by Grade
-            if ($a->class_grade !== $b->class_grade) return $a->class_grade <=> $b->class_grade;
+            if ($a->class_grade !== $b->class_grade)
+                return $a->class_grade <=> $b->class_grade;
             // Sort by Class Name
             $cmpClass = strcmp($a->class_name, $b->class_name);
-            if ($cmpClass !== 0) return $cmpClass;
+            if ($cmpClass !== 0)
+                return $cmpClass;
             // Sort by Student Model
             $cmpName = strcmp($a->student->name ?? '', $b->student->name ?? '');
-            if ($cmpName !== 0) return $cmpName;
+            if ($cmpName !== 0)
+                return $cmpName;
             // Sort by Date
             return $a->date <=> $b->date;
         });
@@ -116,6 +119,20 @@ class ReportController extends Controller
     }
 
     /**
+     * Helper to get Teacher Report Data
+     */
+    private function getTeacherReportData(Carbon $startDate, Carbon $endDate)
+    {
+        return \App\Models\TeacherAttendance::with('user')
+            ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->orderBy('date', 'desc')
+            ->get()
+            ->sortBy(function ($attendance) {
+                return $attendance->user->name ?? '';
+            });
+    }
+
+    /**
      * Tampilkan halaman filter laporan.
      */
     public function index()
@@ -131,19 +148,25 @@ class ReportController extends Controller
     public function generate(Request $request)
     {
         $request->validate([
-            'class_id' => 'nullable|exists:classes,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'class_id' => 'nullable|exists:classes,id',
         ]);
 
         $startDate = Carbon::parse($request->start_date)->startOfDay();
         $endDate = Carbon::parse($request->end_date)->endOfDay();
-        $classId = $request->class_id;
+        $type = $request->input('type', 'student');
 
-        $absences = $this->getReportData($startDate, $endDate, $classId);
-        $class = $classId ? ClassModel::find($classId) : null;
-
-        return view('headmaster.report.result', compact('absences', 'startDate', 'endDate', 'class'));
+        if ($type === 'teacher') {
+            $absences = $this->getTeacherReportData($startDate, $endDate);
+            $class = null;
+            return view('headmaster.report.result', compact('absences', 'startDate', 'endDate', 'class', 'type'));
+        } else {
+            $classId = $request->class_id;
+            $absences = $this->getReportData($startDate, $endDate, $classId);
+            $class = $classId ? ClassModel::find($classId) : null;
+            return view('headmaster.report.result', compact('absences', 'startDate', 'endDate', 'class', 'type'));
+        }
     }
 
     /**
@@ -154,18 +177,23 @@ class ReportController extends Controller
         $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'class_id' => 'nullable|exists:classes,id',
         ]);
 
         $startDate = Carbon::parse($request->start_date)->startOfDay();
         $endDate = Carbon::parse($request->end_date)->endOfDay();
-        $classId = $request->class_id;
+        $type = $request->input('type', 'student');
 
-        $absences = $this->getReportData($startDate, $endDate, $classId);
-        $className = $classId ? ClassModel::find($classId)->name : 'Semua-Kelas';
-        $fileName = "Laporan_Absensi_KS_{$className}_{$startDate->format('Ymd')}_to_{$endDate->format('Ymd')}.xlsx";
-
-        return Excel::download(new AbsenceReportExport($absences), $fileName);
+        if ($type === 'teacher') {
+            $absences = $this->getTeacherReportData($startDate, $endDate);
+            $fileName = "Laporan_Absensi_Guru_{$startDate->format('Ymd')}_to_{$endDate->format('Ymd')}.xlsx";
+            return Excel::download(new \App\Exports\TeacherAttendanceExport($absences, true), $fileName);
+        } else {
+            $classId = $request->class_id;
+            $absences = $this->getReportData($startDate, $endDate, $classId);
+            $className = $classId ? ClassModel::find($classId)->name : 'Semua-Kelas';
+            $fileName = "Laporan_Absensi_KS_{$className}_{$startDate->format('Ymd')}_to_{$endDate->format('Ymd')}.xlsx";
+            return Excel::download(new AbsenceReportExport($absences), $fileName);
+        }
     }
 
     /**
@@ -176,29 +204,38 @@ class ReportController extends Controller
         $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'class_id' => 'nullable|exists:classes,id',
         ]);
 
         $startDate = Carbon::parse($request->start_date)->startOfDay();
         $endDate = Carbon::parse($request->end_date)->endOfDay();
-        $classId = $request->class_id;
+        $type = $request->input('type', 'student');
 
-        $absences = $this->getReportData($startDate, $endDate, $classId);
-        $class = $classId ? ClassModel::find($classId) : null;
+        if ($type === 'teacher') {
+            $absences = $this->getTeacherReportData($startDate, $endDate);
+            $data = [
+                'absences' => $absences,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ];
+            $pdf = Pdf::loadView('admin.reports.pdf_teacher', $data);
+            $fileName = "Laporan_Absensi_Guru_{$startDate->format('Ymd')}-{$endDate->format('Ymd')}.pdf";
+            return $pdf->stream($fileName);
+        } else {
+            $classId = $request->class_id;
+            $absences = $this->getReportData($startDate, $endDate, $classId);
+            $class = $classId ? ClassModel::find($classId) : null;
 
-        $data = [
-            'absences' => $absences,
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'class' => $class,
-            'isHeadmaster' => true // Flag untuk view PDF jika perlu pembedaan
-        ];
+            $data = [
+                'absences' => $absences,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'class' => $class,
+                'isHeadmaster' => true
+            ];
 
-        // Gunakan template PDF yang sama dengan admin
-        $pdf = Pdf::loadView('admin.reports.pdf_template', $data);
-
-        $fileName = "Laporan_Absensi_KS_" . ($class ? $class->name . "_" : "Semua_Kelas_") . $startDate->format('Ymd') . "-" . $endDate->format('Ymd') . ".pdf";
-
-        return $pdf->stream($fileName);
+            $pdf = Pdf::loadView('admin.reports.pdf_template', $data);
+            $fileName = "Laporan_Absensi_KS_" . ($class ? $class->name . "_" : "Semua_Kelas_") . $startDate->format('Ymd') . "-" . $endDate->format('Ymd') . ".pdf";
+            return $pdf->stream($fileName);
+        }
     }
 }

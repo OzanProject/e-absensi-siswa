@@ -18,6 +18,7 @@ class User extends Authenticatable // implements MustVerifyEmail dihapus
 
     protected $fillable = [
         'name',
+        'nip', // Added NIP
         'email',
         'password',
         'role',

@@ -67,10 +67,10 @@
 
   {{-- ACTION BUTTONS --}}
   <div class="mt-8 flex gap-4 no-print">
-    <button onclick="window.print()"
+    <a href="{{ route('teacher.id_card.print') }}" target="_blank"
       class="px-6 py-2 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 transition flex items-center font-bold">
-      <i class="fas fa-print mr-2"></i> Cetak Kartu
-    </button>
+      <i class="fas fa-print mr-2"></i> Cetak Kartu (PDF)
+    </a>
   </div>
 
 </div>
@@ -79,10 +79,31 @@
 @section('css')
 <style>
   @media print {
+
+    /* 1. Use Standard A4 or Auto Page Size to prevent printer confusion */
+    @page {
+      size: auto;
+      margin: 10mm;
+    }
+
+    /* 2. Hide Everything Except Card */
     body * {
       visibility: hidden;
     }
 
+    /* 3. Reset Body/Wrapper */
+    body,
+    html,
+    .wrapper {
+      background: white !important;
+      width: 100%;
+      height: 100%;
+      overflow: visible !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    /* 4. Show and Position Card */
     #id-card,
     #id-card * {
       visibility: visible;
@@ -93,11 +114,31 @@
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      box-shadow: none;
-      border: 1px solid #ddd;
+      /* EXACT CENTER */
+
+      width: 54mm !important;
+      height: 86mm !important;
+
+      border: 1px dashed #ccc !important;
+      /* Crop Guide */
+      box-shadow: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      z-index: 9999;
+      overflow: hidden;
     }
 
+    /* 5. Force Background Colors */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+
+    /* Hide unwanted areas */
     .main-footer,
+    .navbar,
+    .main-sidebar,
     .no-print {
       display: none !important;
     }

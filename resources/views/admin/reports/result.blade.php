@@ -92,6 +92,72 @@
                     pilih.</p>
             </div>
         @else
+        @if(isset($type) && $type == 'teacher')
+            {{-- TABEL GURU --}}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-100">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">#</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Nama Guru</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">NIP</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tanggal</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Metode</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Jam Masuk</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Jam Pulang</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Foto</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-100">
+                        @foreach($absences as $a)
+                            <tr class="hover:bg-gray-50/50 transition duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-medium">{{ $loop->iteration }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-bold text-gray-800">{{ $a->user->name ?? '-' }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $a->user->nip ?? '-' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900 font-medium">{{ \Carbon\Carbon::parse($a->date)->translatedFormat('d/m/Y') }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    @if($a->photo == 'qr_code') 
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700">QR Code</span>
+                                    @elseif($a->photo == 'admin_scan')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700">Scan Kartu</span>
+                                    @elseif($a->photo)
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700">Selfie</span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-50 text-gray-700">Manual</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-emerald-600 font-bold">{{ $a->clock_in ?? '-' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-rose-600 font-bold">{{ $a->clock_out ?? '-' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @php
+                                        $statusClass = ($a->status == 'late') ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700';
+                                        $statusLabel = ($a->status == 'late') ? 'Terlambat' : ucfirst($a->status);
+                                    @endphp
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full {{ $statusClass }}">
+                                        {{ $statusLabel }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($a->photo && $a->photo != 'qr_code' && $a->photo != 'admin_scan')
+                                    <a href="{{ Storage::url($a->photo) }}" target="_blank" class="block w-8 h-8 rounded-full overflow-hidden border border-gray-200">
+                                        <img src="{{ Storage::url($a->photo) }}" class="w-full h-full object-cover">
+                                    </a>
+                                    @else
+                                        <span class="text-xs text-gray-400">-</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            {{-- TABEL SISWA (Existing) --}}
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-100">
                     <thead class="bg-gray-50">
@@ -166,6 +232,7 @@
                     </tbody>
                 </table>
             </div>
+        @endif
         @endif
     </div>
 </div>

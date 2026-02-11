@@ -189,6 +189,13 @@
                             </li>
 
                             <li>
+                                <a href="{{ route('admin.scan.teacher.index') }}"
+                                    class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('admin/scan/teacher*') ? $activeClass : $defaultClass }}">
+                                    <i class="fas fa-id-card w-5 h-5 mr-3"></i>
+                                    <span class="text-sm">Scan Kartu Guru</span>
+                                </a>
+                            </li>
+                            <li>
                                 <a href="{{ route('admin.qrcode.index') }}"
                                     class="flex items-center p-2.5 rounded-md transition duration-150 {{ isActive('admin/params/qrcode') ? $activeClass : $defaultClass }}">
                                     <i class="fas fa-tv w-5 h-5 mr-3 text-emerald-400"></i>
