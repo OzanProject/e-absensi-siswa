@@ -92,7 +92,6 @@
                     pilih.</p>
             </div>
         @else
-        @else
         @if(isset($type) && $type == 'teacher')
             {{-- TABEL GURU --}}
             <div class="overflow-x-auto">
