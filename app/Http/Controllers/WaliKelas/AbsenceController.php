@@ -249,7 +249,7 @@ class AbsenceController extends Controller
                 $timeRemaining = $designatedEndTime->diffForHumans($currentTime, [
                     'parts' => 2,
                     'join' => true,
-                    'syntax' => Carbon::DIFF_ABSOLUTE
+                    'syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE
                 ]);
 
                 $message = "❌ Gagal Pulang. Belum waktunya pulang (Jam Pulang: {$endTimeSetting}).";
@@ -297,7 +297,8 @@ class AbsenceController extends Controller
 
         if ($currentTime->greaterThan($toleranceTime)) {
             $status = 'Terlambat';
-            $lateDuration = $currentTime->diffInMinutes($startTime);
+            // FIX: Gunakan (int) abs() agar selalu positif dan tanpa desimal
+            $lateDuration = (int) abs($startTime->diffInMinutes($currentTime));
         }
 
         // Catat Absensi Masuk
@@ -312,12 +313,16 @@ class AbsenceController extends Controller
             'ip_address' => $ipAddress,
         ]);
 
-        // Notifikasi WA MASUK/TERLAMBAT
-        $this->sendWaNotification($waService, $parentPhone, $student->name, $status, $currentTime->format('H:i:s'), $lateDuration);
+        // Notifikasi WA MASUK/TERLAMBAT — kirim dengan info kelas juga
+        $this->sendWaNotification(
+            $waService, $parentPhone, $student->name,
+            $status, $currentTime->format('H:i'),
+            $lateDuration, $student->class->name ?? null
+        );
 
         $message = "{$status}: {$student->name} berhasil dicatat.";
         if ($status === 'Terlambat')
-            $message .= " (+{$lateDuration} m)";
+            $message .= " (+{$lateDuration} menit)";
 
         return response()->json([
             'success' => true,
@@ -360,26 +365,65 @@ class AbsenceController extends Controller
     /**
      * Helper function untuk mengirim WA notification ke nomor orang tua/wali.
      */
-    private function sendWaNotification(WhatsAppService $waService, $phone, $studentName, $status, $time, $lateDuration = null)
+    private function sendWaNotification(WhatsAppService $waService, $phone, $studentName, $status, $time, $lateDuration = null, $className = null)
     {
         if (!$phone) {
             Log::warning("No phone number found for student: {$studentName}. Skipping WA notification.");
             return;
         }
 
-        // Tentukan pesan berdasarkan status
-        if ($status == 'Hadir') {
-            $msg = "Anak Anda, {$studentName}, telah berhasil absen MASUK pada pukul {$time}. Status: HADIR.";
-        } elseif ($status == 'Terlambat') {
-            $duration = $lateDuration ?? 0;
-            $msg = "⚠️ Anak Anda, {$studentName}, absen MASUK TERLAMBAT pada pukul {$time}. Keterlambatan: {$duration} menit.";
-        } elseif ($status == 'PULANG') {
-            $msg = "Anak Anda, {$studentName}, telah absen PULANG pada pukul {$time}.";
+        // Ambil nama sekolah dari pengaturan
+        $schoolName = Setting::where('key', 'school_name')->value('value') ?? 'Sekolah';
+        $today = Carbon::now()->isoFormat('dddd, D MMMM YYYY');
+        $classInfo = $className ? "Kelas $className" : '';
+
+        // Format pesan profesional berdasarkan status
+        if ($status === 'Hadir') {
+            $msg = "✅ *INFORMASI KEHADIRAN SISWA*\n";
+            $msg .= "__{$schoolName}__\n";
+            $msg .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+            $msg .= "Yth. Bapak/Ibu Wali Murid,\n\n";
+            $msg .= "Putra/Putri Anda telah *hadir* di sekolah.\n\n";
+            $msg .= "👤 *Nama:* {$studentName}\n";
+            if ($classInfo) $msg .= "🏫 *{$classInfo}*\n";
+            $msg .= "📅 *Tanggal:* {$today}\n";
+            $msg .= "⏰ *Jam Masuk:* {$time} WIB\n";
+            $msg .= "🟢 *Status:* HADIR\n\n";
+            $msg .= "_Terima kasih. Pesan ini dikirim otomatis oleh sistem absensi digital._";
+
+        } elseif ($status === 'Terlambat') {
+            $duration = (int) ($lateDuration ?? 0);
+            $msg = "⚠️ *PEMBERITAHUAN KETERLAMBATAN*\n";
+            $msg .= "__{$schoolName}__\n";
+            $msg .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+            $msg .= "Yth. Bapak/Ibu Wali Murid,\n\n";
+            $msg .= "Putra/Putri Anda tercatat *terlambat* hadir di sekolah.\n\n";
+            $msg .= "👤 *Nama:* {$studentName}\n";
+            if ($classInfo) $msg .= "🏫 *{$classInfo}*\n";
+            $msg .= "📅 *Tanggal:* {$today}\n";
+            $msg .= "⏰ *Jam Masuk:* {$time} WIB\n";
+            $msg .= "🔴 *Status:* TERLAMBAT (+{$duration} menit)\n\n";
+            $msg .= "Mohon menjadi perhatian agar putra/putri Anda dapat hadir tepat waktu.\n\n";
+            $msg .= "_Terima kasih. Pesan ini dikirim otomatis oleh sistem absensi digital._";
+
+        } elseif ($status === 'PULANG') {
+            $msg = "🏠 *INFORMASI KEPULANGAN SISWA*\n";
+            $msg .= "__{$schoolName}__\n";
+            $msg .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+            $msg .= "Yth. Bapak/Ibu Wali Murid,\n\n";
+            $msg .= "Putra/Putri Anda telah *pulang* dari sekolah.\n\n";
+            $msg .= "👤 *Nama:* {$studentName}\n";
+            if ($classInfo) $msg .= "🏫 *{$classInfo}*\n";
+            $msg .= "📅 *Tanggal:* {$today}\n";
+            $msg .= "⏰ *Jam Pulang:* {$time} WIB\n";
+            $msg .= "🟢 *Status:* PULANG\n\n";
+            $msg .= "_Terima kasih. Pesan ini dikirim otomatis oleh sistem absensi digital._";
+
         } else {
-            return; // Lewati jika status Sakit/Izin/Alpha
+            return; // Lewati jika status lain
         }
 
-        // Panggil service untuk mengirim pesan
+        // Kirim via WhatsApp Service
         $waService->sendNotification($phone, $msg);
     }
 
@@ -450,19 +494,32 @@ class AbsenceController extends Controller
         $walikelasName = $user->name;
         $class = $user->homeroomTeacher->class->name ?? 'N/A';
         $sentCount = 0;
+        $skippedCount = 0;
 
-        // 1. Ambil semua catatan absensi hari ini yang berstatus SIA (Sakit, Izin, Alpha)
+        Log::info("WA Massal - Wali Kelas: {$walikelasName}, Kelas ID: {$classId}, Tanggal: {$today}");
+
+        // 1. Cari data absensi SIA hari ini untuk kelas ini
         $absencesToNotify = Absence::whereDate('attendance_time', $today)
             ->whereIn('status', ['Sakit', 'Izin', 'Alpha'])
             ->whereHas('student', function ($query) use ($classId) {
-                // Batasan Kritis: Hanya siswa di kelas Wali Kelas ini
                 $query->where('class_id', $classId);
             })
             ->with('student')
             ->get();
 
+        Log::info("WA Massal - Ditemukan {$absencesToNotify->count()} absensi SIA hari ini.");
+
         if ($absencesToNotify->isEmpty()) {
-            return redirect()->back()->with('warning', 'Tidak ada siswa dengan status Sakit, Izin, atau Alpha hari ini di kelas Anda.');
+            // Coba cek apakah ada absensi sama sekali hari ini (untuk debug)
+            $anyAbsence = Absence::whereDate('attendance_time', $today)
+                ->whereHas('student', fn($q) => $q->where('class_id', $classId))
+                ->count();
+            Log::info("WA Massal - Total absensi hari ini di kelas: {$anyAbsence}");
+
+            return redirect()->back()->with('warning', 
+                "Tidak ada siswa dengan status Sakit, Izin, atau Alpha hari ini di kelas {$class}. " .
+                "(Total absensi hari ini: {$anyAbsence} record)"
+            );
         }
 
         // 2. Loop dan Kirim Notifikasi per Siswa
@@ -470,27 +527,32 @@ class AbsenceController extends Controller
             $student = $absence->student;
             $phone = $student->phone_number;
 
-            // Pastikan nomor HP tersedia
             if ($phone) {
                 $status = $absence->status;
                 $reason = $absence->notes ? "Keterangan: {$absence->notes}" : '';
 
                 $msg = "🔔 PEMBERITAHUAN KETIDAKHADIRAN 🔔\n\n"
                     . "Yth. Wali Murid {$student->name} (Kelas {$class}),\n\n"
-                    . "Anak Anda tercatat **Absen** pada hari ini ({$today->isoFormat('D MMMM YYYY')}) dengan status:\n\n"
+                    . "Anak Anda tercatat *Tidak Hadir* pada hari ini ({$today->isoFormat('D MMMM YYYY')}) dengan status:\n\n"
                     . "Status: *{$status}*\n"
                     . "{$reason}\n\n"
                     . "Pencatat: {$walikelasName}\n"
                     . "Terima kasih.";
 
-                // Panggil Service WA (Asumsi sendNotification menerima $phone dan $message)
                 $waService->sendNotification($phone, $msg);
                 $sentCount++;
+                Log::info("WA Massal - Terkirim ke: {$phone} untuk siswa: {$student->name}");
             } else {
-                Log::warning("WA Notif Gagal: Siswa {$student->name} tidak memiliki nomor HP wali.");
+                $skippedCount++;
+                Log::warning("WA Massal - Dilewati: Siswa {$student->name} tidak memiliki nomor HP wali.");
             }
         }
 
-        return redirect()->back()->with('success', "✅ Berhasil mengirim {$sentCount} notifikasi ketidakhadiran (Sakit/Izin/Alpha) via WhatsApp.");
+        $msg = "✅ Berhasil mengirim {$sentCount} notifikasi WA (Sakit/Izin/Alpha).";
+        if ($skippedCount > 0) {
+            $msg .= " ⚠️ {$skippedCount} siswa dilewati karena tidak ada nomor HP wali.";
+        }
+
+        return redirect()->back()->with('success', $msg);
     }
 }
