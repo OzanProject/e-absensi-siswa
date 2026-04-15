@@ -14,9 +14,26 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="space-y-6" enctype="multipart/form-data">
         @csrf
         @method('patch')
+
+        {{-- PHOTO UPLOAD --}}
+        <div>
+            <label for="photo" class="block font-bold text-gray-700 mb-2 pl-1">Foto Profil</label>
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 rounded-full overflow-hidden border border-gray-200 shadow-sm bg-gray-100 flex-shrink-0">
+                    <img src="{{ $user->photo ? asset('storage/photos/' . $user->photo) : asset('vendor/adminlte/dist/img/user2-160x160.jpg') }}" alt="Profile Photo" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1">
+                    <input id="photo" name="photo" type="file" class="w-full px-4 py-2 bg-gray-50 rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition duration-200 text-sm" accept="image/jpeg,image/png,image/jpg" />
+                    <p class="text-xs text-gray-400 mt-1 pl-1">Format: JPG, JPEG, PNG. Maksimal ukuran 2MB.</p>
+                </div>
+            </div>
+            @if($errors->get('photo'))
+                <p class="text-red-500 text-sm mt-1 ml-1">{{ $errors->first('photo') }}</p>
+            @endif
+        </div>
 
         <div>
             <label for="name" class="block font-bold text-gray-700 mb-2 pl-1">Nama Lengkap</label>

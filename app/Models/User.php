@@ -24,6 +24,7 @@ class User extends Authenticatable // implements MustVerifyEmail dihapus
         'role',
         'is_approved',
         'is_demo',
+        'photo', // Added Photo
     ];
 
     protected $hidden = [
