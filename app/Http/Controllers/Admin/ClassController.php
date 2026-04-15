@@ -14,13 +14,16 @@ class ClassController extends Controller
     /**
      * Tampilkan daftar kelas dengan paginasi. (READ)
      */
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = $request->get('per_page', 15);
+
         // 🔥 PERBAIKAN: Mengurutkan data berdasarkan 'grade' (tingkat, dari 1 ke 12) 
         //             kemudian diurutkan berdasarkan 'name' (nama kelas) secara ascending.
         $classes = ClassModel::orderBy('grade', 'asc') // Urutan utama: 1, 2, ..., 12
                              ->orderBy('name', 'asc')  // Urutan sekunder: 7A, 7B, 7C
-                             ->paginate(15);
+                             ->paginate($perPage)
+                             ->withQueryString();
         
         return view('admin.classes.index', compact('classes'));
     }

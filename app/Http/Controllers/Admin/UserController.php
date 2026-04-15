@@ -70,7 +70,8 @@ class UserController extends Controller
         }
 
         // Secondary Sort: Dinamis per grup (Terbaru di atas)
-        $users = $query->orderBy('created_at', 'desc')->paginate(15);
+        $perPage = $request->get('per_page', 15);
+        $users = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
 
 
         // Hitung statistik untuk summary card (Sekarang total mencakup semua user)

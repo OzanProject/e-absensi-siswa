@@ -67,6 +67,21 @@
 
                 {{-- Right: Search & Filter Form --}}
                 <form action="{{ route('students.index') }}" method="GET" class="w-full lg:w-auto flex flex-col sm:flex-row gap-3">
+                    
+                    {{-- Dropdown Baris/Halaman --}}
+                    <div class="relative">
+                        <select name="per_page" onchange="this.form.submit()"
+                                class="appearance-none pl-4 pr-8 py-2.5 rounded-xl border-gray-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 w-full sm:w-28 bg-white shadow-sm transition">
+                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 / hal</option>
+                            <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20 / hal</option>
+                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 / hal</option>
+                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100 / hal</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+
                     {{-- Dropdown Filter Kelas --}}
                     <div class="relative">
                         <select name="class_id" onchange="this.form.submit()"
@@ -255,7 +270,7 @@
         {{-- PAGINATION --}}
         @if($students->hasPages())
             <div class="bg-gray-50/50 border-t border-gray-100 px-6 py-4">
-                {{ $students->appends(['search' => request('search'), 'class_id' => request('class_id')])->links('pagination::tailwind') }}
+                {{ $students->appends(['search' => request('search'), 'class_id' => request('class_id'), 'per_page' => request('per_page')])->links('pagination::tailwind') }}
             </div>
         @endif
     </div>

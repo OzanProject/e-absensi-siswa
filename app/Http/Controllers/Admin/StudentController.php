@@ -27,6 +27,8 @@ class StudentController extends Controller
         try {
             $search = $request->get('search');
             $classId = $request->get('class_id');
+            // Menangkap input 'per_page' dari filter, default 10
+            $perPage = $request->get('per_page', 10);
 
             // Ambil semua kelas untuk filter dropdown
             $classes = ClassModel::orderBy('grade')->orderBy('name')->get();
@@ -53,7 +55,7 @@ class StudentController extends Controller
             $students = $query->orderBy('classes.grade', 'asc')
                               ->orderBy('classes.name', 'asc')
                               ->orderBy('students.name', 'asc')
-                              ->paginate(15)
+                              ->paginate($perPage)
                               ->withQueryString();
             
             return view('admin.students.index', compact('students', 'classes'));
@@ -232,6 +234,7 @@ class StudentController extends Controller
             $students = Student::whereIn('id', $request->selected_students)->get();
             $count = $students->count();
 
+            /** @var \App\Models\Student $student */
             foreach ($students as $student) {
                 if ($student->photo && $student->photo !== 'default_avatar.png') {
                     if (Storage::disk('public')->exists($student->photo)) {
@@ -293,6 +296,7 @@ class StudentController extends Controller
             $barcodeData = [];
             $settings = \App\Models\Setting::pluck('value', 'key')->toArray();
 
+            /** @var \App\Models\Student $student */
             foreach ($students as $student) {
                 if (!$student->barcode_data) {
                     $student->update(['barcode_data' => Str::uuid()->toString()]);

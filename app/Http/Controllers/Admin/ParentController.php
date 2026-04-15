@@ -23,6 +23,7 @@ class ParentController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search');
+        $perPage = $request->get('per_page', 15);
         
         $parents = ParentModel::with('user', 'students.class')
                              ->when($search, function($query) use ($search) {
@@ -34,7 +35,8 @@ class ParentController extends Controller
                              })
                              // 💡 PERUBAHAN: Urutkan berdasarkan ID terbaru (DESC)
                              ->orderBy('id', 'desc')
-                             ->paginate(15);
+                             ->paginate($perPage)
+                             ->withQueryString();
                                
         return view('admin.parents.index', compact('parents'));
     }

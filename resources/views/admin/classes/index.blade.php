@@ -22,6 +22,27 @@
     {{-- MAIN CONTENT CARD --}}
     <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden relative">
         
+        {{-- TOOLBAR / FILTER --}}
+        <div class="p-5 border-b border-gray-100 bg-gray-50/30 flex justify-between items-center">
+            <div class="text-sm text-gray-600 font-medium">
+                Total: <span class="text-indigo-600 font-bold text-lg">{{ $classes->total() }}</span> Kelas
+            </div>
+            <form action="{{ route('classes.index') }}" method="GET" class="w-full lg:w-auto flex flex-col sm:flex-row gap-3">
+                <div class="relative">
+                    <select name="per_page" onchange="this.form.submit()"
+                            class="appearance-none pl-4 pr-8 py-2.5 rounded-xl border-gray-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 w-full sm:w-28 bg-white shadow-sm transition">
+                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 / hal</option>
+                        <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15 / hal</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 / hal</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100 / hal</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </div>
+                </div>
+            </form>
+        </div>
+
         {{-- SUCCESS/ERROR ALERTS (Absolute positioning within padding) --}}
         @if (session('success') || session('error'))
             <div class="px-6 pt-6">
@@ -146,7 +167,7 @@
         {{-- PAGINATION --}}
         @if($classes->hasPages())
             <div class="bg-gray-50/50 border-t border-gray-100 px-6 py-4">
-                {{ $classes->links('pagination::tailwind') }}
+                {{ $classes->appends(['per_page' => request('per_page')])->links('pagination::tailwind') }}
             </div>
         @endif
     </div>

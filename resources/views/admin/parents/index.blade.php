@@ -74,14 +74,29 @@
                 </form>
             </div>
 
-            {{-- SEARCH --}}
-            <form action="{{ route('parents.index') }}" method="GET" class="relative w-full md:w-96 group">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="fas fa-search text-gray-400 group-focus-within:text-purple-500 transition-colors"></i>
+            {{-- SEARCH & FILTER --}}
+            <form action="{{ route('parents.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <div class="relative">
+                    <select name="per_page" onchange="this.form.submit()"
+                            class="appearance-none pl-4 pr-10 py-3 rounded-xl border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 w-full sm:w-28 bg-white shadow-sm transition">
+                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 / hal</option>
+                        <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15 / hal</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 / hal</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100 / hal</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </div>
                 </div>
-                <input type="text" name="search" 
-                       class="block w-full pl-10 pr-4 py-3 border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition duration-150 ease-in-out sm:text-sm shadow-sm" 
-                       placeholder="Cari Nama, HP, atau Nama Anak..." value="{{ request('search') }}">
+
+                <div class="relative w-full md:w-96 group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400 group-focus-within:text-purple-500 transition-colors"></i>
+                    </div>
+                    <input type="text" name="search" 
+                           class="block w-full pl-10 pr-4 py-3 border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition duration-150 ease-in-out sm:text-sm shadow-sm" 
+                           placeholder="Cari Nama, HP, atau Nama Anak..." value="{{ request('search') }}">
+                </div>
             </form>
 
             {{-- ACTIONS (Normal) --}}

@@ -98,17 +98,34 @@
                 </div>
 
                 {{-- Search & Add --}}
-                <div class="flex items-center space-x-3 w-full lg:w-auto">
+                <div class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full lg:w-auto">
                     <form action="{{ route('admin.users.index') }}" method="GET"
-                        class="relative group flex-1 lg:flex-none">
+                        class="flex flex-col sm:flex-row gap-3 w-full">
                         <input type="hidden" name="tab" value="{{ $currentTab }}">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i
-                                class="fas fa-search text-gray-400 group-focus-within:text-purple-500 transition-colors"></i>
+                        
+                        {{-- Dropdown Baris/Halaman --}}
+                        <div class="relative w-full sm:w-28">
+                            <select name="per_page" onchange="this.form.submit()"
+                                    class="appearance-none block w-full pl-4 pr-8 py-2 border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm shadow-sm transition-all">
+                                <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 / hal</option>
+                                <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15 / hal</option>
+                                <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 / hal</option>
+                                <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100 / hal</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </div>
                         </div>
-                        <input type="text" name="search"
-                            class="block w-full lg:w-64 pl-10 pr-4 py-2 border-gray-200 rounded-xl bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm shadow-sm transition-all"
-                            placeholder="Cari User..." value="{{ request('search') }}">
+
+                        <div class="relative group flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i
+                                    class="fas fa-search text-gray-400 group-focus-within:text-purple-500 transition-colors"></i>
+                            </div>
+                            <input type="text" name="search"
+                                class="block w-full lg:w-64 pl-10 pr-4 py-2 border-gray-200 rounded-xl bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm shadow-sm transition-all"
+                                placeholder="Cari User..." value="{{ request('search') }}">
+                        </div>
                     </form>
 
                     <a href="{{ route('admin.users.create') }}"
@@ -296,7 +313,7 @@
 
         @if($users->hasPages())
             <div class="bg-gray-50 px-6 py-4 border-t border-gray-100">
-                {{ $users->appends(['tab' => $currentTab, 'search' => request('search')])->links() }}
+                {{ $users->appends(['tab' => $currentTab, 'search' => request('search'), 'per_page' => request('per_page')])->links() }}
             </div>
         @endif
     </div>
