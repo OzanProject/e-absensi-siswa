@@ -353,12 +353,25 @@
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">API Token/Key</label>
-                            <input type="password" name="wa_api_key"
+                            <input type="password" name="wa_api_key" id="wa_api_key"
                                 class="w-full px-4 py-2 rounded-lg border border-gray-300 font-mono text-sm"
                                 value="{{ $settings['wa_api_key'] ?? '' }}">
                         </div>
                     </div>
-                    <p class="text-xs text-gray-400 mt-2">Dibutuhkan layanan pihak ketiga (WA Gateway) untuk fitur
+
+                    {{-- 💡 TAMBAHAN UNTUK TESTING WA --}}
+                    <div class="mt-5 pt-5 border-t border-gray-200">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Uji Coba Pengiriman</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="test_wa_number" class="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-sm" placeholder="Nomor WhatsApp tujuan (Ketik 08...)">
+                            <button type="button" id="btnTestWa" class="bg-green-500 hover:bg-green-600 border border-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition">
+                                <i class="fas fa-paper-plane mr-1"></i> Kirim Test
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1">Pastikan Anda sudah menekan tombol <b>"Simpan Pengaturan"</b> terlebih dahulu sebelum menguji pengiriman pesan baru.</p>
+                    </div>
+
+                    <p class="text-xs text-gray-400 mt-4">Dibutuhkan layanan pihak ketiga (WA Gateway) untuk fitur
                         notifikasi.</p>
                 </div>
             </div>
@@ -499,13 +512,47 @@
             }
         });
 
-        // --- 3. FORM SUBMIT ANIMATION ---
+        // --- 3. TEST WHATSAPP ACTION ---
+        $('#btnTestWa').click(function() {
+            const phone = $('#test_wa_number').val();
+            if (!phone) {
+                Swal.fire({icon: 'warning', title: 'Perhatian', text: 'Harap masukkan nomor WhatsApp tujuan.'});
+                return;
+            }
+
+            const btn = $(this);
+            const originalHtml = btn.html();
+            btn.html('<i class="fas fa-spinner fa-spin mr-1"></i> Mengirim...').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+
+            $.ajax({
+                url: '{{ route("admin.settings.testWa") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    phone: phone
+                },
+                success: function(res) {
+                    btn.html(originalHtml).prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
+                    if (res.success) {
+                        Swal.fire({icon: 'success', title: 'Terkirim!', text: res.message});
+                    } else {
+                        Swal.fire({icon: 'error', title: 'Gagal', text: res.message});
+                    }
+                },
+                error: function(err) {
+                    btn.html(originalHtml).prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
+                    Swal.fire({icon: 'error', title: 'Error API', text: err.responseJSON?.message || 'Gagal menghubungi Gateway.'});
+                }
+            });
+        });
+
+        // --- 4. FORM SUBMIT ANIMATION ---
         $('#settingsForm').on('submit', function () {
             const btn = $('#save-btn');
             btn.html('<i class="fas fa-circle-notch fa-spin mr-2"></i> Menyimpan...').prop('disabled', true).addClass('opacity-75 cursor-not-allowed');
         });
 
-        // --- 4. ALERTS ---
+        // --- 5. ALERTS ---
         @if(session('success'))
             Swal.fire({ icon: 'success', title: 'Berhasil', text: '{{ session('success') }}', timer: 2000, showConfirmButton: false });
         @endif

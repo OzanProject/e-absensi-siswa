@@ -38,24 +38,36 @@ class WhatsAppService
         // Bersihkan nomor telepon dan pastikan format internasional (62xxxx)
         $cleanNumber = preg_replace('/^08/', '628', $toPhoneNumber);
         
-        // Struktur data yang dikirim ke API WhatsApp (Sesuaikan jika API Anda berbeda)
+        // Format spesifik untuk Fonnte API
+        // Catatan: Karena kita sudah memaksa ganti awalan 08 jadi 628, 
+        // JANGAN MENGIRIMKAN param 'countryCode', supaya API tidak double nambah 62 jadi 62628...
         $payload = [
-            'to' => $cleanNumber,
+            'target' => $cleanNumber,
             'message' => $message,
-            'api_key' => $this->apiKey,
-            // Tambahkan parameter lain sesuai kebutuhan API Anda
         ];
 
         try {
-            $response = Http::post($this->endpoint, $payload);
+            // Fonnte biasanya merespon dengan kode 200 meskipun gagal (misal: device disconnect/token salah)
+            // Jadi kita harus membaca isi JSON-nya.
+            // Selain itu agar stabil, kita kirimkan data sbg url-encoded/form.
+            $response = Http::withHeaders([
+                'Authorization' => $this->apiKey
+            ])->asForm()->post($this->endpoint, $payload);
 
-            if ($response->successful()) {
+            $resData = $response->json();
+
+            // Cek apakah HTTP Sukses DAN status dari Fonnte adalah true
+            if ($response->successful() && isset($resData['status']) && $resData['status'] === true) {
                 Log::info("WhatsApp Notification sent successfully to: {$toPhoneNumber}");
                 return true;
             }
 
-            Log::error("WhatsApp Notification failed. Response: " . $response->body());
-            return false;
+            // Jika statusnya false atau ada error reason, catat alasan lengkapnya
+            $errorReason = $resData['reason'] ?? $resData['detail'] ?? $response->body();
+            Log::error("WhatsApp Notification failed. Reason: " . $errorReason);
+            
+            // Lemparkan exception supaya bisa ditangkap di controller jika diperlukan
+            throw new \Exception("Fonnte Error: " . $errorReason);
 
         } catch (\Exception $e) {
             Log::error("WhatsApp API connection error: " . $e->getMessage());

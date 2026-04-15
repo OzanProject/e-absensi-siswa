@@ -117,6 +117,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->group(function
     // Modul Pengaturan
     Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::post('settings/test-wa', [SettingController::class, 'testWa'])->name('admin.settings.testWa');
 
     // =======================================================
     // MODUL ABSENSI TERPUSAT (SCAN LIVE)

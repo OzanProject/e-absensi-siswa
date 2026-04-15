@@ -156,4 +156,29 @@ class SettingController extends Controller
             return redirect()->back()->with('error', 'Gagal menyimpan pengaturan. Error: ' . $e->getMessage())->withInput();
         }
     }
+
+    /**
+     * Uji Coba Pengiriman Pesan WhatsApp via Settings
+     */
+    public function testWa(Request $request)
+    {
+        $request->validate(['phone' => 'required|string|max:20']);
+        
+        $wa = new \App\Services\WhatsAppService();
+        $message = "*[TESTING E-ABSENSI]*\n\nHalo! Jika Anda menerima pesan ini, artinya konfigurasi Gateway WhatsApp di aplikasi *Ozan Project - E-Absensi* sudah terhubung dan berfungsi dengan baik. 🚀\n\nTerima kasih.";
+        
+        $result = $wa->sendNotification($request->phone, $message);
+        
+        if ($result) {
+            return response()->json([
+                'success' => true, 
+                'message' => 'Pesan berhasil dikirim ke gateway. Silakan cek WhatsApp Anda.'
+            ]);
+        } else {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Gagal menghubungi Gateway. Pastikan Endpoint Token Fonnte/API Key valid atau limit harian tidak habis.'
+            ], 500);
+        }
+    }
 }
