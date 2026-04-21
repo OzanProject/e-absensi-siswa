@@ -1,0 +1,732 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
+<meta name="ProgId" content="Word.Document">
+<meta name="Generator" content="Microsoft Word 15">
+<meta name="Originator" content="Microsoft Word 15">
+<!--[if gte mso 9]>
+<xml>
+<o:DocumentProperties>
+  <o:Title>LRS - E-Absensi Siswa</o:Title>
+  <o:Author>E-Absensi Siswa</o:Author>
+</o:DocumentProperties>
+<w:WordDocument>
+  <w:View>Print</w:View>
+  <w:Zoom>100</w:Zoom>
+  <w:SpellingState>Clean</w:SpellingState>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+    @page {
+        size: A4;
+        margin: 2.54cm 3.17cm 2.54cm 3.17cm;
+    }
+    body {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 12pt;
+        line-height: 1.5;
+        color: #000000;
+    }
+    h1 {
+        font-size: 16pt;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 6pt;
+        color: #000000;
+    }
+    h2 {
+        font-size: 14pt;
+        font-weight: bold;
+        margin-top: 18pt;
+        margin-bottom: 6pt;
+        color: #000000;
+        border-bottom: 2px solid #333333;
+        padding-bottom: 4pt;
+    }
+    h3 {
+        font-size: 12pt;
+        font-weight: bold;
+        margin-top: 12pt;
+        margin-bottom: 6pt;
+        color: #000000;
+    }
+    p {
+        text-align: justify;
+        margin-bottom: 6pt;
+    }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 6pt;
+        margin-bottom: 12pt;
+        font-size: 10pt;
+    }
+    th {
+        background-color: #1A5276;
+        color: #FFFFFF;
+        font-weight: bold;
+        padding: 6pt 8pt;
+        border: 1px solid #1A5276;
+        text-align: left;
+    }
+    td {
+        padding: 4pt 8pt;
+        border: 1px solid #CCCCCC;
+        vertical-align: top;
+    }
+    tr:nth-child(even) {
+        background-color: #F2F2F2;
+    }
+    .center { text-align: center; }
+    .info-box {
+        background-color: #EAFAF1;
+        border-left: 4px solid #27AE60;
+        padding: 8pt 12pt;
+        margin: 12pt 0;
+        font-size: 10pt;
+    }
+    .warn-box {
+        background-color: #FEF9E7;
+        border-left: 4px solid #F39C12;
+        padding: 8pt 12pt;
+        margin: 12pt 0;
+        font-size: 10pt;
+    }
+    .badge-pk {
+        background-color: #F39C12;
+        color: #fff;
+        padding: 1pt 6pt;
+        border-radius: 3pt;
+        font-size: 8pt;
+        font-weight: bold;
+    }
+    .badge-fk {
+        background-color: #3498DB;
+        color: #fff;
+        padding: 1pt 6pt;
+        border-radius: 3pt;
+        font-size: 8pt;
+        font-weight: bold;
+    }
+    .badge-uk {
+        background-color: #2ECC71;
+        color: #fff;
+        padding: 1pt 6pt;
+        border-radius: 3pt;
+        font-size: 8pt;
+        font-weight: bold;
+    }
+    .page-break {
+        page-break-before: always;
+    }
+    .cover-title {
+        font-size: 24pt;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 150pt;
+        color: #1A5276;
+    }
+    .cover-subtitle {
+        font-size: 16pt;
+        text-align: center;
+        margin-top: 12pt;
+        color: #7F8C8D;
+    }
+    .cover-app {
+        font-size: 14pt;
+        text-align: center;
+        margin-top: 36pt;
+        color: #27AE60;
+        font-weight: bold;
+    }
+    .cover-date {
+        font-size: 12pt;
+        text-align: center;
+        margin-top: 120pt;
+        color: #95A5A6;
+    }
+    .tabel-nama {
+        font-weight: bold;
+        font-size: 11pt;
+        color: #1A5276;
+    }
+    .lrs-box {
+        border: 2px solid #1A5276;
+        margin: 8pt 0;
+        page-break-inside: avoid;
+    }
+    .lrs-header {
+        background-color: #1A5276;
+        color: #FFFFFF;
+        font-weight: bold;
+        font-size: 11pt;
+        padding: 4pt 10pt;
+        text-align: center;
+    }
+    .lrs-fields {
+        padding: 0;
+    }
+    .lrs-fields table {
+        margin: 0;
+        border: none;
+    }
+    .lrs-fields td {
+        padding: 2pt 8pt;
+        border: none;
+        border-bottom: 1px solid #ECF0F1;
+        font-size: 9pt;
+        font-family: 'Courier New', monospace;
+    }
+    .lrs-pk { color: #E67E22; font-weight: bold; }
+    .lrs-fk { color: #2980B9; font-weight: bold; }
+    .lrs-field { color: #2C3E50; }
+    .lrs-type { color: #7F8C8D; font-size: 8pt; }
+    .lrs-ref { color: #E74C3C; font-size: 8pt; font-style: italic; }
+</style>
+</head>
+<body>
+
+<!-- ==================== COVER PAGE ==================== -->
+<div>
+    <p class="cover-title">LOGICAL RECORD STRUCTURE</p>
+    <p class="cover-subtitle">(LRS)</p>
+    <p class="cover-app">Aplikasi E-Absensi Siswa</p>
+    <p class="cover-subtitle">Sistem Informasi Manajemen Presensi Siswa Berbasis Web</p>
+    <p class="cover-date">Dokumen ini dibuat secara otomatis<br/>April 2026</p>
+</div>
+
+<!-- ==================== DAFTAR ISI ==================== -->
+<div class="page-break">
+    <h1>DAFTAR ISI</h1>
+    <br/>
+    <table style="border: none;">
+        <tr style="background: none;"><td style="border: none;">1. Pendahuluan</td><td style="border: none; text-align: right;">3</td></tr>
+        <tr style="background: none;"><td style="border: none;">2. Perbedaan ERD dan LRS</td><td style="border: none; text-align: right;">3</td></tr>
+        <tr style="background: none;"><td style="border: none;">3. Struktur Logis Tabel (LRS)</td><td style="border: none; text-align: right;">4</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.1. users</td><td style="border: none; text-align: right;">4</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.2. classes</td><td style="border: none; text-align: right;">4</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.3. students</td><td style="border: none; text-align: right;">5</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.4. homeroom_teachers</td><td style="border: none; text-align: right;">5</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.5. parents</td><td style="border: none; text-align: right;">5</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.6. parent_student</td><td style="border: none; text-align: right;">6</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.7. absences</td><td style="border: none; text-align: right;">6</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.8. izin_requests</td><td style="border: none; text-align: right;">6</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.9. settings</td><td style="border: none; text-align: right;">7</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.10. announcements</td><td style="border: none; text-align: right;">7</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.11. subjects</td><td style="border: none; text-align: right;">7</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.12. schedules</td><td style="border: none; text-align: right;">8</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.13. teaching_journals</td><td style="border: none; text-align: right;">8</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.14. subject_attendances</td><td style="border: none; text-align: right;">8</td></tr>
+        <tr style="background: none;"><td style="border: none;">&nbsp;&nbsp;&nbsp;3.15. teacher_attendances</td><td style="border: none; text-align: right;">9</td></tr>
+        <tr style="background: none;"><td style="border: none;">4. Pemetaan Foreign Key (FK)</td><td style="border: none; text-align: right;">10</td></tr>
+        <tr style="background: none;"><td style="border: none;">5. Diagram LRS Visual</td><td style="border: none; text-align: right;">11</td></tr>
+    </table>
+</div>
+
+<!-- ==================== BAB 1: PENDAHULUAN ==================== -->
+<div class="page-break">
+    <h2>1. Pendahuluan</h2>
+    <p>
+        Dokumen ini menyajikan <b>Logical Record Structure (LRS)</b> dari aplikasi 
+        <b>E-Absensi Siswa</b>. LRS merupakan representasi dari struktur record secara logis 
+        yang menggambarkan setiap tabel beserta field-field di dalamnya serta hubungan 
+        antar tabel melalui <i>foreign key</i>.
+    </p>
+    <p>
+        Berbeda dengan ERD yang menggambarkan hubungan konseptual antar entitas, LRS 
+        menggambarkan struktur fisik tabel yang akan diimplementasikan dalam basis data. 
+        Setiap record (baris) dalam tabel ditunjukkan dengan field-field lengkap beserta 
+        tipe datanya.
+    </p>
+
+    <div class="info-box">
+        <b>Teknologi Database:</b> MySQL / MariaDB<br/>
+        <b>Framework:</b> Laravel 12 (Eloquent ORM)<br/>
+        <b>Jumlah Tabel:</b> 15 tabel<br/>
+        <b>Jumlah Foreign Key:</b> 18 FK constraint
+    </div>
+
+    <h2>2. Perbedaan ERD dan LRS</h2>
+    <table>
+        <tr>
+            <th style="width: 20%;">Aspek</th>
+            <th style="width: 40%;">ERD</th>
+            <th style="width: 40%;">LRS</th>
+        </tr>
+        <tr>
+            <td><b>Fokus</b></td>
+            <td>Hubungan antar entitas secara konseptual</td>
+            <td>Struktur field dan koneksi FK antar tabel</td>
+        </tr>
+        <tr>
+            <td><b>Level</b></td>
+            <td>Konseptual / Logical</td>
+            <td>Logical / Physical</td>
+        </tr>
+        <tr>
+            <td><b>Representasi</b></td>
+            <td>Entitas, Atribut, Relasi (kotak, oval, garis)</td>
+            <td>Tabel dengan field lengkap dan tipe data</td>
+        </tr>
+        <tr>
+            <td><b>Foreign Key</b></td>
+            <td>Ditunjukkan secara implisit melalui garis relasi</td>
+            <td>Ditunjukkan secara eksplisit dengan referensi tabel.kolom</td>
+        </tr>
+        <tr>
+            <td><b>Tipe Data</b></td>
+            <td>Tidak selalu ada</td>
+            <td>Selalu ditampilkan</td>
+        </tr>
+        <tr>
+            <td><b>Kegunaan</b></td>
+            <td>Tahap perancangan awal</td>
+            <td>Tahap implementasi database</td>
+        </tr>
+    </table>
+</div>
+
+<!-- ==================== BAB 3: STRUKTUR LOGIS TABEL ==================== -->
+<div class="page-break">
+    <h2>3. Struktur Logis Tabel (LRS)</h2>
+    <p>Berikut adalah struktur logis setiap tabel dalam format LRS. Field yang merupakan <b>Primary Key</b> ditandai dengan <span class="badge-pk">PK</span>, <b>Foreign Key</b> dengan <span class="badge-fk">FK</span>, dan <b>Unique Key</b> dengan <span class="badge-uk">UK</span>.</p>
+
+    <!-- 3.1 USERS -->
+    <h3>3.1. users</h3>
+    <div class="lrs-box">
+        <div class="lrs-header">users</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-pk">*id</span> <span class="lrs-type">: BIGINT [PK, AI]</span></td></tr>
+                <tr><td><span class="lrs-field">name</span> <span class="lrs-type">: VARCHAR(255) [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">nip</span> <span class="lrs-type">: VARCHAR(255) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">email</span> <span class="lrs-type">: VARCHAR(255) [UNIQUE, NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">password</span> <span class="lrs-type">: VARCHAR(255) [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">role</span> <span class="lrs-type">: ENUM('super_admin','wali_kelas','orang_tua','guru','siswa','kepala_sekolah') [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">is_approved</span> <span class="lrs-type">: BOOLEAN [DEFAULT false]</span></td></tr>
+                <tr><td><span class="lrs-field">is_demo</span> <span class="lrs-type">: BOOLEAN [DEFAULT false]</span></td></tr>
+                <tr><td><span class="lrs-field">photo</span> <span class="lrs-type">: VARCHAR(255) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">email_verified_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">remember_token</span> <span class="lrs-type">: VARCHAR(100) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">created_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">updated_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3.2 CLASSES -->
+    <h3>3.2. classes</h3>
+    <div class="lrs-box">
+        <div class="lrs-header">classes</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-pk">*id</span> <span class="lrs-type">: BIGINT [PK, AI]</span></td></tr>
+                <tr><td><span class="lrs-field">name</span> <span class="lrs-type">: VARCHAR(255) [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">grade</span> <span class="lrs-type">: VARCHAR(255) [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">major</span> <span class="lrs-type">: VARCHAR(255) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">description</span> <span class="lrs-type">: TEXT [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">status</span> <span class="lrs-type">: ENUM('active','inactive') [DEFAULT 'active']</span></td></tr>
+                <tr><td><span class="lrs-field">created_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">updated_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="page-break">
+    <!-- 3.3 STUDENTS -->
+    <h3>3.3. students</h3>
+    <div class="lrs-box">
+        <div class="lrs-header">students</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-pk">*id</span> <span class="lrs-type">: BIGINT [PK, AI]</span></td></tr>
+                <tr><td><span class="lrs-field">nisn</span> <span class="lrs-type">: VARCHAR(255) [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">nis</span> <span class="lrs-type">: VARCHAR(255) [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">name</span> <span class="lrs-type">: VARCHAR(255) [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">email</span> <span class="lrs-type">: VARCHAR(255) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">gender</span> <span class="lrs-type">: ENUM('L','P') [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-fk">**class_id</span> <span class="lrs-type">: BIGINT [FK]</span> <span class="lrs-ref">→ classes(id)</span></td></tr>
+                <tr><td><span class="lrs-field">phone_number</span> <span class="lrs-type">: VARCHAR(255) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">address</span> <span class="lrs-type">: TEXT [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">birth_place</span> <span class="lrs-type">: VARCHAR(255) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">birth_date</span> <span class="lrs-type">: DATE [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">photo</span> <span class="lrs-type">: VARCHAR(255) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">status</span> <span class="lrs-type">: ENUM('active','inactive') [DEFAULT 'active']</span></td></tr>
+                <tr><td><span class="lrs-field">barcode_data</span> <span class="lrs-type">: VARCHAR(255) [UNIQUE, AUTO-UUID]</span></td></tr>
+                <tr><td><span class="lrs-field">created_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">updated_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3.4 HOMEROOM_TEACHERS -->
+    <h3>3.4. homeroom_teachers</h3>
+    <div class="lrs-box">
+        <div class="lrs-header">homeroom_teachers</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-pk">*id</span> <span class="lrs-type">: BIGINT [PK, AI]</span></td></tr>
+                <tr><td><span class="lrs-fk">**user_id</span> <span class="lrs-type">: BIGINT [FK]</span> <span class="lrs-ref">→ users(id)</span></td></tr>
+                <tr><td><span class="lrs-fk">**class_id</span> <span class="lrs-type">: BIGINT [FK, NULLABLE]</span> <span class="lrs-ref">→ classes(id)</span></td></tr>
+                <tr><td><span class="lrs-field">created_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">updated_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3.5 PARENTS -->
+    <h3>3.5. parents</h3>
+    <div class="lrs-box">
+        <div class="lrs-header">parents</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-pk">*id</span> <span class="lrs-type">: BIGINT [PK, AI]</span></td></tr>
+                <tr><td><span class="lrs-fk">**user_id</span> <span class="lrs-type">: BIGINT [FK]</span> <span class="lrs-ref">→ users(id)</span></td></tr>
+                <tr><td><span class="lrs-field">name</span> <span class="lrs-type">: VARCHAR(255) [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">phone_number</span> <span class="lrs-type">: VARCHAR(255) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">relation_status</span> <span class="lrs-type">: VARCHAR(255) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">created_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">updated_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="page-break">
+    <!-- 3.6 PARENT_STUDENT -->
+    <h3>3.6. parent_student <i>(Tabel Pivot)</i></h3>
+    <div class="lrs-box">
+        <div class="lrs-header">parent_student</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-fk">**parent_id</span> <span class="lrs-type">: BIGINT [FK, COMPOSITE PK]</span> <span class="lrs-ref">→ parents(id)</span></td></tr>
+                <tr><td><span class="lrs-fk">**student_id</span> <span class="lrs-type">: BIGINT [FK, COMPOSITE PK]</span> <span class="lrs-ref">→ students(id)</span></td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="warn-box">
+        <b>Catatan:</b> Tabel pivot ini mengimplementasikan relasi <b>Many-to-Many</b> antara 
+        <i>parents</i> dan <i>students</i>. Satu orang tua dapat memiliki banyak anak (siswa), 
+        dan satu siswa dapat memiliki banyak wali/orang tua.
+    </div>
+
+    <!-- 3.7 ABSENCES -->
+    <h3>3.7. absences</h3>
+    <div class="lrs-box">
+        <div class="lrs-header">absences</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-pk">*id</span> <span class="lrs-type">: BIGINT [PK, AI]</span></td></tr>
+                <tr><td><span class="lrs-fk">**student_id</span> <span class="lrs-type">: BIGINT [FK]</span> <span class="lrs-ref">→ students(id)</span></td></tr>
+                <tr><td><span class="lrs-field">attendance_time</span> <span class="lrs-type">: DATETIME [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">checkout_time</span> <span class="lrs-type">: DATETIME [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">status</span> <span class="lrs-type">: ENUM('hadir','terlambat','alpha','sakit','izin') [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">late_duration</span> <span class="lrs-type">: INTEGER [DEFAULT 0]</span></td></tr>
+                <tr><td><span class="lrs-field">reason</span> <span class="lrs-type">: TEXT [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-fk">**recorded_by</span> <span class="lrs-type">: BIGINT [FK, NULLABLE]</span> <span class="lrs-ref">→ users(id)</span></td></tr>
+                <tr><td><span class="lrs-field">latitude</span> <span class="lrs-type">: DECIMAL(10,8) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">longitude</span> <span class="lrs-type">: DECIMAL(11,8) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">ip_address</span> <span class="lrs-type">: VARCHAR(45) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">created_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">updated_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3.8 IZIN_REQUESTS -->
+    <h3>3.8. izin_requests</h3>
+    <div class="lrs-box">
+        <div class="lrs-header">izin_requests</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-pk">*id</span> <span class="lrs-type">: BIGINT [PK, AI]</span></td></tr>
+                <tr><td><span class="lrs-fk">**student_id</span> <span class="lrs-type">: BIGINT [FK]</span> <span class="lrs-ref">→ students(id)</span></td></tr>
+                <tr><td><span class="lrs-field">request_date</span> <span class="lrs-type">: DATE [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">type</span> <span class="lrs-type">: ENUM('sakit','izin') [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">reason</span> <span class="lrs-type">: TEXT [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">attachment_path</span> <span class="lrs-type">: VARCHAR(255) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">status</span> <span class="lrs-type">: ENUM('pending','approved','rejected') [DEFAULT 'pending']</span></td></tr>
+                <tr><td><span class="lrs-fk">**approved_by</span> <span class="lrs-type">: BIGINT [FK, NULLABLE]</span> <span class="lrs-ref">→ users(id)</span></td></tr>
+                <tr><td><span class="lrs-field">created_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">updated_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="page-break">
+    <!-- 3.9 SETTINGS -->
+    <h3>3.9. settings</h3>
+    <div class="lrs-box">
+        <div class="lrs-header">settings</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-pk">*id</span> <span class="lrs-type">: BIGINT [PK, AI]</span></td></tr>
+                <tr><td><span class="lrs-field">key</span> <span class="lrs-type">: VARCHAR(255) [UNIQUE, NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">value</span> <span class="lrs-type">: TEXT [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">description</span> <span class="lrs-type">: VARCHAR(255) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">created_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">updated_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3.10 ANNOUNCEMENTS -->
+    <h3>3.10. announcements</h3>
+    <div class="lrs-box">
+        <div class="lrs-header">announcements</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-pk">*id</span> <span class="lrs-type">: BIGINT [PK, AI]</span></td></tr>
+                <tr><td><span class="lrs-field">title</span> <span class="lrs-type">: VARCHAR(255) [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">content</span> <span class="lrs-type">: TEXT [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">target_type</span> <span class="lrs-type">: ENUM('all','class') [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-fk">**target_id</span> <span class="lrs-type">: BIGINT [FK, NULLABLE]</span> <span class="lrs-ref">→ classes(id)</span></td></tr>
+                <tr><td><span class="lrs-field">is_active</span> <span class="lrs-type">: BOOLEAN [DEFAULT true]</span></td></tr>
+                <tr><td><span class="lrs-field">created_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">updated_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3.11 SUBJECTS -->
+    <h3>3.11. subjects</h3>
+    <div class="lrs-box">
+        <div class="lrs-header">subjects</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-pk">*id</span> <span class="lrs-type">: BIGINT [PK, AI]</span></td></tr>
+                <tr><td><span class="lrs-field">name</span> <span class="lrs-type">: VARCHAR(255) [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">code</span> <span class="lrs-type">: VARCHAR(255) [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">created_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">updated_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="page-break">
+    <!-- 3.12 SCHEDULES -->
+    <h3>3.12. schedules</h3>
+    <div class="lrs-box">
+        <div class="lrs-header">schedules</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-pk">*id</span> <span class="lrs-type">: BIGINT [PK, AI]</span></td></tr>
+                <tr><td><span class="lrs-fk">**class_id</span> <span class="lrs-type">: BIGINT [FK]</span> <span class="lrs-ref">→ classes(id)</span></td></tr>
+                <tr><td><span class="lrs-fk">**subject_id</span> <span class="lrs-type">: BIGINT [FK]</span> <span class="lrs-ref">→ subjects(id)</span></td></tr>
+                <tr><td><span class="lrs-fk">**teacher_id</span> <span class="lrs-type">: BIGINT [FK]</span> <span class="lrs-ref">→ users(id)</span></td></tr>
+                <tr><td><span class="lrs-field">day</span> <span class="lrs-type">: VARCHAR(255) [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">start_time</span> <span class="lrs-type">: TIME [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">end_time</span> <span class="lrs-type">: TIME [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">created_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">updated_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3.13 TEACHING_JOURNALS -->
+    <h3>3.13. teaching_journals</h3>
+    <div class="lrs-box">
+        <div class="lrs-header">teaching_journals</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-pk">*id</span> <span class="lrs-type">: BIGINT [PK, AI]</span></td></tr>
+                <tr><td><span class="lrs-fk">**schedule_id</span> <span class="lrs-type">: BIGINT [FK]</span> <span class="lrs-ref">→ schedules(id)</span></td></tr>
+                <tr><td><span class="lrs-fk">**teacher_id</span> <span class="lrs-type">: BIGINT [FK]</span> <span class="lrs-ref">→ users(id)</span></td></tr>
+                <tr><td><span class="lrs-field">date</span> <span class="lrs-type">: DATE [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">start_time</span> <span class="lrs-type">: TIME [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">end_time</span> <span class="lrs-type">: TIME [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">topic</span> <span class="lrs-type">: VARCHAR(255) [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">notes</span> <span class="lrs-type">: TEXT [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">created_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">updated_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3.14 SUBJECT_ATTENDANCES -->
+    <h3>3.14. subject_attendances</h3>
+    <div class="lrs-box">
+        <div class="lrs-header">subject_attendances</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-pk">*id</span> <span class="lrs-type">: BIGINT [PK, AI]</span></td></tr>
+                <tr><td><span class="lrs-fk">**teaching_journal_id</span> <span class="lrs-type">: BIGINT [FK]</span> <span class="lrs-ref">→ teaching_journals(id)</span></td></tr>
+                <tr><td><span class="lrs-fk">**student_id</span> <span class="lrs-type">: BIGINT [FK]</span> <span class="lrs-ref">→ students(id)</span></td></tr>
+                <tr><td><span class="lrs-field">status</span> <span class="lrs-type">: VARCHAR(255) [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">notes</span> <span class="lrs-type">: TEXT [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">created_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">updated_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="page-break">
+    <!-- 3.15 TEACHER_ATTENDANCES -->
+    <h3>3.15. teacher_attendances</h3>
+    <div class="lrs-box">
+        <div class="lrs-header">teacher_attendances</div>
+        <div class="lrs-fields">
+            <table>
+                <tr><td><span class="lrs-pk">*id</span> <span class="lrs-type">: BIGINT [PK, AI]</span></td></tr>
+                <tr><td><span class="lrs-fk">**user_id</span> <span class="lrs-type">: BIGINT [FK]</span> <span class="lrs-ref">→ users(id)</span></td></tr>
+                <tr><td><span class="lrs-field">date</span> <span class="lrs-type">: DATE [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">clock_in</span> <span class="lrs-type">: TIME [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">clock_out</span> <span class="lrs-type">: TIME [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">status</span> <span class="lrs-type">: ENUM('present','late','permission','sick','alpha') [NOT NULL]</span></td></tr>
+                <tr><td><span class="lrs-field">latitude</span> <span class="lrs-type">: DECIMAL(10,8) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">longitude</span> <span class="lrs-type">: DECIMAL(11,8) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">photo</span> <span class="lrs-type">: VARCHAR(255) [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">created_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+                <tr><td><span class="lrs-field">updated_at</span> <span class="lrs-type">: TIMESTAMP [NULLABLE]</span></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== BAB 4: PEMETAAN FK ==================== -->
+<div class="page-break">
+    <h2>4. Pemetaan Foreign Key (FK)</h2>
+    <p>Berikut adalah pemetaan seluruh <i>foreign key</i> yang menghubungkan antar tabel dalam LRS:</p>
+
+    <table>
+        <tr>
+            <th style="width: 5%;">No</th>
+            <th style="width: 22%;">Tabel Asal</th>
+            <th style="width: 18%;">Kolom FK</th>
+            <th style="width: 22%;">Tabel Referensi</th>
+            <th style="width: 15%;">Kolom Referensi</th>
+            <th style="width: 18%;">Kardinalitas</th>
+        </tr>
+        <tr><td class="center">1</td><td>students</td><td>class_id</td><td>classes</td><td>id</td><td class="center">N : 1</td></tr>
+        <tr><td class="center">2</td><td>homeroom_teachers</td><td>user_id</td><td>users</td><td>id</td><td class="center">1 : 1</td></tr>
+        <tr><td class="center">3</td><td>homeroom_teachers</td><td>class_id</td><td>classes</td><td>id</td><td class="center">1 : 1</td></tr>
+        <tr><td class="center">4</td><td>parents</td><td>user_id</td><td>users</td><td>id</td><td class="center">1 : 1</td></tr>
+        <tr><td class="center">5</td><td>parent_student</td><td>parent_id</td><td>parents</td><td>id</td><td class="center">M : N</td></tr>
+        <tr><td class="center">6</td><td>parent_student</td><td>student_id</td><td>students</td><td>id</td><td class="center">M : N</td></tr>
+        <tr><td class="center">7</td><td>absences</td><td>student_id</td><td>students</td><td>id</td><td class="center">N : 1</td></tr>
+        <tr><td class="center">8</td><td>absences</td><td>recorded_by</td><td>users</td><td>id</td><td class="center">N : 1</td></tr>
+        <tr><td class="center">9</td><td>izin_requests</td><td>student_id</td><td>students</td><td>id</td><td class="center">N : 1</td></tr>
+        <tr><td class="center">10</td><td>izin_requests</td><td>approved_by</td><td>users</td><td>id</td><td class="center">N : 1</td></tr>
+        <tr><td class="center">11</td><td>announcements</td><td>target_id</td><td>classes</td><td>id</td><td class="center">N : 1</td></tr>
+        <tr><td class="center">12</td><td>schedules</td><td>class_id</td><td>classes</td><td>id</td><td class="center">N : 1</td></tr>
+        <tr><td class="center">13</td><td>schedules</td><td>subject_id</td><td>subjects</td><td>id</td><td class="center">N : 1</td></tr>
+        <tr><td class="center">14</td><td>schedules</td><td>teacher_id</td><td>users</td><td>id</td><td class="center">N : 1</td></tr>
+        <tr><td class="center">15</td><td>teaching_journals</td><td>schedule_id</td><td>schedules</td><td>id</td><td class="center">N : 1</td></tr>
+        <tr><td class="center">16</td><td>teaching_journals</td><td>teacher_id</td><td>users</td><td>id</td><td class="center">N : 1</td></tr>
+        <tr><td class="center">17</td><td>subject_attendances</td><td>teaching_journal_id</td><td>teaching_journals</td><td>id</td><td class="center">N : 1</td></tr>
+        <tr><td class="center">18</td><td>subject_attendances</td><td>student_id</td><td>students</td><td>id</td><td class="center">N : 1</td></tr>
+        <tr><td class="center">19</td><td>teacher_attendances</td><td>user_id</td><td>users</td><td>id</td><td class="center">N : 1</td></tr>
+    </table>
+</div>
+
+<!-- ==================== BAB 5: DIAGRAM VISUAL ==================== -->
+<div class="page-break">
+    <h2>5. Diagram LRS Visual</h2>
+    <p>Berikut adalah representasi visual dari LRS yang menggambarkan hubungan antar tabel melalui garis <i>foreign key</i>:</p>
+
+    <pre style="font-family: 'Courier New', monospace; font-size: 8pt; background: #F8F9FA; padding: 16pt; border: 1px solid #DEE2E6; line-height: 2;">
+ ┌─────────────────┐         ┌─────────────────────┐         ┌─────────────────┐
+ │     users       │         │  homeroom_teachers   │         │     classes     │
+ ├─────────────────┤         ├─────────────────────┤         ├─────────────────┤
+ │ *id             │◄───┐    │ *id                 │    ┌───▶│ *id             │
+ │  name           │    │    │ **user_id ──────────┼────┘    │  name           │
+ │  nip            │    │    │ **class_id ─────────┼────────▶│  grade          │
+ │  email          │    │    │  created_at         │         │  major          │
+ │  password       │    │    │  updated_at         │         │  description    │
+ │  role           │    │    └─────────────────────┘         │  status         │
+ │  is_approved    │    │                                    └─────────────────┘
+ │  is_demo        │    │                                           │
+ │  photo          │    │                                           │ class_id
+ └─────────────────┘    │                                           ▼
+        │               │    ┌─────────────────┐             ┌─────────────────┐
+        │               │    │    parents      │             │    students     │
+        │ user_id       │    ├─────────────────┤             ├─────────────────┤
+        │               │    │ *id             │             │ *id             │
+        │               └────┤ **user_id       │    ┌──────▶│  nisn           │
+        │                    │  name           │    │       │  nis            │
+        │                    │  phone_number   │    │       │  name           │
+        │                    │  relation_status│    │       │  email          │
+        │                    └────────┬────────┘    │       │  gender         │
+        │                             │             │       │ **class_id      │
+        │                    parent_id│             │       │  barcode_data   │
+        │                             ▼             │       └────────┬────────┘
+        │                    ┌─────────────────┐    │                │
+        │                    │ parent_student  │    │                │ student_id
+        │                    ├─────────────────┤    │                │
+        │                    │ **parent_id     │    │                ▼
+        │                    │ **student_id ───┼────┘       ┌─────────────────┐
+        │                    └─────────────────┘            │    absences     │
+        │                                                   ├─────────────────┤
+        │    teacher_id  ┌──────────────────┐               │ *id             │
+        ├───────────────▶│   schedules      │               │ **student_id    │
+        │                ├──────────────────┤               │  attendance_time│
+        │                │ *id              │               │  checkout_time  │
+        │                │ **class_id ──────┼───▶classes    │  status         │
+        │                │ **subject_id ────┼───▶subjects   │  late_duration  │
+        │                │ **teacher_id     │               │  reason         │
+        │                │  day             │               │ **recorded_by──┼──▶users
+        │                │  start_time      │               │  latitude       │
+        │                │  end_time        │               │  longitude      │
+        │                └────────┬─────────┘               │  ip_address     │
+        │                         │                         └─────────────────┘
+        │                         │ schedule_id
+        │                         ▼                         ┌─────────────────┐
+        │                ┌──────────────────────┐           │  izin_requests  │
+        │   teacher_id   │  teaching_journals   │           ├─────────────────┤
+        ├───────────────▶├──────────────────────┤           │ *id             │
+        │                │ *id                  │           │ **student_id───┼──▶students
+        │                │ **schedule_id        │           │  request_date   │
+        │                │ **teacher_id         │           │  type           │
+        │                │  date                │           │  reason         │
+        │                │  start_time          │           │  attachment_path│
+        │                │  end_time            │           │  status         │
+        │                │  topic               │           │ **approved_by──┼──▶users
+        │                │  notes               │           └─────────────────┘
+        │                └────────┬─────────────┘
+        │                         │ teaching_journal_id     ┌─────────────────┐
+        │                         ▼                         │    subjects     │
+        │                ┌────────────────────────┐         ├─────────────────┤
+        │                │ subject_attendances    │         │ *id             │
+        │                ├────────────────────────┤         │  name           │
+        │                │ *id                    │         │  code           │
+        │                │ **teaching_journal_id  │         └─────────────────┘
+        │                │ **student_id ──────────┼──▶students
+        │                │  status                │         ┌─────────────────┐
+        │                │  notes                 │         │  announcements  │
+        │                └────────────────────────┘         ├─────────────────┤
+        │                                                   │ *id             │
+        │    user_id     ┌────────────────────────┐         │  title          │
+        └───────────────▶│ teacher_attendances    │         │  content        │
+                         ├────────────────────────┤         │  target_type    │
+                         │ *id                    │         │ **target_id────┼──▶classes
+                         │ **user_id              │         │  is_active      │
+                         │  date                  │         └─────────────────┘
+                         │  clock_in              │
+                         │  clock_out             │         ┌─────────────────┐
+                         │  status                │         │    settings     │
+                         │  latitude              │         ├─────────────────┤
+                         │  longitude             │         │ *id             │
+                         │  photo                 │         │  key [UNIQUE]   │
+                         └────────────────────────┘         │  value          │
+                                                            │  description    │
+                                                            └─────────────────┘
+
+ ┌────────────────────────────────────────────────────────────────┐
+ │  KETERANGAN SIMBOL:                                           │
+ │  *field     = Primary Key (PK)                                │
+ │  **field    = Foreign Key (FK)                                │
+ │  ──▶        = Referensi FK ke tabel tujuan                    │
+ │  ◄───       = Direferensi oleh tabel lain                     │
+ └────────────────────────────────────────────────────────────────┘
+    </pre>
+</div>
+
+</body>
+</html>
