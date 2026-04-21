@@ -2,6 +2,43 @@
 
 **E-Absensi Siswa** adalah aplikasi berbasis web modern untuk manajemen presensi siswa sekolah yang efisien, transparan, dan real-time. Aplikasi ini memanfaatkan QR Code untuk mempercepat proses absensi, serta fitur notifikasi WhatsApp otomatis kepada orang tua, dan rekap laporan kehadiran yang komprehensif.
 
+## 📸 Preview Aplikasi
+
+### 🏠 Halaman Depan (Landing Page)
+Tampilan utama dengan desain dark-theme premium, hero section informatif, dan navigasi intuitif.
+
+<p align="center">
+  <img src="docs/screenshots/01_landing_hero.png" alt="Landing Page Hero" width="100%"/>
+</p>
+
+### ⚙️ Alur Proses Kerja
+Sistem absensi otomatis: Scan Kartu → Data Diproses → Notifikasi WhatsApp ke Orang Tua.
+
+<p align="center">
+  <img src="docs/screenshots/02_landing_proses_kerja.png" alt="Proses Kerja" width="100%"/>
+</p>
+
+### 🛡️ Dashboard Super Admin
+Panel kontrol utama dengan statistik real-time, system health, dan akses ke seluruh manajemen sekolah.
+
+<p align="center">
+  <img src="docs/screenshots/03_dashboard_super_admin.png" alt="Dashboard Super Admin" width="100%"/>
+</p>
+
+### 📋 Dashboard Wali Kelas
+Monitoring kehadiran siswa per kelas, permintaan izin, dan riwayat absensi.
+
+<p align="center">
+  <img src="docs/screenshots/04_dashboard_wali_kelas.png" alt="Dashboard Wali Kelas" width="100%"/>
+</p>
+
+### 👨‍🏫 Dashboard Guru
+Absen selfie, scan QR, jurnal mengajar, dan jadwal pelajaran hari ini.
+
+<p align="center">
+  <img src="docs/screenshots/05_dashboard_guru.png" alt="Dashboard Guru" width="100%"/>
+</p>
+
 ## 🚀 Fitur Unggulan
 
 -   **✨ Landing Page Modern (SaaS Style)**: Tampilan depan profesional, responsif, dan elegan dengan tema Dark/Gradient serta animasi halus. Informasi sekolah (Footer/Hero) dinamis mengikuti pengaturan aplikasi.
