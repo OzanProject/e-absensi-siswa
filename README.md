@@ -35,6 +35,195 @@ Aplikasi ini dibangun menggunakan stack teknologi modern untuk performa dan kemu
     -   `aos`: Animate On Scroll untuk efek visual landing page.
     -   `chart.js`: Untuk grafik statistik di dashboard.
 
+## 📊 Entity Relationship Diagram (ERD)
+
+Berikut adalah diagram relasi antar tabel dalam database **E-Absensi Siswa**:
+
+```mermaid
+erDiagram
+    users {
+        bigint id PK
+        string name
+        string nip
+        string email UK
+        string password
+        enum role "super_admin, wali_kelas, orang_tua, guru, siswa, kepala_sekolah"
+        boolean is_approved
+        boolean is_demo
+        string photo
+    }
+
+    classes {
+        bigint id PK
+        string name
+        string grade
+        string major
+        text description
+        enum status "active, inactive"
+    }
+
+    students {
+        bigint id PK
+        string nisn
+        string nis
+        string name
+        string email
+        enum gender "L, P"
+        bigint class_id FK
+        string phone_number
+        string address
+        string birth_place
+        date birth_date
+        string photo
+        enum status "active, inactive"
+        string barcode_data UK
+    }
+
+    homeroom_teachers {
+        bigint id PK
+        bigint user_id FK
+        bigint class_id FK
+    }
+
+    parents {
+        bigint id PK
+        bigint user_id FK
+        string name
+        string phone_number
+        string relation_status
+    }
+
+    parent_student {
+        bigint parent_id FK
+        bigint student_id FK
+    }
+
+    absences {
+        bigint id PK
+        bigint student_id FK
+        datetime attendance_time
+        datetime checkout_time
+        enum status "hadir, terlambat, alpha, sakit, izin"
+        integer late_duration
+        text reason
+        bigint recorded_by FK
+        decimal latitude
+        decimal longitude
+        string ip_address
+    }
+
+    izin_requests {
+        bigint id PK
+        bigint student_id FK
+        date request_date
+        enum type "sakit, izin"
+        text reason
+        string attachment_path
+        enum status "pending, approved, rejected"
+        bigint approved_by FK
+    }
+
+    settings {
+        bigint id PK
+        string key UK
+        text value
+        string description
+    }
+
+    announcements {
+        bigint id PK
+        string title
+        text content
+        enum target_type "all, class"
+        bigint target_id
+        boolean is_active
+    }
+
+    subjects {
+        bigint id PK
+        string name
+        string code
+    }
+
+    schedules {
+        bigint id PK
+        bigint class_id FK
+        bigint subject_id FK
+        bigint teacher_id FK
+        string day
+        time start_time
+        time end_time
+    }
+
+    teaching_journals {
+        bigint id PK
+        bigint schedule_id FK
+        bigint teacher_id FK
+        date date
+        time start_time
+        time end_time
+        string topic
+        text notes
+    }
+
+    subject_attendances {
+        bigint id PK
+        bigint teaching_journal_id FK
+        bigint student_id FK
+        string status
+        text notes
+    }
+
+    teacher_attendances {
+        bigint id PK
+        bigint user_id FK
+        date date
+        time clock_in
+        time clock_out
+        enum status "present, late, permission, sick, alpha"
+        decimal latitude
+        decimal longitude
+        string photo
+    }
+
+    %% === RELATIONSHIPS ===
+    users ||--o| homeroom_teachers : "wali kelas"
+    users ||--o| parents : "orang tua"
+    users ||--o{ schedules : "mengajar"
+    users ||--o{ teacher_attendances : "absensi guru"
+    users ||--o{ teaching_journals : "jurnal"
+    users ||--o{ izin_requests : "approver"
+
+    classes ||--o{ students : "memiliki"
+    classes ||--o| homeroom_teachers : "wali kelas"
+    classes ||--o{ schedules : "jadwal"
+    announcements }o--o| classes : "target"
+
+    students ||--o{ absences : "absensi"
+    students ||--o{ izin_requests : "izin"
+    students ||--o{ subject_attendances : "absensi mapel"
+
+    parents ||--o{ parent_student : ""
+    students ||--o{ parent_student : ""
+
+    subjects ||--o{ schedules : "jadwal"
+    schedules ||--o{ teaching_journals : "jurnal"
+    teaching_journals ||--o{ subject_attendances : "absensi"
+```
+
+### Ringkasan Tabel
+
+| Domain | Tabel | Keterangan |
+|--------|-------|------------|
+| **Auth** | `users` | Semua pengguna (6 role) |
+| **Akademik** | `classes`, `students`, `subjects`, `schedules` | Data master sekolah |
+| **Absensi Siswa** | `absences`, `izin_requests`, `subject_attendances` | Kehadiran harian & per mapel |
+| **Absensi Guru** | `teacher_attendances` | Clock-in/out guru dengan GPS |
+| **Wali Kelas** | `homeroom_teachers` | Pivot user ↔ kelas |
+| **Orang Tua** | `parents`, `parent_student` | Data ortu & relasi M:N ke siswa |
+| **Mengajar** | `teaching_journals` | Jurnal harian guru |
+| **Lainnya** | `announcements`, `settings` | Pengumuman & konfigurasi |
+
 ## ⚙️ Persyaratan Sistem
 
 Pastikan server Anda memenuhi persyaratan berikut:
