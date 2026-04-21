@@ -224,6 +224,240 @@ erDiagram
 | **Mengajar** | `teaching_journals` | Jurnal harian guru |
 | **Lainnya** | `announcements`, `settings` | Pengumuman & konfigurasi |
 
+## 🔗 Logical Record Structure (LRS)
+
+Berikut adalah **LRS (Logical Record Structure)** yang menggambarkan struktur logis tabel beserta hubungan antar *foreign key* dan *primary key*:
+
+```mermaid
+classDiagram
+    direction LR
+
+    class users {
+        +id : bigint «PK»
+        +name : varchar
+        +nip : varchar
+        +email : varchar «UK»
+        +password : varchar
+        +role : enum
+        +is_approved : boolean
+        +is_demo : boolean
+        +photo : varchar
+        +email_verified_at : timestamp
+        +created_at : timestamp
+        +updated_at : timestamp
+    }
+
+    class classes {
+        +id : bigint «PK»
+        +name : varchar
+        +grade : varchar
+        +major : varchar
+        +description : text
+        +status : enum
+        +created_at : timestamp
+        +updated_at : timestamp
+    }
+
+    class students {
+        +id : bigint «PK»
+        +nisn : varchar
+        +nis : varchar
+        +name : varchar
+        +email : varchar
+        +gender : enum
+        #class_id : bigint «FK → classes.id»
+        +phone_number : varchar
+        +address : varchar
+        +birth_place : varchar
+        +birth_date : date
+        +photo : varchar
+        +status : enum
+        +barcode_data : varchar «UK»
+        +created_at : timestamp
+        +updated_at : timestamp
+    }
+
+    class homeroom_teachers {
+        +id : bigint «PK»
+        #user_id : bigint «FK → users.id»
+        #class_id : bigint «FK → classes.id»
+        +created_at : timestamp
+        +updated_at : timestamp
+    }
+
+    class parents {
+        +id : bigint «PK»
+        #user_id : bigint «FK → users.id»
+        +name : varchar
+        +phone_number : varchar
+        +relation_status : varchar
+        +created_at : timestamp
+        +updated_at : timestamp
+    }
+
+    class parent_student {
+        #parent_id : bigint «FK → parents.id»
+        #student_id : bigint «FK → students.id»
+    }
+
+    class absences {
+        +id : bigint «PK»
+        #student_id : bigint «FK → students.id»
+        +attendance_time : datetime
+        +checkout_time : datetime
+        +status : enum
+        +late_duration : integer
+        +reason : text
+        #recorded_by : bigint «FK → users.id»
+        +latitude : decimal
+        +longitude : decimal
+        +ip_address : varchar
+        +created_at : timestamp
+        +updated_at : timestamp
+    }
+
+    class izin_requests {
+        +id : bigint «PK»
+        #student_id : bigint «FK → students.id»
+        +request_date : date
+        +type : enum
+        +reason : text
+        +attachment_path : varchar
+        +status : enum
+        #approved_by : bigint «FK → users.id»
+        +created_at : timestamp
+        +updated_at : timestamp
+    }
+
+    class settings {
+        +id : bigint «PK»
+        +key : varchar «UK»
+        +value : text
+        +description : varchar
+        +created_at : timestamp
+        +updated_at : timestamp
+    }
+
+    class announcements {
+        +id : bigint «PK»
+        +title : varchar
+        +content : text
+        +target_type : enum
+        #target_id : bigint «FK → classes.id»
+        +is_active : boolean
+        +created_at : timestamp
+        +updated_at : timestamp
+    }
+
+    class subjects {
+        +id : bigint «PK»
+        +name : varchar
+        +code : varchar
+        +created_at : timestamp
+        +updated_at : timestamp
+    }
+
+    class schedules {
+        +id : bigint «PK»
+        #class_id : bigint «FK → classes.id»
+        #subject_id : bigint «FK → subjects.id»
+        #teacher_id : bigint «FK → users.id»
+        +day : varchar
+        +start_time : time
+        +end_time : time
+        +created_at : timestamp
+        +updated_at : timestamp
+    }
+
+    class teaching_journals {
+        +id : bigint «PK»
+        #schedule_id : bigint «FK → schedules.id»
+        #teacher_id : bigint «FK → users.id»
+        +date : date
+        +start_time : time
+        +end_time : time
+        +topic : varchar
+        +notes : text
+        +created_at : timestamp
+        +updated_at : timestamp
+    }
+
+    class subject_attendances {
+        +id : bigint «PK»
+        #teaching_journal_id : bigint «FK → teaching_journals.id»
+        #student_id : bigint «FK → students.id»
+        +status : varchar
+        +notes : text
+        +created_at : timestamp
+        +updated_at : timestamp
+    }
+
+    class teacher_attendances {
+        +id : bigint «PK»
+        #user_id : bigint «FK → users.id»
+        +date : date
+        +clock_in : time
+        +clock_out : time
+        +status : enum
+        +latitude : decimal
+        +longitude : decimal
+        +photo : varchar
+        +created_at : timestamp
+        +updated_at : timestamp
+    }
+
+    %% === FK RELATIONSHIPS ===
+    users "1" --> "0..1" homeroom_teachers : user_id
+    users "1" --> "0..1" parents : user_id
+    users "1" --> "*" schedules : teacher_id
+    users "1" --> "*" teacher_attendances : user_id
+    users "1" --> "*" teaching_journals : teacher_id
+    users "1" --> "*" izin_requests : approved_by
+    users "1" --> "*" absences : recorded_by
+
+    classes "1" --> "*" students : class_id
+    classes "1" --> "0..1" homeroom_teachers : class_id
+    classes "1" --> "*" schedules : class_id
+    classes "1" --> "*" announcements : target_id
+
+    students "1" --> "*" absences : student_id
+    students "1" --> "*" izin_requests : student_id
+    students "1" --> "*" subject_attendances : student_id
+    students "1" --> "*" parent_student : student_id
+
+    parents "1" --> "*" parent_student : parent_id
+
+    subjects "1" --> "*" schedules : subject_id
+    schedules "1" --> "*" teaching_journals : schedule_id
+    teaching_journals "1" --> "*" subject_attendances : teaching_journal_id
+```
+
+### Keterangan Simbol LRS
+
+| Simbol | Keterangan |
+|--------|------------|
+| `+field` | Public field (kolom biasa) |
+| `#field` | Foreign Key (referensi ke tabel lain) |
+| `«PK»` | Primary Key |
+| `«FK»` | Foreign Key (beserta referensi tabel tujuan) |
+| `«UK»` | Unique Key |
+| `1 → *` | One-to-Many (satu ke banyak) |
+| `1 → 0..1` | One-to-One / Optional |
+
+### Alur Hubungan FK Utama
+
+```
+users ─── homeroom_teachers ─── classes ─── students ─── absences
+  │                                │            │
+  ├── parents ── parent_student ───┘            ├── izin_requests
+  │                                             │
+  ├── teacher_attendances                       └── subject_attendances
+  │                                                       │
+  └── schedules ─── teaching_journals ────────────────────┘
+          │
+       subjects
+```
+
 ## ⚙️ Persyaratan Sistem
 
 Pastikan server Anda memenuhi persyaratan berikut:
