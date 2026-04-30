@@ -144,7 +144,7 @@ class SettingController extends Controller
             // Clear Cache agar perubahan langsung ngefek di halaman Scan
             \Illuminate\Support\Facades\Cache::forget('attendance_settings');
 
-            return redirect()->route('settings.index')->with('success', 'Pengaturan berhasil disimpan dan logo diperbarui.');
+            return redirect()->route('admin.settings.index')->with('success', 'Pengaturan berhasil disimpan dan logo diperbarui.');
 
         } catch (\Exception $e) {
             DB::rollBack();

@@ -66,7 +66,7 @@
 @stop
 
 @section('content')
-<form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data" id="settingsForm">
+<form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data" id="settingsForm">
     @csrf
     @method('PUT')
 

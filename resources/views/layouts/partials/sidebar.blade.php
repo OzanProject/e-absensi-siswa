@@ -156,7 +156,7 @@
 
                             @foreach ([
                                     'report.index' => ['icon' => 'fas fa-chart-line', 'text' => 'Laporan Absensi', 'route_path' => 'admin/report*'],
-                                    'settings.index' => ['icon' => 'fas fa-cog', 'text' => 'Pengaturan Umum', 'route_path' => 'admin/settings*'],
+                                    'admin.settings.index' => ['icon' => 'fas fa-cog', 'text' => 'Pengaturan Umum', 'route_path' => 'admin/settings*'],
                                 ] as $routeKey => $item)
                                             <li>
                                                 <a href="{{ route($routeKey) }}"
